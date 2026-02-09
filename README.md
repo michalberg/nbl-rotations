@@ -1,4 +1,4 @@
-# NBL Rotations
+# NBL Rotations - nbldata.cz
 
 Vizualizace rotací hráčů v české basketbalové lize (NBL). Automaticky stahuje výsledky z [nbl.basketball](https://nbl.basketball), parsuje play-by-play data z FIBA LiveStats API a generuje interaktivní grafy rotací pro každý zápas. Vzorem mi byl web [www.nbarotations.info](https://nbarotations.info/). Názory a návrhy na vylepšení napište na opavak@gmail.com
 
