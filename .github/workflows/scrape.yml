@@ -16,6 +16,8 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -36,4 +38,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add games.json docs/
           git diff --staged --quiet || git commit -m "Update games $(date -u +%Y-%m-%d)"
-          git push
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/michalberg/nbl-rotations.git HEAD:main
