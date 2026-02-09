@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BK KVIS Pardubice 83 - 80 NH Ostrava | NBL Rotations</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">&larr; Zpět na přehled</a>
+        <h1 class="game-title">
+            <span class="team-name">BK KVIS Pardubice</span>
+            <span class="game-score">83 : 80</span>
+            <span class="team-name">NH Ostrava</span>
+        </h1>
+        <p class="game-date">30.12.2025</p>
+        <div id="chart-team1" class="rotation-chart" data-team="1"></div>
+        <div id="chart-team2" class="rotation-chart" data-team="2"></div>
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+    <script>
+        const GAME_ID = "2787956";
+    </script>
+    <script src="../js/rotations-chart.js"></script>
+</body>
+</html>

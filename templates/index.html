@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBL Rotations</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>NBL Rotations</h1>
+        <p class="subtitle">Vizualizace rotací hráčů v české basketbalové lize</p>
+        <div class="games-list">
+            {% for game in games %}
+            {% if game.date != games[loop.index0 - 1].date or loop.first %}
+            {% if not loop.first %}<hr class="day-separator">{% endif %}
+            <div class="day-header">{{ game.date_formatted }}</div>
+            {% endif %}
+            <a href="game/{{ game.gameId }}.html" class="game-card">
+                <span class="team">{{ game.team1.name }}</span>
+                <span class="score">{{ game.team1.score }} : {{ game.team2.score }}</span>
+                <span class="team">{{ game.team2.name }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
