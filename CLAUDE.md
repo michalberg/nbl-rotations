@@ -11,7 +11,19 @@ Parser play-by-play dat z FIBA LiveStats API + webová vizualizace rotací pro �
 ## Usage
 
 ```bash
-python main.py games.txt              # stáhne, parsuje, vygeneruje HTML
-python main.py --game-id 2803564      # jeden konkrétní zápas
-python main.py --fetch-only games.txt # jen stažení dat
+source .venv/bin/activate
+
+python main.py --scrape                # scrapne nbl.basketball, uloží do games.json
+python main.py --scrape --generate     # scrapne + vygeneruje HTML pro nové zápasy
+python main.py --all                   # přegeneruje vše z games.json
+python main.py --game-id 2803564       # jeden konkrétní zápas
+python main.py --fetch-only games.txt  # jen stažení dat do cache
+```
+
+## Venv
+
+Python 3.12 via `.venv/` (nikoli systémový python3 který je 3.5).
+
+```bash
+.venv/bin/python main.py --scrape --generate
 ```
