@@ -5,11 +5,10 @@ Vizualizace rotací hráčů v české basketbalové lize (NBL). Automaticky sta
 ## Co to umí
 
 - **Scraping** dohrných zápasů z nbl.basketball (datum, týmy, skóre, livestats ID)
-- **Play-by-play analýza** z FIBA LiveStats API (substituace, střelba, fauly, ...)
 - **Rotační grafy** - po minutách zobrazují, kdo byl na hřišti, s barevným kódováním
+- **Play-by-play analýza** z FIBA LiveStats API (střídání, střelba, fauly, ...)
 - **Box score** z PBP dat (body, doskoky, asistence, bloky, ztráty, ...)
 - **+/−** pro každého hráče i po minutách
-- **Pokročilé metriky** - ORTG/DRTG na úrovni stintů
 - **Statický web** hostovaný na GitHub Pages
 
 ## Použití
