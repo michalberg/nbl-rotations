@@ -29,6 +29,15 @@ h1 {
     margin-bottom: 30px;
 }
 
+.subtitle-link {
+    color: #888;
+    text-decoration: underline;
+}
+
+.subtitle-link:hover {
+    color: #fff;
+}
+
 /* Index page */
 .games-list {
     display: flex;
