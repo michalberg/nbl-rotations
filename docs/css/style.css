@@ -30,12 +30,13 @@ h1 {
 }
 
 .subtitle-link {
-    color: #888;
-    text-decoration: underline;
+    color: #6a9fd8;
+    text-decoration: none;
 }
 
 .subtitle-link:hover {
-    color: #fff;
+    color: #8bb8e8;
+    text-decoration: underline;
 }
 
 /* Index page */
