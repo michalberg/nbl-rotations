@@ -2,12 +2,15 @@ name: Scrape & Generate
 
 on:
   schedule:
-    # 18:00 CET (17:00 UTC)
-    - cron: '0 17 * * *'
-    # 19:00–20:45 CET každých 15 minut (18:00–19:45 UTC)
-    - cron: '*/15 18-19 * * *'
-    # 21:00, 22:00, 23:00, 24:00 CET (20:00–23:00 UTC)
-    - cron: '0 20-23 * * *'
+    # Sezóna: září–květen, český čas 18:00–24:00
+    # Zimní čas (CET, UTC+1): říjen–březen
+    - cron: '0 17 * 10-12,1-3 *'
+    - cron: '*/15 18-19 * 10-12,1-3 *'
+    - cron: '0 20-23 * 10-12,1-3 *'
+    # Letní čas (CEST, UTC+2): září, duben–květen
+    - cron: '0 16 * 4-5,9 *'
+    - cron: '*/15 17-18 * 4-5,9 *'
+    - cron: '0 19-22 * 4-5,9 *'
   workflow_dispatch: # Ruční spuštění z GitHubu
 
 jobs:
