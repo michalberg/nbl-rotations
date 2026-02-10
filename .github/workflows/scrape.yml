@@ -38,4 +38,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add games.json docs/
           git diff --staged --quiet || git commit -m "Update games $(date -u +%Y-%m-%d)"
+          git pull --rebase https://x-access-token:${{ secrets.GH_PAT }}@github.com/michalberg/nbl-rotations.git main
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/michalberg/nbl-rotations.git HEAD:main
