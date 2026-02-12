@@ -129,6 +129,13 @@ h1 {
     color: #fff;
 }
 
+.ot-label {
+    font-size: 0.65em;
+    color: #c0a050;
+    font-weight: normal;
+    margin-left: 2px;
+}
+
 /* Rotation chart */
 .rotation-chart {
     margin-bottom: 40px;

@@ -22,7 +22,7 @@
         <a href="../index.html" class="back-link">&larr; Zpět na přehled</a>
         <h1 class="game-title">
             <span class="team-name">{{ game.team1.name }}</span>
-            <span class="game-score">{{ game.team1.score }} : {{ game.team2.score }}</span>
+            <span class="game-score">{{ game.team1.score }} : {{ game.team2.score }}{% if game.numOT %} <span class="ot-label">{% if game.numOT == 1 %}OT{% else %}{{ game.numOT }}OT{% endif %}</span>{% endif %}</span>
             <span class="team-name">{{ game.team2.name }}</span>
         </h1>
         {% if date_formatted %}<p class="game-date">{{ date_formatted }}</p>{% endif %}

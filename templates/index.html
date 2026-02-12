@@ -29,7 +29,7 @@
             {% endif %}
             <a href="game/{{ game.gameId }}.html" class="game-card">
                 <span class="team">{{ game.team1.name }}</span>
-                <span class="score">{{ game.team1.score }} : {{ game.team2.score }}</span>
+                <span class="score">{{ game.team1.score }} : {{ game.team2.score }}{% if game.numOT %} <span class="ot-label">{% if game.numOT == 1 %}OT{% else %}{{ game.numOT }}OT{% endif %}</span>{% endif %}</span>
                 <span class="team">{{ game.team2.name }}</span>
             </a>
             {% endfor %}

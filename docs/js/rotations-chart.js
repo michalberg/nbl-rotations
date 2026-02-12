@@ -101,8 +101,7 @@
       HEADER_HEIGHT +
       numPlayers * CELL_STEP_Y +
       STARTER_SEPARATOR +
-      CELL_H + // +/- row
-      30; // period labels
+      20; // period labels
 
     const svgW = tableStart + BOX_TABLE_WIDTH + 4;
     const svgH = chartH + 10;
@@ -239,50 +238,8 @@
       });
     });
 
-    // +/- row at bottom
-    const pmY = numPlayers * CELL_STEP_Y + STARTER_SEPARATOR + 6;
-    teamPM.forEach((pm, minute) => {
-      if (pm === 0) return;
-      const x = minuteToX(minute, periods);
-      const color = pm > 0 ? PM_POSITIVE_COLOR : PM_NEGATIVE_COLOR;
-      const absPm = Math.abs(pm);
-      const maxPm = Math.max(...teamPM.map(Math.abs), 1);
-      const barHeight = (absPm / maxPm) * CELL_H;
-
-      g.append("rect")
-        .attr("x", x)
-        .attr("y", pmY + (CELL_H - barHeight))
-        .attr("width", CELL_W)
-        .attr("height", barHeight)
-        .attr("rx", 1)
-        .attr("fill", color)
-        .attr("opacity", 0.8);
-
-      if (absPm >= 3) {
-        g.append("text")
-          .attr("x", x + CELL_W / 2)
-          .attr("y", pmY + CELL_H / 2)
-          .attr("text-anchor", "middle")
-          .attr("dominant-baseline", "central")
-          .attr("fill", "#fff")
-          .attr("font-size", "7px")
-          .attr("font-weight", "bold")
-          .text((pm > 0 ? "+" : "") + pm);
-      }
-    });
-
-    // +/- label
-    svg.append("text")
-      .attr("x", rightStart)
-      .attr("y", HEADER_HEIGHT + pmY + CELL_H / 2)
-      .attr("text-anchor", "start")
-      .attr("dominant-baseline", "central")
-      .attr("fill", "#888")
-      .attr("font-size", "11px")
-      .text("+/−");
-
     // Period labels at bottom
-    const labelY = pmY + CELL_H + 15;
+    const labelY = numPlayers * CELL_STEP_Y + STARTER_SEPARATOR + 12;
     periods.forEach((p) => {
       const startX = minuteToX(p.startMinute, periods);
       const endX = minuteToX(p.endMinute - 1, periods) + CELL_W;

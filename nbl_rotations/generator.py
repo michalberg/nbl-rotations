@@ -271,6 +271,8 @@ def build_game_json(
                     on_court.append(p["name"])
             lineups[tno_str].append(on_court)
 
+    num_ot = game.num_periods - 4 if game.num_periods > 4 else 0
+
     return {
         "gameId": game.game_id,
         "team1": {
@@ -285,6 +287,7 @@ def build_game_json(
         },
         "periods": periods,
         "totalMinutes": total_minutes,
+        "numOT": num_ot,
         "players": minute_data,
         "teamPlusMinus": team_pm,
         "lineups": lineups,
@@ -343,6 +346,7 @@ def generate_site(games_data: list[dict]):
             "team2": game_json["team2"],
             "date": date,
             "date_formatted": _format_date(date),
+            "numOT": game_json.get("numOT", 0),
         })
         print(f"  Generated: game/{game_id}.html")
 
@@ -386,6 +390,7 @@ def generate_index(all_games_meta: list[dict]):
                 "team2": game_json["team2"],
                 "date": date,
                 "date_formatted": _format_date(date),
+                "numOT": game_json.get("numOT", 0),
             })
         else:
             # Use metadata from games.json directly
@@ -396,6 +401,7 @@ def generate_index(all_games_meta: list[dict]):
                 "team2": {"name": g["team2"], "score": g["score2"]},
                 "date": date,
                 "date_formatted": _format_date(date),
+                "numOT": 0,
             })
 
     # Sort by date descending

@@ -45,17 +45,57 @@ def parse_time_to_seconds(gt: str, period: int, period_duration: int = 600) -> f
     """Convert game time + period to absolute seconds from game start.
 
     gt is countdown time within the period (e.g., "10:00" = start, "00:00" = end).
+    OT periods (5+) are 5 minutes, counting down from "05:00".
     """
     parts = gt.split(":")
     minutes = int(parts[0])
     seconds = int(parts[1]) if len(parts) > 1 else 0
     remaining = minutes * 60 + seconds
-    elapsed_in_period = period_duration - remaining
-    # OT periods (5+) are typically 5 minutes
+    # OT periods are 5 minutes (300s), regular quarters 10 minutes (600s)
+    current_duration = 300 if period >= 5 else period_duration
+    elapsed_in_period = current_duration - remaining
     total_before = 0
     for p in range(1, period):
         total_before += 300 if p >= 5 else period_duration
     return total_before + elapsed_in_period
+
+
+def _fix_period_numbers(pbp: list[dict]) -> list[dict]:
+    """Fix period numbers for OT games where FIBA API resets period to 1.
+
+    Detects actual periods from 'period end' events and reassigns
+    the correct period number to all events. Substitutions between
+    'period end' and 'period start' belong to the next period.
+    """
+    sorted_pbp = sorted(pbp, key=lambda e: e.get("actionNumber", 0))
+
+    # Find period end events to determine boundaries
+    period_ends = []
+    for e in sorted_pbp:
+        if e.get("actionType") == "period" and e.get("subType") == "end":
+            period_ends.append(e.get("actionNumber", 0))
+
+    # If 4 or fewer period ends, no OT — periods are already correct
+    if len(period_ends) <= 4:
+        return pbp
+
+    # Reassign period numbers based on period end boundaries
+    # Events up to and including first period end = period 1
+    # Events after Nth period end = period N+1
+    num_real_periods = len(period_ends)
+    fixed = []
+    for e in pbp:
+        e = dict(e)  # don't mutate original
+        an = e.get("actionNumber", 0)
+        real_period = 1
+        for end_an in period_ends:
+            if an > end_an:
+                real_period += 1
+        # Cap at the last real period (game end event comes after last period end)
+        e["period"] = min(real_period, num_real_periods)
+        fixed.append(e)
+
+    return fixed
 
 
 def parse_game(raw: dict, game_id: str = "") -> GameData:
@@ -63,8 +103,10 @@ def parse_game(raw: dict, game_id: str = "") -> GameData:
     tm1 = raw.get("tm", {}).get("1", {})
     tm2 = raw.get("tm", {}).get("2", {})
 
+    # Fix period numbers (FIBA API resets to 1 for OT)
+    pbp = _fix_period_numbers(raw.get("pbp", []))
+
     # Determine number of periods from PBP data
-    pbp = raw.get("pbp", [])
     num_periods = max((e.get("period", 1) for e in pbp), default=4)
 
     # Final score (API returns scores as strings)
