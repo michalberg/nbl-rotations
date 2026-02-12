@@ -144,20 +144,31 @@
         .attr("font-size", "11px")
         .text(infoText);
 
-      // --- Minutes label (between info and chart) ---
+      // --- Minutes label / DNP ---
       const minutesX = INFO_WIDTH + GAP_AFTER_INFO + MINUTES_LABEL_WIDTH - 4;
-      svg.append("text")
-        .attr("x", minutesX)
-        .attr("y", rowCenterY)
-        .attr("text-anchor", "end")
-        .attr("dominant-baseline", "central")
-        .attr("fill", "#999")
-        .attr("font-size", "11px")
-        .attr("font-weight", "bold")
-        .text(formatMMSS(game.totalSeconds));
+      if (game.isDNP) {
+        svg.append("text")
+          .attr("x", minutesX)
+          .attr("y", rowCenterY)
+          .attr("text-anchor", "end")
+          .attr("dominant-baseline", "central")
+          .attr("fill", "#666")
+          .attr("font-size", "10px")
+          .text("DNP");
+      } else {
+        svg.append("text")
+          .attr("x", minutesX)
+          .attr("y", rowCenterY)
+          .attr("text-anchor", "end")
+          .attr("dominant-baseline", "central")
+          .attr("fill", "#999")
+          .attr("font-size", "11px")
+          .attr("font-weight", "bold")
+          .text(formatMMSS(game.totalSeconds));
+      }
 
       // --- Minute blocks ---
-      game.minutes.forEach((min) => {
+      (game.minutes || []).forEach((min) => {
         if (!min.onCourt) return;
 
         const x = minuteToX(min.minute, periods);

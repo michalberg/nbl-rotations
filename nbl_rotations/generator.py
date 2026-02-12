@@ -261,6 +261,39 @@ def build_game_json(
     team_pm = _build_team_pm_per_minute(game)
     periods = _build_period_boundaries(game)
 
+    # Add DNP players (on roster but 0 minutes) to minute_data
+    for tno in [1, 2]:
+        tno_str = str(tno)
+        existing_numbers = {p["shirtNumber"] for p in minute_data[tno_str]}
+        name_lookup = {}
+        for p in game.players:
+            if p.team_number == tno:
+                name_lookup[p.shirt_number] = (p.first_name, p.family_name)
+        total_minutes = 0
+        for p_idx in range(1, game.num_periods + 1):
+            total_minutes += 5 if p_idx >= 5 else 10
+        for p in game.players:
+            if p.team_number == tno and p.shirt_number not in existing_numbers:
+                first_name, family_name = name_lookup.get(
+                    p.shirt_number, ("", ""))
+                minute_data[tno_str].append({
+                    "shirtNumber": p.shirt_number,
+                    "name": p.name,
+                    "firstName": first_name,
+                    "familyName": family_name,
+                    "isStarter": False,
+                    "isDNP": True,
+                    "totalSeconds": 0,
+                    "minutes": [
+                        {"minute": m, "onCourt": False, "fullMinute": False,
+                         "onCourtSeconds": 0, "plusMinus": 0, "pts": 0,
+                         "stats": _empty_stats()}
+                        for m in range(total_minutes)
+                    ],
+                    "gameStats": _empty_stats(),
+                    "totalPlusMinus": 0,
+                })
+
     # Add ratings to players
     ratings_by_player: dict[str, dict] = {}
     for tno, player_ratings in ratings.items():
@@ -352,11 +385,16 @@ def _compute_season_stats(games: list[dict]) -> tuple[dict, dict]:
     """Compute season totals and averages from a list of player game entries.
 
     Each game entry has: totalSeconds, gameStats, totalPlusMinus.
+    DNP games (isDNP=True) are excluded from GP and averages.
     Returns (totals, averages).
     """
-    gp = len(games)
+    played_games = [g for g in games if not g.get("isDNP", False)]
+    gp = len(played_games)
     if gp == 0:
-        return {}, {}
+        return {"gp": 0, "totalSeconds": 0, "plusMinus": 0,
+                "pts": 0, "reb": 0, "ast": 0, "stl": 0, "blk": 0,
+                "fgm": 0, "fga": 0, "fg3m": 0, "fg3a": 0,
+                "ftm": 0, "fta": 0, "tov": 0, "pf": 0}, {}
 
     stat_keys = ["pts", "reb", "ast", "stl", "blk",
                  "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "tov", "pf"]
@@ -366,7 +404,7 @@ def _compute_season_stats(games: list[dict]) -> tuple[dict, dict]:
     totals["totalSeconds"] = 0
     totals["plusMinus"] = 0
 
-    for g in games:
+    for g in played_games:
         totals["totalSeconds"] += g.get("totalSeconds", 0)
         totals["plusMinus"] += g.get("totalPlusMinus", 0)
         gs = g.get("gameStats", {})
@@ -558,6 +596,7 @@ def generate_player_pages(all_games_data: list[dict]):
                     })
 
                 # Store game entry for this player
+                is_dnp = player.get("isDNP", False)
                 pi["games"].append({
                     "gameId": game_id,
                     "date": date,
@@ -567,9 +606,10 @@ def generate_player_pages(all_games_data: list[dict]):
                     "isHome": is_home,
                     "score": score,
                     "numOT": num_ot,
+                    "isDNP": is_dnp,
                     "totalSeconds": player["totalSeconds"],
                     "periods": periods,
-                    "minutes": player["minutes"],
+                    "minutes": player["minutes"] if not is_dnp else [],
                     "gameStats": player["gameStats"],
                     "totalPlusMinus": player["totalPlusMinus"],
                 })
