@@ -9,6 +9,8 @@ class Player:
     name: str
     is_starter: bool
     team_number: int  # 1 or 2
+    first_name: str = ""
+    family_name: str = ""
     stats_minutes: str = ""  # sMinutes from player stats
 
 
@@ -148,6 +150,8 @@ def parse_game(raw: dict, game_id: str = "") -> GameData:
                 name=pl.get("name", pl.get("scoreboardName", f"#{pl.get('shirtNumber', '?')}")),
                 is_starter=pl.get("starter", 0) == 1,
                 team_number=tno,
+                first_name=pl.get("firstName", ""),
+                family_name=pl.get("familyName", ""),
                 stats_minutes=stats_minutes,
             )
             game.players.append(player)

@@ -50,6 +50,25 @@
   const PM_POSITIVE_COLOR = "#4caf50";
   const PM_NEGATIVE_COLOR = "#e040fb";
 
+  function slugify(text) {
+    return text
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
+  function dateToSeason(dateStr) {
+    if (!dateStr) return "unknown";
+    const parts = dateStr.split("-");
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]);
+    const startYear = month >= 9 ? year : year - 1;
+    const endYear = startYear + 1;
+    return `${startYear}-${String(endYear).slice(-2)}`;
+  }
+
   function formatMMSS(totalSeconds) {
     const m = Math.floor(totalSeconds / 60);
     const s = Math.round(totalSeconds % 60);
@@ -87,6 +106,7 @@
     const periods = data.periods;
     const teamPM = data.teamPlusMinus[teamKey];
     const teamInfo = teamKey === "1" ? data.team1 : data.team2;
+    const season = dateToSeason(data.date || "");
     const teamColor = TEAM_COLORS[teamKey];
 
     const numPlayers = teamData.length;
@@ -201,13 +221,18 @@
         .attr("font-size", "11px")
         .text(formatMMSS(player.totalSeconds));
 
-      // Player name (right of chart)
-      svg.append("text")
+      // Player name (right of chart) — link to player page
+      const playerLink = svg.append("a");
+      if (player.firstName && player.familyName && season !== "unknown") {
+        const playerSlug = `${slugify(teamInfo.name)}-${slugify(player.firstName)}-${slugify(player.familyName)}`;
+        playerLink.attr("href", `../player/${season}/${playerSlug}.html`);
+      }
+      playerLink.append("text")
         .attr("x", rightStart)
         .attr("y", rowCenterY)
         .attr("text-anchor", "start")
         .attr("dominant-baseline", "central")
-        .attr("fill", "#ccc")
+        .attr("fill", player.firstName ? "#6a9fd8" : "#ccc")
         .attr("font-size", "12px")
         .attr("font-weight", player.isStarter ? "bold" : "normal")
         .text(player.name);

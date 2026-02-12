@@ -8,7 +8,10 @@ from nbl_rotations.fetcher import fetch_game, load_game_ids
 from nbl_rotations.parser import parse_game
 from nbl_rotations.rotations import calculate_rotations
 from nbl_rotations.ratings import calculate_player_ratings
-from nbl_rotations.generator import build_game_json, generate_site, generate_index
+from nbl_rotations.generator import (
+    build_game_json, generate_site, generate_index,
+    generate_player_pages, generate_team_data,
+)
 from nbl_rotations.scraper import (
     scrape_finished_games, load_games_json, update_games,
 )
@@ -101,6 +104,12 @@ def main():
             # Regenerate index with ALL games from games.json
             print("Regenerating index with all games...")
             generate_index(load_games_json())
+
+            # Regenerate player/team pages from ALL game data
+            print("Regenerating player and team pages...")
+            all_games_data = _load_and_build_all_games()
+            generate_player_pages(all_games_data)
+            generate_team_data(all_games_data)
             print(f"\nDone! {len(new_games)} new games processed.")
         elif args.generate:
             print("  No new games to generate.")
@@ -114,6 +123,10 @@ def main():
             sys.exit(1)
         print(f"\nGenerating static site...")
         generate_site(all_games_data)
+        print(f"\nGenerating player pages...")
+        generate_player_pages(all_games_data)
+        print(f"\nGenerating team data...")
+        generate_team_data(all_games_data)
         print(f"\nDone! {len(all_games_data)} games processed.")
         return
 
@@ -149,6 +162,10 @@ def main():
     # Generate static site
     print("\nGenerating static site...")
     generate_site(games_data)
+    print("\nGenerating player pages...")
+    generate_player_pages(games_data)
+    print("\nGenerating team data...")
+    generate_team_data(games_data)
     print("\nDone! Open docs/index.html in your browser.")
 
 

@@ -193,6 +193,100 @@ h1 {
     border-top: 1px solid #444;
 }
 
+/* Player page */
+#player-chart {
+    display: flex;
+    justify-content: center;
+}
+
+.player-name-header {
+    font-size: 1.6rem;
+    margin-bottom: 5px;
+}
+
+.player-team-info {
+    text-align: center;
+    color: #888;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.season-averages {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 10px;
+    background: #16213e;
+    border-radius: 6px;
+    min-width: 50px;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Players index */
+.players-team-section {
+    margin-bottom: 30px;
+}
+
+.players-team-name {
+    font-size: 1.1rem;
+    color: #ccc;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.player-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #16213e;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #e0e0e0;
+    transition: background 0.2s;
+}
+
+.player-card:hover {
+    background: #1a2a50;
+}
+
+.player-card-name {
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.player-card-stats {
+    font-size: 0.8rem;
+    color: #888;
+}
+
 /* Mobile warning */
 .mobile-warning {
     display: none;

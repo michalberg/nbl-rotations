@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hráči {{ season }} | NBL Rotations</title>
+    <meta name="description" content="Přehled všech hráčů NBL sezóny {{ season }} – minutáž, statistiky a vizualizace rotací.">
+    <meta property="og:title" content="Hráči NBL {{ season }}">
+    <meta property="og:description" content="Přehled všech hráčů NBL sezóny {{ season }}">
+    <meta property="og:image" content="https://michalberg.github.io/nbl-rotations/og-image.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">&larr; Zpět na přehled</a>
+        <h1>Hráči NBL {{ season }}</h1>
+        <p class="subtitle">Sezonní přehledy minutáže a statistik</p>
+        {% for team in teams %}
+        <div class="players-team-section">
+            <h2 class="players-team-name">{{ team.name }}</h2>
+            <div class="players-list">
+                {% for player in team.players %}
+                <a href="{{ player.season }}/{{ player.slug }}.html" class="player-card">
+                    <span class="player-card-name">{{ player.firstName }} {{ player.familyName }}</span>
+                    <span class="player-card-stats">
+                        {{ player.gp }} GP &middot;
+                        {{ player.averages.minPerGame }} MIN &middot;
+                        {{ player.averages.pts }} PTS &middot;
+                        {{ player.averages.reb }} REB &middot;
+                        {{ player.averages.ast }} AST
+                    </span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
