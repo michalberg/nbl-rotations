@@ -1206,5 +1206,13 @@
     "team2": "NH Ostrava",
     "score1": 72,
     "score2": 109
+  },
+  {
+    "game_id": "2803570",
+    "date": "2026-02-14",
+    "team1": "BK Opava",
+    "team2": "BK ARMEX ENERGY Děčín",
+    "score1": 80,
+    "score2": 95
   }
 ]
