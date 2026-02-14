@@ -1214,5 +1214,13 @@
     "team2": "BK ARMEX ENERGY Děčín",
     "score1": 80,
     "score2": 95
+  },
+  {
+    "game_id": "2803579",
+    "date": "2026-02-14",
+    "team1": "BK GAPA Hradec Králové",
+    "team2": "USK Praha",
+    "score1": 60,
+    "score2": 88
   }
 ]
