@@ -1230,5 +1230,13 @@
     "team2": "PUMPA Basket Brno",
     "score1": 70,
     "score2": 82
+  },
+  {
+    "game_id": "2805379",
+    "date": "2026-02-15",
+    "team1": "SK Slavia Praha",
+    "team2": "BK Olomoucko",
+    "score1": 72,
+    "score2": 81
   }
 ]
