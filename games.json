@@ -1222,5 +1222,13 @@
     "team2": "USK Praha",
     "score1": 60,
     "score2": 88
+  },
+  {
+    "game_id": "2804240",
+    "date": "2026-02-15",
+    "team1": "SLUNETA Ústí nad Labem",
+    "team2": "PUMPA Basket Brno",
+    "score1": 70,
+    "score2": 82
   }
 ]
