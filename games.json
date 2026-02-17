@@ -1246,5 +1246,21 @@
     "team2": "BK GAPA Hradec Králové",
     "score1": 68,
     "score2": 79
+  },
+  {
+    "game_id": "2805262",
+    "date": "2026-02-17",
+    "team1": "PUMPA Basket Brno",
+    "team2": "NH Ostrava",
+    "score1": 88,
+    "score2": 100
+  },
+  {
+    "game_id": "2805265",
+    "date": "2026-02-17",
+    "team1": "BK Olomoucko",
+    "team2": "USK Praha",
+    "score1": 79,
+    "score2": 88
   }
 ]
