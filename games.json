@@ -1262,5 +1262,21 @@
     "team2": "USK Praha",
     "score1": 79,
     "score2": 88
+  },
+  {
+    "game_id": "2805261",
+    "date": "2026-02-18",
+    "team1": "BK KVIS Pardubice",
+    "team2": "ERA Basketball Nymburk",
+    "score1": 88,
+    "score2": 91
+  },
+  {
+    "game_id": "2805263",
+    "date": "2026-02-18",
+    "team1": "BK Opava",
+    "team2": "SLUNETA Ústí nad Labem",
+    "score1": 81,
+    "score2": 88
   }
 ]
