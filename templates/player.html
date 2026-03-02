@@ -14,8 +14,8 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+{% include '_nav.html' %}
     <div class="container">
-        <a href="../index.html" class="back-link">&larr; Zpět na hráče</a>
         <h1 class="player-name-header">{{ player.firstName }} {{ player.familyName }}</h1>
         <p class="player-team-info">
             {% for team in player.teams %}{{ team }}{% if not loop.last %} &rarr; {% endif %}{% endfor %}

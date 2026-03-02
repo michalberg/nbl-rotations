@@ -57,9 +57,9 @@ def _build_pbp_events(game: GameData) -> list[_PbpEvent]:
 
 
 def _empty_stats() -> dict:
-    return {"pts": 0, "reb": 0, "ast": 0, "stl": 0, "blk": 0,
-            "fgm": 0, "fga": 0, "fg3m": 0, "fg3a": 0,
-            "ftm": 0, "fta": 0, "pf": 0, "tov": 0}
+    return {"pts": 0, "reb": 0, "oreb": 0, "dreb": 0, "ast": 0, "stl": 0, "blk": 0,
+            "fgm": 0, "fga": 0, "fg2m": 0, "fg2a": 0, "fg3m": 0, "fg3a": 0,
+            "ftm": 0, "fta": 0, "pf": 0, "pfd": 0, "technical": 0, "tov": 0}
 
 
 def _collect_player_stats(events: list[_PbpEvent], shirt_number: str,
@@ -67,34 +67,64 @@ def _collect_player_stats(events: list[_PbpEvent], shirt_number: str,
     """Collect box score stats from a list of events for a specific player."""
     s = _empty_stats()
     for e in events:
-        if e.team_number != team_number or e.shirt_number != shirt_number:
-            continue
-        if e.action_type in ("2pt", "3pt"):
+        if e.action_type == "2pt" or e.action_type == "3pt":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
             s["fga"] += 1
             if e.action_type == "3pt":
                 s["fg3a"] += 1
+            else:
+                s["fg2a"] += 1
             if e.success == 1:
                 s["fgm"] += 1
                 s["pts"] += e.points
                 if e.action_type == "3pt":
                     s["fg3m"] += 1
+                else:
+                    s["fg2m"] += 1
         elif e.action_type == "freethrow":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
             s["fta"] += 1
             if e.success == 1:
                 s["ftm"] += 1
                 s["pts"] += 1
-        elif e.action_type == "rebound" and e.sub_type in ("offensive", "defensive"):
-            s["reb"] += 1
+        elif e.action_type == "rebound":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
+            if e.sub_type in ("offensive", "defensive"):
+                s["reb"] += 1
+                if e.sub_type == "offensive":
+                    s["oreb"] += 1
+                else:
+                    s["dreb"] += 1
         elif e.action_type == "assist":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
             s["ast"] += 1
         elif e.action_type == "steal":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
             s["stl"] += 1
         elif e.action_type == "block":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
             s["blk"] += 1
         elif e.action_type == "turnover":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
             s["tov"] += 1
-        elif e.action_type == "foul" and e.sub_type not in ("technical",):
-            s["pf"] += 1
+        elif e.action_type == "foul":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
+            if e.sub_type == "technical":
+                s["technical"] += 1
+            else:
+                s["pf"] += 1
+        elif e.action_type == "foulon":
+            if e.team_number != team_number or e.shirt_number != shirt_number:
+                continue
+            s["pfd"] += 1
     return s
 
 
@@ -392,12 +422,13 @@ def _compute_season_stats(games: list[dict]) -> tuple[dict, dict]:
     gp = len(played_games)
     if gp == 0:
         return {"gp": 0, "totalSeconds": 0, "plusMinus": 0,
-                "pts": 0, "reb": 0, "ast": 0, "stl": 0, "blk": 0,
-                "fgm": 0, "fga": 0, "fg3m": 0, "fg3a": 0,
-                "ftm": 0, "fta": 0, "tov": 0, "pf": 0}, {}
+                "pts": 0, "reb": 0, "oreb": 0, "dreb": 0, "ast": 0, "stl": 0, "blk": 0,
+                "fgm": 0, "fga": 0, "fg2m": 0, "fg2a": 0, "fg3m": 0, "fg3a": 0,
+                "ftm": 0, "fta": 0, "tov": 0, "pf": 0, "pfd": 0, "technical": 0}, {}
 
-    stat_keys = ["pts", "reb", "ast", "stl", "blk",
-                 "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "tov", "pf"]
+    stat_keys = ["pts", "reb", "oreb", "dreb", "ast", "stl", "blk",
+                 "fgm", "fga", "fg2m", "fg2a", "fg3m", "fg3a",
+                 "ftm", "fta", "tov", "pf", "pfd", "technical"]
 
     totals = {k: 0 for k in stat_keys}
     totals["gp"] = gp
@@ -420,14 +451,18 @@ def _compute_season_stats(games: list[dict]) -> tuple[dict, dict]:
         "minPerGame": f"{avg_min}:{avg_sec:02d}",
         "pts": round(totals["pts"] / gp, 1),
         "reb": round(totals["reb"] / gp, 1),
+        "oreb": round(totals["oreb"] / gp, 1),
+        "dreb": round(totals["dreb"] / gp, 1),
         "ast": round(totals["ast"] / gp, 1),
         "stl": round(totals["stl"] / gp, 1),
         "blk": round(totals["blk"] / gp, 1),
         "fgPct": round(totals["fgm"] / totals["fga"] * 100, 1) if totals["fga"] else 0.0,
+        "fg2Pct": round(totals["fg2m"] / totals["fg2a"] * 100, 1) if totals["fg2a"] else 0.0,
         "fg3Pct": round(totals["fg3m"] / totals["fg3a"] * 100, 1) if totals["fg3a"] else 0.0,
         "ftPct": round(totals["ftm"] / totals["fta"] * 100, 1) if totals["fta"] else 0.0,
         "tov": round(totals["tov"] / gp, 1),
         "pf": round(totals["pf"] / gp, 1),
+        "pfd": round(totals["pfd"] / gp, 1),
         "plusMinus": round(totals["plusMinus"] / gp, 1),
     }
 
@@ -467,8 +502,12 @@ def generate_site(games_data: list[dict]):
         # Render game page
         date = game_json.get("date", "")
         date_formatted = _format_date(date)
+        nav_season = _date_to_season(date)
         template = env.get_template("game.html")
-        html = template.render(game=game_json, game_id=game_id, date_formatted=date_formatted)
+        html = template.render(
+            game=game_json, game_id=game_id, date_formatted=date_formatted,
+            nav_base="../", nav_active="games", nav_season=nav_season,
+        )
         game_html_path = DOCS_DIR / "game" / f"{game_id}.html"
         with open(game_html_path, "w") as f:
             f.write(html)
@@ -486,8 +525,12 @@ def generate_site(games_data: list[dict]):
     games_index.sort(key=lambda g: g["date"], reverse=True)
 
     # Render index page
+    nav_season = _date_to_season(games_index[0]["date"]) if games_index else "2025-26"
     template = env.get_template("index.html")
-    html = template.render(games=games_index)
+    html = template.render(
+        games=games_index,
+        nav_base="", nav_active="games", nav_season=nav_season,
+    )
     with open(DOCS_DIR / "index.html", "w") as f:
         f.write(html)
     print(f"  Generated: index.html ({len(games_index)} games)")
@@ -540,8 +583,12 @@ def generate_index(all_games_meta: list[dict]):
     games_index.sort(key=lambda x: x["date"], reverse=True)
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+    nav_season = _date_to_season(games_index[0]["date"]) if games_index else "2025-26"
     template = env.get_template("index.html")
-    html = template.render(games=games_index)
+    html = template.render(
+        games=games_index,
+        nav_base="", nav_active="games", nav_season=nav_season,
+    )
     with open(DOCS_DIR / "index.html", "w") as f:
         f.write(html)
     print(f"  Generated: index.html ({len(games_index)} games)")
@@ -662,7 +709,10 @@ def generate_player_pages(all_games_data: list[dict]):
         html_dir = DOCS_DIR / "player" / season
         html_dir.mkdir(parents=True, exist_ok=True)
         template = env.get_template("player.html")
-        html = template.render(player=player_json)
+        html = template.render(
+            player=player_json,
+            nav_base="../../", nav_active="players", nav_season=season,
+        )
         html_path = html_dir / f"{slug}.html"
         with open(html_path, "w") as f:
             f.write(html)
@@ -721,7 +771,10 @@ def _generate_players_index(players_index: dict, env: Environment):
     season = sorted(all_seasons)[-1] if all_seasons else "unknown"
 
     template = env.get_template("players.html")
-    html = template.render(teams=sorted_teams, season=season)
+    html = template.render(
+        teams=sorted_teams, season=season,
+        nav_base="../", nav_active="players", nav_season=season,
+    )
 
     players_dir = DOCS_DIR / "player"
     players_dir.mkdir(parents=True, exist_ok=True)
@@ -817,3 +870,154 @@ def generate_team_data(all_games_data: list[dict]):
         count += 1
 
     print(f"  Generated: {count} team data files")
+
+
+def generate_stats_pages(docs_path: Path | None = None):
+    """Generate player and team stats table pages from season_log.json."""
+    from .stats import load_season_log, compute_player_season_stats, compute_team_season_stats
+
+    base = docs_path or DOCS_DIR
+    log = load_season_log(base)
+
+    if not log["players"] and not log["teams"]:
+        print("  No season log data yet.")
+        return
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+
+    # Group by season
+    seasons: dict[str, dict] = {}
+    for slug, pdata in log["players"].items():
+        games = pdata.get("games", [])
+        if not games:
+            continue
+        season = _date_to_season(games[0]["date"])
+        if season not in seasons:
+            seasons[season] = {"players": {}, "teams": {}}
+        seasons[season]["players"][slug] = pdata
+
+    for slug, tdata in log["teams"].items():
+        games = tdata.get("games", [])
+        if not games:
+            continue
+        season = _date_to_season(games[0]["date"])
+        if season not in seasons:
+            seasons[season] = {"players": {}, "teams": {}}
+        seasons[season]["teams"][slug] = tdata
+
+    count = 0
+    for season, sdata in seasons.items():
+        out_dir = base / "stats" / season
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        # Players stats page
+        player_stats = [
+            compute_player_season_stats(slug, pdata)
+            for slug, pdata in sdata["players"].items()
+        ]
+        player_stats = [p for p in player_stats if p.get("gp", 0) > 0]
+        all_teams = sorted({p["team"] for p in player_stats})
+
+        template = env.get_template("stats_players.html")
+        html = template.render(
+            season=season,
+            teams=all_teams,
+            players_json=json.dumps(player_stats, ensure_ascii=False),
+            game_meta_json=json.dumps(log["game_meta"], ensure_ascii=False),
+            nav_base="../../", nav_active="stats-players", nav_season=season,
+        )
+        with open(out_dir / "players.html", "w") as f:
+            f.write(html)
+
+        # Teams stats page
+        team_stats = [
+            compute_team_season_stats(slug, tdata)
+            for slug, tdata in sdata["teams"].items()
+        ]
+        team_stats = [t for t in team_stats if t.get("gp", 0) > 0]
+
+        template = env.get_template("stats_teams.html")
+        html = template.render(
+            season=season,
+            teams_json=json.dumps(team_stats, ensure_ascii=False),
+            nav_base="../../", nav_active="stats-teams", nav_season=season,
+        )
+        with open(out_dir / "teams.html", "w") as f:
+            f.write(html)
+
+        count += 1
+
+    print(f"  Generated: stats pages for {count} season(s)")
+
+
+def generate_leaderboard_pages(docs_path: Path | None = None):
+    """Generate player and team leaderboard pages from season_log.json."""
+    from .stats import load_season_log, compute_player_season_stats, compute_team_season_stats
+
+    base = docs_path or DOCS_DIR
+    log = load_season_log(base)
+
+    if not log["players"] and not log["teams"]:
+        print("  No season log data for leaderboards.")
+        return
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+
+    seasons: dict[str, dict] = {}
+    for slug, pdata in log["players"].items():
+        games = pdata.get("games", [])
+        if not games:
+            continue
+        season = _date_to_season(games[0]["date"])
+        if season not in seasons:
+            seasons[season] = {"players": {}, "teams": {}}
+        seasons[season]["players"][slug] = pdata
+
+    for slug, tdata in log["teams"].items():
+        games = tdata.get("games", [])
+        if not games:
+            continue
+        season = _date_to_season(games[0]["date"])
+        if season not in seasons:
+            seasons[season] = {"players": {}, "teams": {}}
+        seasons[season]["teams"][slug] = tdata
+
+    count = 0
+    for season, sdata in seasons.items():
+        out_dir = base / "leaderboard" / season
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        player_stats = [
+            compute_player_season_stats(slug, pdata)
+            for slug, pdata in sdata["players"].items()
+        ]
+        player_stats = [p for p in player_stats if p.get("gp", 0) > 0]
+
+        template = env.get_template("leaderboard_players.html")
+        html = template.render(
+            season=season,
+            players_json=json.dumps(player_stats, ensure_ascii=False),
+            game_meta_json=json.dumps(log["game_meta"], ensure_ascii=False),
+            nav_base="../../", nav_active="leaderboard-players", nav_season=season,
+        )
+        with open(out_dir / "players.html", "w") as f:
+            f.write(html)
+
+        team_stats = [
+            compute_team_season_stats(slug, tdata)
+            for slug, tdata in sdata["teams"].items()
+        ]
+        team_stats = [t for t in team_stats if t.get("gp", 0) > 0]
+
+        template = env.get_template("leaderboard_teams.html")
+        html = template.render(
+            season=season,
+            teams_json=json.dumps(team_stats, ensure_ascii=False),
+            nav_base="../../", nav_active="leaderboard-teams", nav_season=season,
+        )
+        with open(out_dir / "teams.html", "w") as f:
+            f.write(html)
+
+        count += 1
+
+    print(f"  Generated: leaderboard pages for {count} season(s)")

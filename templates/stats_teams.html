@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiky týmů {{ season }} | NBL Rotations</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 6px 14px;
+            background: #16213e;
+            border: none;
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .tab-btn:hover { background: #1a2a50; color: #ccc; }
+        .tab-btn.active { background: #1a3a8b; color: #fff; }
+        .stats-table-wrap { overflow-x: auto; }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+        thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 8px 10px;
+            text-align: right;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid #333;
+        }
+        thead th:first-child, thead th:nth-child(2) { text-align: left; }
+        thead th:hover { color: #ccc; }
+        thead th.sorted-asc::after { content: " ↑"; color: #6a9fd8; }
+        thead th.sorted-desc::after { content: " ↓"; color: #6a9fd8; }
+        tbody tr { border-bottom: 1px solid #222; transition: background 0.1s; }
+        tbody tr:hover { background: #16213e; }
+        tbody td { padding: 7px 10px; text-align: right; color: #ccc; }
+        tbody td:first-child { text-align: left; color: #888; font-size: 0.78rem; }
+        tbody td:nth-child(2) { text-align: left; }
+        .col-group-sep { border-left: 1px solid #2a2a3e; }
+        .hidden { display: none; }
+        .positive { color: #4caf50; }
+        .negative { color: #ef5350; }
+    </style>
+</head>
+<body>
+{% include '_nav.html' %}
+<div class="container">
+    <h1>Statistiky týmů NBL {{ season }}</h1>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="basic">Základní</button>
+        <button class="tab-btn" data-tab="shooting">Střelba</button>
+        <button class="tab-btn" data-tab="opponent">Soupeř</button>
+        <button class="tab-btn" data-tab="advanced">Pokročilé</button>
+    </div>
+
+    <div class="stats-table-wrap">
+        <!-- BASIC -->
+        <table id="tab-basic">
+            <thead><tr>
+                <th data-key="rank">#</th>
+                <th data-key="name">Tým</th>
+                <th data-key="gp">GP</th>
+                <th data-key="wins">W</th>
+                <th data-key="losses">L</th>
+                <th data-key="ptsPerGame" class="sorted-desc col-group-sep">PTS/G</th>
+                <th data-key="pts">PTS</th>
+                <th data-key="rebPerGame" class="col-group-sep">REB/G</th>
+                <th data-key="orebPerGame">OREB/G</th>
+                <th data-key="drebPerGame">DREB/G</th>
+                <th data-key="astPerGame" class="col-group-sep">AST/G</th>
+                <th data-key="stlPerGame" class="col-group-sep">STL/G</th>
+                <th data-key="blkPerGame">BLK/G</th>
+                <th data-key="tovPerGame" class="col-group-sep">TOV/G</th>
+                <th data-key="pfPerGame" class="col-group-sep">PF/G</th>
+                <th data-key="pfdPerGame">PFD/G</th>
+            </tr></thead>
+            <tbody id="body-basic"></tbody>
+        </table>
+
+        <!-- SHOOTING -->
+        <table id="tab-shooting" class="hidden">
+            <thead><tr>
+                <th data-key="rank">#</th>
+                <th data-key="name">Tým</th>
+                <th data-key="gp">GP</th>
+                <th data-key="fgPct" class="sorted-desc col-group-sep">FG%</th>
+                <th data-key="fgm">FGM</th>
+                <th data-key="fga">FGA</th>
+                <th data-key="fg2Pct" class="col-group-sep">2P%</th>
+                <th data-key="fg2m">2PM</th>
+                <th data-key="fg2a">2PA</th>
+                <th data-key="fg2mPerGame">2P/G</th>
+                <th data-key="fg3Pct" class="col-group-sep">3P%</th>
+                <th data-key="fg3m">3PM</th>
+                <th data-key="fg3a">3PA</th>
+                <th data-key="fg3mPerGame">3P/G</th>
+                <th data-key="ftPct" class="col-group-sep">FT%</th>
+                <th data-key="ftm">FTM</th>
+                <th data-key="fta">FTA</th>
+                <th data-key="ftmPerGame">FTM/G</th>
+                <th data-key="ftaPerGame">FTA/G</th>
+            </tr></thead>
+            <tbody id="body-shooting"></tbody>
+        </table>
+
+        <!-- OPPONENT -->
+        <table id="tab-opponent" class="hidden">
+            <thead><tr>
+                <th data-key="rank">#</th>
+                <th data-key="name">Tým</th>
+                <th data-key="gp">GP</th>
+                <th data-key="opp_ptsPerGame" class="sorted-asc col-group-sep">OPP PTS/G</th>
+                <th data-key="opp_pts">OPP PTS</th>
+                <th data-key="opp_fgPct" class="col-group-sep">OPP FG%</th>
+                <th data-key="opp_fg3Pct">OPP 3P%</th>
+                <th data-key="opp_ftPct">OPP FT%</th>
+                <th data-key="opp_rebPerGame" class="col-group-sep">OPP REB/G</th>
+                <th data-key="opp_orebPerGame">OPP OREB/G</th>
+                <th data-key="opp_astPerGame" class="col-group-sep">OPP AST/G</th>
+                <th data-key="opp_stlPerGame" class="col-group-sep">OPP STL/G</th>
+                <th data-key="opp_blkPerGame">OPP BLK/G</th>
+                <th data-key="opp_tovPerGame" class="col-group-sep">OPP TOV/G</th>
+                <th data-key="opp_pfPerGame" class="col-group-sep">OPP PF/G</th>
+            </tr></thead>
+            <tbody id="body-opponent"></tbody>
+        </table>
+
+        <!-- ADVANCED -->
+        <table id="tab-advanced" class="hidden">
+            <thead><tr>
+                <th data-key="rank">#</th>
+                <th data-key="name">Tým</th>
+                <th data-key="gp">GP</th>
+                <th data-key="pace" class="col-group-sep">Pace</th>
+                <th data-key="ortg" class="sorted-desc col-group-sep">ORTG</th>
+                <th data-key="drtg">DRTG</th>
+                <th data-key="netRtg">Net RTG</th>
+            </tr></thead>
+            <tbody id="body-advanced"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const TEAMS = {{ teams_json }};
+
+let currentTab = 'basic';
+let sortKey = 'ptsPerGame';
+let sortDesc = true;
+
+function fmt(v, decimals=1) {
+    if (v === null || v === undefined) return '-';
+    if (typeof v === 'number') return v.toFixed(decimals);
+    return v;
+}
+
+function netClass(v) {
+    if (v > 0) return 'positive';
+    if (v < 0) return 'negative';
+    return '';
+}
+
+function renderRow(t, rank, tab) {
+    if (tab === 'basic') return `
+        <td>${rank}</td>
+        <td>${t.name}</td>
+        <td>${t.gp}</td>
+        <td>${t.wins}</td>
+        <td>${t.losses}</td>
+        <td class="col-group-sep">${fmt(t.ptsPerGame)}</td>
+        <td>${t.pts}</td>
+        <td class="col-group-sep">${fmt(t.rebPerGame)}</td>
+        <td>${fmt(t.orebPerGame)}</td>
+        <td>${fmt(t.drebPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.astPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.stlPerGame)}</td>
+        <td>${fmt(t.blkPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.tovPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.pfPerGame)}</td>
+        <td>${fmt(t.pfdPerGame)}</td>`;
+    if (tab === 'shooting') return `
+        <td>${rank}</td>
+        <td>${t.name}</td>
+        <td>${t.gp}</td>
+        <td class="col-group-sep">${fmt(t.fgPct)}%</td>
+        <td>${t.fgm}</td>
+        <td>${t.fga}</td>
+        <td class="col-group-sep">${fmt(t.fg2Pct)}%</td>
+        <td>${t.fg2m}</td>
+        <td>${t.fg2a}</td>
+        <td>${fmt(t.fg2mPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.fg3Pct)}%</td>
+        <td>${t.fg3m}</td>
+        <td>${t.fg3a}</td>
+        <td>${fmt(t.fg3mPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.ftPct)}%</td>
+        <td>${t.ftm}</td>
+        <td>${t.fta}</td>
+        <td>${fmt(t.ftmPerGame)}</td>
+        <td>${fmt(t.ftaPerGame)}</td>`;
+    if (tab === 'opponent') return `
+        <td>${rank}</td>
+        <td>${t.name}</td>
+        <td>${t.gp}</td>
+        <td class="col-group-sep">${fmt(t.opp_ptsPerGame)}</td>
+        <td>${t.opp_pts}</td>
+        <td class="col-group-sep">${fmt(t.opp_fgPct)}%</td>
+        <td>${fmt(t.opp_fg3Pct)}%</td>
+        <td>${fmt(t.opp_ftPct)}%</td>
+        <td class="col-group-sep">${fmt(t.opp_rebPerGame)}</td>
+        <td>${fmt(t.opp_orebPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.opp_astPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.opp_stlPerGame)}</td>
+        <td>${fmt(t.opp_blkPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.opp_tovPerGame)}</td>
+        <td class="col-group-sep">${fmt(t.opp_pfPerGame)}</td>`;
+    if (tab === 'advanced') return `
+        <td>${rank}</td>
+        <td>${t.name}</td>
+        <td>${t.gp}</td>
+        <td class="col-group-sep">${fmt(t.pace)}</td>
+        <td class="col-group-sep">${fmt(t.ortg)}</td>
+        <td>${fmt(t.drtg)}</td>
+        <td class="${netClass(t.netRtg)}">${fmt(t.netRtg)}</td>`;
+    return '';
+}
+
+function render() {
+    let sorted = [...TEAMS];
+    sorted.sort((a, b) => {
+        let va = a[sortKey], vb = b[sortKey];
+        if (typeof va === 'string') va = va.toLowerCase();
+        if (typeof vb === 'string') vb = vb.toLowerCase();
+        if (va < vb) return sortDesc ? 1 : -1;
+        if (va > vb) return sortDesc ? -1 : 1;
+        return 0;
+    });
+    const tbody = document.getElementById(`body-${currentTab}`);
+    tbody.innerHTML = sorted.map((t, i) =>
+        `<tr>${renderRow(t, i + 1, currentTab)}</tr>`
+    ).join('');
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.dataset.tab;
+        document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
+        document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
+        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', opponent: 'opp_ptsPerGame', advanced: 'ortg' };
+        const defaultDesc = { opponent: false };
+        sortKey = defaults[currentTab] || 'ptsPerGame';
+        sortDesc = defaultDesc[currentTab] !== false;
+        render();
+    });
+});
+
+document.querySelectorAll('thead th[data-key]').forEach(th => {
+    th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        if (key === 'rank' || key === 'name') return;
+        if (sortKey === key) {
+            sortDesc = !sortDesc;
+        } else {
+            sortKey = key;
+            sortDesc = true;
+        }
+        document.querySelectorAll(`#tab-${currentTab} thead th`).forEach(h => {
+            h.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        th.classList.add(sortDesc ? 'sorted-desc' : 'sorted-asc');
+        render();
+    });
+});
+
+render();
+</script>
+</body>
+</html>

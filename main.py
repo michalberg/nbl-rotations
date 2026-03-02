@@ -11,7 +11,9 @@ from nbl_rotations.ratings import calculate_player_ratings
 from nbl_rotations.generator import (
     build_game_json, generate_site, generate_index,
     generate_player_pages, generate_team_data,
+    generate_stats_pages, generate_leaderboard_pages,
 )
+from nbl_rotations.stats import load_season_log, update_season_log, save_season_log
 from nbl_rotations.scraper import (
     scrape_finished_games, load_games_json, update_games,
 )
@@ -110,6 +112,10 @@ def main():
             all_games_data = _load_and_build_all_games()
             generate_player_pages(all_games_data)
             generate_team_data(all_games_data)
+
+            # Update season log with new games only
+            print("Updating season log...")
+            _update_and_generate_stats(new_games_data, new_games)
             print(f"\nDone! {len(new_games)} new games processed.")
         elif args.generate:
             print("  No new games to generate.")
@@ -117,6 +123,7 @@ def main():
 
     # --all mode: process everything from games.json
     if args.all:
+        all_games_meta = load_games_json()
         all_games_data = _load_and_build_all_games()
         if not all_games_data:
             print("No games in games.json. Run --scrape first.")
@@ -127,6 +134,8 @@ def main():
         generate_player_pages(all_games_data)
         print(f"\nGenerating team data...")
         generate_team_data(all_games_data)
+        print(f"\nUpdating season log...")
+        _update_and_generate_stats(all_games_data, all_games_meta)
         print(f"\nDone! {len(all_games_data)} games processed.")
         return
 
@@ -167,6 +176,35 @@ def main():
     print("\nGenerating team data...")
     generate_team_data(games_data)
     print("\nDone! Open docs/index.html in your browser.")
+
+
+def _update_and_generate_stats(games_data: list[dict], games_meta: list[dict]) -> None:
+    """Update season_log.json and regenerate stats/leaderboard pages."""
+    from pathlib import Path
+    docs_path = Path(__file__).parent / "docs"
+
+    log = load_season_log(docs_path)
+    meta_by_id = {g["game_id"]: g for g in games_meta}
+
+    for game_json in games_data:
+        game_id = game_json["gameId"]
+        meta = meta_by_id.get(game_id, {
+            "game_id": game_id,
+            "date": game_json.get("date", ""),
+            "team1": game_json["team1"]["name"],
+            "team2": game_json["team2"]["name"],
+            "score1": game_json["team1"]["score"],
+            "score2": game_json["team2"]["score"],
+        })
+        update_season_log(log, game_json, game_id, meta)
+
+    save_season_log(log, docs_path)
+    print(f"  Season log: {len(log['processed_games'])} games total")
+
+    print("Generating stats pages...")
+    generate_stats_pages(docs_path)
+    print("Generating leaderboard pages...")
+    generate_leaderboard_pages(docs_path)
 
 
 def _load_and_build_all_games() -> list[dict]:

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiky hráčů {{ season }} | NBL Rotations</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .stats-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stats-controls label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .stats-controls select {
+            background: #16213e;
+            color: #e0e0e0;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 4px 8px;
+        }
+        .min-btns { display: flex; gap: 4px; }
+        .min-btn {
+            padding: 4px 10px;
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.82rem;
+            cursor: pointer;
+        }
+        .min-btn:hover { background: #1a2a50; color: #ccc; }
+        .min-btn.active { background: #1a3a8b; color: #fff; border-color: #1a3a8b; }
+        thead th[title] { cursor: help; }
+        .stats-table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+        thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 8px 10px;
+            text-align: right;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid #333;
+        }
+        thead th:first-child, thead th:nth-child(2), thead th:nth-child(3) {
+            text-align: left;
+        }
+        thead th:hover { color: #ccc; }
+        thead th.sorted-asc::after { content: " ↑"; color: #6a9fd8; }
+        thead th.sorted-desc::after { content: " ↓"; color: #6a9fd8; }
+        tbody tr {
+            border-bottom: 1px solid #222;
+            transition: background 0.1s;
+        }
+        tbody tr:hover { background: #16213e; }
+        tbody td {
+            padding: 7px 10px;
+            text-align: right;
+            color: #ccc;
+        }
+        tbody td:first-child { text-align: left; color: #888; font-size: 0.78rem; }
+        tbody td:nth-child(2) { text-align: left; }
+        tbody td:nth-child(3) { text-align: left; color: #888; font-size: 0.78rem; }
+        tbody td a { color: #6a9fd8; text-decoration: none; }
+        tbody td a:hover { text-decoration: underline; }
+        .col-group-sep { border-left: 1px solid #2a2a3e; }
+        .hidden { display: none; }
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 6px 14px;
+            background: #16213e;
+            border: none;
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .tab-btn:hover { background: #1a2a50; color: #ccc; }
+        .tab-btn.active { background: #1a3a8b; color: #fff; }
+    </style>
+</head>
+<body>
+{% include '_nav.html' %}
+<div class="container">
+    <h1>Statistiky hráčů NBL {{ season }}</h1>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="basic">Základní</button>
+        <button class="tab-btn" data-tab="shooting">Střelba</button>
+        <button class="tab-btn" data-tab="advanced">Pokročilé</button>
+        <button class="tab-btn" data-tab="milestones">Milníky</button>
+    </div>
+
+    <div class="stats-controls">
+        <label>Min. minut/zápas:</label>
+        <div class="min-btns">
+            <button class="min-btn active" data-min="0">Vše</button>
+            <button class="min-btn" data-min="10">10+</button>
+            <button class="min-btn" data-min="20">20+</button>
+            <button class="min-btn" data-min="30">30+</button>
+        </div>
+        <label>Tým:
+            <select id="team-filter">
+                <option value="">Všechny týmy</option>
+                {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+
+    <div class="stats-table-wrap">
+        <!-- BASIC TAB -->
+        <table id="tab-basic">
+            <thead>
+                <tr>
+                    <th data-key="rank">#</th>
+                    <th data-key="name">Hráč</th>
+                    <th data-key="team">Tým</th>
+                    <th data-key="gp" title="Odehrané zápasy">GP</th>
+                    <th data-key="minPerGame" title="Minuty na zápas">MIN</th>
+                    <th data-key="ptsPerGame" class="sorted-desc col-group-sep" title="Body na zápas">PTS</th>
+                    <th data-key="pts" title="Body celkem">ΣPTS</th>
+                    <th data-key="rebPerGame" class="col-group-sep" title="Doskoky na zápas">REB</th>
+                    <th data-key="orebPerGame" title="Útočné doskoky na zápas">OREB</th>
+                    <th data-key="drebPerGame" title="Obranné doskoky na zápas">DREB</th>
+                    <th data-key="reb" title="Doskoky celkem">ΣREB</th>
+                    <th data-key="astPerGame" class="col-group-sep" title="Asistence na zápas">AST</th>
+                    <th data-key="ast" title="Asistence celkem">ΣAST</th>
+                    <th data-key="stlPerGame" class="col-group-sep" title="Zisky na zápas">STL</th>
+                    <th data-key="stl" title="Zisky celkem">ΣSTL</th>
+                    <th data-key="blkPerGame" class="col-group-sep" title="Bloky na zápas">BLK</th>
+                    <th data-key="blk" title="Bloky celkem">ΣBLK</th>
+                    <th data-key="tovPerGame" class="col-group-sep" title="Ztráty na zápas">TOV</th>
+                    <th data-key="tov" title="Ztráty celkem">ΣTOV</th>
+                    <th data-key="pfPerGame" class="col-group-sep" title="Osobní fauly na zápas">PF</th>
+                    <th data-key="pfdPerGame" title="Vyprovokovné fauly na zápas">PFD</th>
+                    <th data-key="plusMinusPerGame" class="col-group-sep" title="Plus/minus na zápas">+/-</th>
+                    <th data-key="plusMinus" title="Plus/minus celkem">Σ+/-</th>
+                </tr>
+            </thead>
+            <tbody id="body-basic"></tbody>
+        </table>
+
+        <!-- SHOOTING TAB -->
+        <table id="tab-shooting" class="hidden">
+            <thead>
+                <tr>
+                    <th data-key="rank">#</th>
+                    <th data-key="name">Hráč</th>
+                    <th data-key="team">Tým</th>
+                    <th data-key="gp" title="Odehrané zápasy">GP</th>
+                    <th data-key="fgPct" class="sorted-desc col-group-sep" title="Úspěšnost střelby z pole">FG%</th>
+                    <th data-key="fgm" title="Proměněné střely celkem">ΣFGM</th>
+                    <th data-key="fga" title="Pokusy o střelu celkem">ΣFGA</th>
+                    <th data-key="fg2Pct" class="col-group-sep" title="Úspěšnost 2bodových střel">2P%</th>
+                    <th data-key="fg2m" title="Proměněné 2bodové celkem">Σ2PM</th>
+                    <th data-key="fg2a" title="Pokusy o 2bodovou celkem">Σ2PA</th>
+                    <th data-key="fg2PerGame" title="Proměněné 2bodové na zápas">2P/G</th>
+                    <th data-key="fg3Pct" class="col-group-sep" title="Úspěšnost 3bodových střel">3P%</th>
+                    <th data-key="fg3m" title="Proměněné trojky celkem">Σ3PM</th>
+                    <th data-key="fg3a" title="Pokusy o trojku celkem">Σ3PA</th>
+                    <th data-key="fg3PerGame" title="Proměněné trojky na zápas">3P/G</th>
+                    <th data-key="ftPct" class="col-group-sep" title="Úspěšnost trestných hodů">FT%</th>
+                    <th data-key="ftm" title="Proměněné trestné hody celkem">ΣFTM</th>
+                    <th data-key="fta" title="Pokusy o trestný hod celkem">ΣFTA</th>
+                    <th data-key="ftmPerGame" title="Proměněné trestné hody na zápas">FTM/G</th>
+                    <th data-key="ftPerGame" title="Pokusy o trestný hod na zápas">FTA/G</th>
+                </tr>
+            </thead>
+            <tbody id="body-shooting"></tbody>
+        </table>
+
+        <!-- ADVANCED TAB -->
+        <table id="tab-advanced" class="hidden">
+            <thead>
+                <tr>
+                    <th data-key="rank">#</th>
+                    <th data-key="name">Hráč</th>
+                    <th data-key="team">Tým</th>
+                    <th data-key="gp" title="Odehrané zápasy">GP</th>
+                    <th data-key="minPerGame" title="Minuty na zápas">MIN</th>
+                    <th data-key="per" class="sorted-desc col-group-sep" title="Player Efficiency Rating (zjednodušená verze bez ligové normalizace)">PER</th>
+                    <th data-key="tsPct" class="col-group-sep" title="True Shooting % = PTS / (2 × (FGA + 0.44 × FTA))">TS%</th>
+                    <th data-key="efgPct" title="Effective FG% = (FGM + 0.5 × 3PM) / FGA">eFG%</th>
+                    <th data-key="usagePct" class="col-group-sep" title="Podíl hráče na útočných akcích týmu = (FGA + 0.44×FTA + TOV) / (TeamFGA + 0.44×TeamFTA + TeamTOV)">USG%</th>
+                    <th data-key="plusMinusPerGame" class="col-group-sep" title="Plus/minus na zápas">+/-/G</th>
+                    <th data-key="plusMinus" title="Plus/minus celkem">Σ+/-</th>
+                    <th data-key="technical" class="col-group-sep" title="Technické chyby celkem">TF</th>
+                </tr>
+            </thead>
+            <tbody id="body-advanced"></tbody>
+        </table>
+
+        <!-- MILESTONES TAB -->
+        <table id="tab-milestones" class="hidden">
+            <thead>
+                <tr>
+                    <th data-key="rank">#</th>
+                    <th data-key="name">Hráč</th>
+                    <th data-key="team">Tým</th>
+                    <th data-key="gp" title="Odehrané zápasy">GP</th>
+                    <th data-key="doubleDoubles" class="sorted-desc col-group-sep" title="Double-double: alespoň 2 ze 4 kategorií (body, doskoky, asistence, zisky) ≥ 10">DD</th>
+                    <th data-key="tripleDoubles" title="Triple-double: alespoň 3 ze 4 kategorií (body, doskoky, asistence, zisky) ≥ 10">TD</th>
+                    <th data-key="foulsOut" class="col-group-sep" title="Foul-out: 5 nebo více osobních faulů v zápase">Foul-out</th>
+                    <th data-key="technical" class="col-group-sep" title="Technické chyby celkem">TF</th>
+                </tr>
+            </thead>
+            <tbody id="body-milestones"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const PLAYERS = {{ players_json }};
+const GAME_META = {{ game_meta_json }};
+
+let currentTab = 'basic';
+let sortKey = 'ptsPerGame';
+let sortDesc = true;
+let minMinutes = 0;
+let teamFilter = '';
+
+function fmt(v, decimals=1) {
+    if (v === null || v === undefined) return '-';
+    if (typeof v === 'number') return v.toFixed(decimals);
+    return v;
+}
+
+function gameLink(gameId) {
+    if (!gameId || !GAME_META[gameId]) return '-';
+    const m = GAME_META[gameId];
+    return `<a href="../../game/${gameId}.html">${m.date ? m.date.slice(5).replace('-','.') : gameId}</a>`;
+}
+
+function renderRow(p, rank, tab) {
+    if (tab === 'basic') return `
+        <td>${rank}</td>
+        <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
+        <td>${p.team}</td>
+        <td>${p.gp}</td>
+        <td>${p.minPerGame}</td>
+        <td class="col-group-sep">${fmt(p.ptsPerGame)}</td>
+        <td>${p.pts}</td>
+        <td class="col-group-sep">${fmt(p.rebPerGame)}</td>
+        <td>${fmt(p.orebPerGame)}</td>
+        <td>${fmt(p.drebPerGame)}</td>
+        <td>${p.reb}</td>
+        <td class="col-group-sep">${fmt(p.astPerGame)}</td>
+        <td>${p.ast}</td>
+        <td class="col-group-sep">${fmt(p.stlPerGame)}</td>
+        <td>${p.stl}</td>
+        <td class="col-group-sep">${fmt(p.blkPerGame)}</td>
+        <td>${p.blk}</td>
+        <td class="col-group-sep">${fmt(p.tovPerGame)}</td>
+        <td>${p.tov}</td>
+        <td class="col-group-sep">${fmt(p.pfPerGame)}</td>
+        <td>${fmt(p.pfdPerGame)}</td>
+        <td class="col-group-sep">${fmt(p.plusMinusPerGame)}</td>
+        <td>${p.plusMinus}</td>`;
+    if (tab === 'shooting') return `
+        <td>${rank}</td>
+        <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
+        <td>${p.team}</td>
+        <td>${p.gp}</td>
+        <td class="col-group-sep">${fmt(p.fgPct)}%</td>
+        <td>${p.fgm}</td>
+        <td>${p.fga}</td>
+        <td class="col-group-sep">${fmt(p.fg2Pct)}%</td>
+        <td>${p.fg2m}</td>
+        <td>${p.fg2a}</td>
+        <td>${fmt(p.fg2PerGame)}</td>
+        <td class="col-group-sep">${fmt(p.fg3Pct)}%</td>
+        <td>${p.fg3m}</td>
+        <td>${p.fg3a}</td>
+        <td>${fmt(p.fg3PerGame)}</td>
+        <td class="col-group-sep">${fmt(p.ftPct)}%</td>
+        <td>${p.ftm}</td>
+        <td>${p.fta}</td>
+        <td>${fmt(p.ftmPerGame)}</td>
+        <td>${fmt(p.ftPerGame)}</td>`;
+    if (tab === 'advanced') return `
+        <td>${rank}</td>
+        <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
+        <td>${p.team}</td>
+        <td>${p.gp}</td>
+        <td>${p.minPerGame}</td>
+        <td class="col-group-sep">${fmt(p.per, 2)}</td>
+        <td class="col-group-sep">${fmt(p.tsPct)}%</td>
+        <td>${fmt(p.efgPct)}%</td>
+        <td class="col-group-sep">${fmt(p.usagePct)}%</td>
+        <td class="col-group-sep">${fmt(p.plusMinusPerGame)}</td>
+        <td>${p.plusMinus}</td>
+        <td class="col-group-sep">${p.technical}</td>`;
+    if (tab === 'milestones') return `
+        <td>${rank}</td>
+        <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
+        <td>${p.team}</td>
+        <td>${p.gp}</td>
+        <td class="col-group-sep">${p.doubleDoubles}</td>
+        <td>${p.tripleDoubles}</td>
+        <td class="col-group-sep">${p.foulsOut}</td>
+        <td class="col-group-sep">${p.technical}</td>`;
+    return '';
+}
+
+function render() {
+    const minSec = minMinutes * 60;
+    let filtered = PLAYERS.filter(p =>
+        p.gp > 0 &&
+        (p.totalMinutes / p.gp) >= minSec &&
+        (!teamFilter || p.team === teamFilter)
+    );
+
+    filtered.sort((a, b) => {
+        let va = a[sortKey], vb = b[sortKey];
+        if (typeof va === 'string') va = va.toLowerCase();
+        if (typeof vb === 'string') vb = vb.toLowerCase();
+        if (va < vb) return sortDesc ? 1 : -1;
+        if (va > vb) return sortDesc ? -1 : 1;
+        return 0;
+    });
+
+    const tbody = document.getElementById(`body-${currentTab}`);
+    tbody.innerHTML = filtered.map((p, i) =>
+        `<tr>${renderRow(p, i + 1, currentTab)}</tr>`
+    ).join('');
+}
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.dataset.tab;
+
+        document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
+        document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
+
+        // Set default sort for each tab
+        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', advanced: 'per', milestones: 'doubleDoubles' };
+        sortKey = defaults[currentTab] || 'ptsPerGame';
+        sortDesc = true;
+        render();
+    });
+});
+
+// Column sorting
+document.querySelectorAll('thead th[data-key]').forEach(th => {
+    th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        if (key === 'rank' || key === 'name' || key === 'team') return;
+        if (sortKey === key) {
+            sortDesc = !sortDesc;
+        } else {
+            sortKey = key;
+            sortDesc = true;
+        }
+        // Update headers
+        document.querySelectorAll(`#tab-${currentTab} thead th`).forEach(h => {
+            h.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        th.classList.add(sortDesc ? 'sorted-desc' : 'sorted-asc');
+        render();
+    });
+});
+
+// Min minutes filter buttons
+document.querySelectorAll('.min-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        minMinutes = +btn.dataset.min;
+        render();
+    });
+});
+
+// Team filter
+document.getElementById('team-filter').addEventListener('change', e => {
+    teamFilter = e.target.value;
+    render();
+});
+
+render();
+</script>
+</body>
+</html>

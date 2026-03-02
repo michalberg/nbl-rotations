@@ -1,0 +1,13 @@
+<nav class="site-nav">
+    <div class="site-nav-inner">
+        <a href="{{ nav_base }}index.html" class="nav-brand">NBL data</a>
+        <div class="nav-links">
+            <a href="{{ nav_base }}index.html" class="nav-link{% if nav_active == 'games' %} active{% endif %}">Zápasy</a>
+            <a href="{{ nav_base }}player/index.html" class="nav-link{% if nav_active == 'players' %} active{% endif %}">Hráči</a>
+            <a href="{{ nav_base }}stats/{{ nav_season }}/players.html" class="nav-link{% if nav_active == 'stats-players' %} active{% endif %}">Statistiky hráčů</a>
+            <a href="{{ nav_base }}leaderboard/{{ nav_season }}/players.html" class="nav-link{% if nav_active == 'leaderboard-players' %} active{% endif %}">TOP hráči</a>
+            <a href="{{ nav_base }}stats/{{ nav_season }}/teams.html" class="nav-link{% if nav_active == 'stats-teams' %} active{% endif %}">Statistiky týmů</a>
+            <a href="{{ nav_base }}leaderboard/{{ nav_season }}/teams.html" class="nav-link{% if nav_active == 'leaderboard-teams' %} active{% endif %}">TOP týmy</a>
+        </div>
+    </div>
+</nav>

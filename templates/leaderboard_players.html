@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard hráčů {{ season }} | NBL Rotations</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .lb-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .lb-controls label { color: #888; font-size: 0.85rem; }
+        .lb-controls select, .lb-controls input[type=range] {
+            background: #16213e;
+            color: #e0e0e0;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 4px 8px;
+        }
+        .lb-table-wrap { overflow-x: auto; }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 700px;
+            font-size: 0.88rem;
+        }
+        thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 8px 14px;
+            text-align: right;
+            border-bottom: 1px solid #333;
+        }
+        thead th:nth-child(2), thead th:nth-child(3) { text-align: left; }
+        tbody tr { border-bottom: 1px solid #222; transition: background 0.1s; }
+        tbody tr:hover { background: #16213e; }
+        tbody td { padding: 9px 14px; text-align: right; color: #ccc; }
+        tbody td:first-child { color: #555; font-size: 0.78rem; }
+        tbody td:nth-child(2) { text-align: left; }
+        tbody td:nth-child(3) { text-align: left; color: #888; font-size: 0.82rem; }
+        tbody td a { color: #6a9fd8; text-decoration: none; }
+        tbody td a:hover { text-decoration: underline; }
+        .val-main { font-size: 1.05rem; font-weight: bold; color: #fff; }
+        .val-best { font-size: 0.78rem; color: #888; }
+        .rank-1 td:first-child { color: #f0c040; font-weight: bold; }
+        .rank-2 td:first-child { color: #aaa; }
+        .rank-3 td:first-child { color: #c08040; }
+    </style>
+</head>
+<body>
+{% include '_nav.html' %}
+<div class="container">
+    <h1>Leaderboard hráčů NBL {{ season }}</h1>
+
+    <div class="lb-controls">
+        <label>Kategorie:
+            <select id="cat-select">
+                <optgroup label="Základní">
+                    <option value="ptsPerGame">Body / zápas</option>
+                    <option value="pts">Body celkem</option>
+                    <option value="rebPerGame">Doskoky / zápas</option>
+                    <option value="reb">Doskoky celkem</option>
+                    <option value="orebPerGame">Útočné doskoky / zápas</option>
+                    <option value="drebPerGame">Obranné doskoky / zápas</option>
+                    <option value="astPerGame">Asistence / zápas</option>
+                    <option value="ast">Asistence celkem</option>
+                    <option value="stlPerGame">Zisky / zápas</option>
+                    <option value="stl">Zisky celkem</option>
+                    <option value="blkPerGame">Bloky / zápas</option>
+                    <option value="blk">Bloky celkem</option>
+                    <option value="tovPerGame">Ztráty / zápas</option>
+                    <option value="plusMinus">+/- celkem</option>
+                    <option value="plusMinusPerGame">+/- / zápas</option>
+                </optgroup>
+                <optgroup label="Střelba">
+                    <option value="fgPct">FG%</option>
+                    <option value="fgm">FGM celkem</option>
+                    <option value="fga">FGA celkem</option>
+                    <option value="fg2Pct">2P%</option>
+                    <option value="fg2m">2PM celkem</option>
+                    <option value="fg2PerGame">2P / zápas</option>
+                    <option value="fg3Pct">3P%</option>
+                    <option value="fg3m">3PM celkem</option>
+                    <option value="fg3a">3PA celkem</option>
+                    <option value="fg3PerGame">3P / zápas</option>
+                    <option value="ftPct">FT%</option>
+                    <option value="ftm">FTM celkem</option>
+                    <option value="fta">FTA celkem</option>
+                    <option value="ftmPerGame">FTM / zápas</option>
+                    <option value="ftPerGame">FTA / zápas</option>
+                </optgroup>
+                <optgroup label="Pokročilé">
+                    <option value="per">PER</option>
+                    <option value="tsPct">TS%</option>
+                    <option value="efgPct">eFG%</option>
+                    <option value="usagePct">USG%</option>
+                </optgroup>
+                <optgroup label="Milníky">
+                    <option value="doubleDoubles">Double-doubles</option>
+                    <option value="tripleDoubles">Triple-doubles</option>
+                    <option value="foulsOut">Foul-outy</option>
+                    <option value="technical">Technické chyby</option>
+                </optgroup>
+            </select>
+        </label>
+        <label>Min. minut: <span id="min-label">0</span>
+            <input type="range" id="min-filter" min="0" max="600" step="10" value="0">
+        </label>
+    </div>
+
+    <div class="lb-table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráč</th>
+                    <th>Tým</th>
+                    <th>GP</th>
+                    <th id="val-header">Body / zápas</th>
+                    <th>Best</th>
+                    <th>Zápas</th>
+                </tr>
+            </thead>
+            <tbody id="lb-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const PLAYERS = {{ players_json }};
+const GAME_META = {{ game_meta_json }};
+
+const CAT_LABELS = {
+    ptsPerGame: 'Body / zápas', pts: 'Body celkem',
+    rebPerGame: 'Doskoky / zápas', reb: 'Doskoky celkem',
+    orebPerGame: 'Útočné doskoky / zápas', drebPerGame: 'Obranné doskoky / zápas',
+    astPerGame: 'Asistence / zápas', ast: 'Asistence celkem',
+    stlPerGame: 'Zisky / zápas', stl: 'Zisky celkem',
+    blkPerGame: 'Bloky / zápas', blk: 'Bloky celkem',
+    tovPerGame: 'Ztráty / zápas',
+    plusMinus: '+/- celkem', plusMinusPerGame: '+/- / zápas',
+    fgPct: 'FG%', fgm: 'FGM', fga: 'FGA',
+    fg2Pct: '2P%', fg2m: '2PM', fg2PerGame: '2P / zápas',
+    fg3Pct: '3P%', fg3m: '3PM', fg3a: '3PA', fg3PerGame: '3P / zápas',
+    ftPct: 'FT%', ftm: 'FTM', fta: 'FTA', ftmPerGame: 'FTM / zápas', ftPerGame: 'FTA / zápas',
+    per: 'PER', tsPct: 'TS%', efgPct: 'eFG%', usagePct: 'USG%',
+    doubleDoubles: 'Double-doubles', tripleDoubles: 'Triple-doubles',
+    foulsOut: 'Foul-outy', technical: 'Technické chyby',
+};
+
+// Best game stat mapping
+const BEST_KEY = {
+    ptsPerGame: 'pts', pts: 'pts',
+    rebPerGame: 'reb', reb: 'reb', orebPerGame: 'oreb', drebPerGame: 'dreb',
+    astPerGame: 'ast', ast: 'ast',
+    stlPerGame: 'stl', stl: 'stl',
+    blkPerGame: 'blk', blk: 'blk',
+    fgm: 'fgm', fga: 'fga', fg2m: 'fg2m', fg2PerGame: 'fg2m',
+    fg3m: 'fg3m', fg3a: 'fg3a', fg3PerGame: 'fg3m',
+    ftm: 'ftm', fta: 'fta', ftmPerGame: 'ftm', ftPerGame: 'fta',
+};
+
+let cat = 'ptsPerGame';
+let minMinutes = 0;
+
+function fmt(v, decimals=1) {
+    if (v === null || v === undefined) return '-';
+    if (typeof v === 'number') {
+        if (Number.isInteger(v)) return v.toString();
+        return v.toFixed(decimals);
+    }
+    return v;
+}
+
+function gameRef(gameId) {
+    if (!gameId || !GAME_META[gameId]) return gameId || '-';
+    const m = GAME_META[gameId];
+    const date = m.date ? m.date.slice(5).replace('-', '.') : '';
+    const label = `${m.team1} – ${m.team2}`;
+    const score = `${m.score1}:${m.score2}`;
+    return `<a href="../../game/${gameId}.html">${date} ${label} ${score}</a>`;
+}
+
+function render() {
+    const minSec = minMinutes * 60;
+    let filtered = PLAYERS.filter(p =>
+        p.gp > 0 && (p.totalMinutes / p.gp) >= minSec
+    );
+
+    filtered.sort((a, b) => {
+        const va = a[cat] ?? 0, vb = b[cat] ?? 0;
+        return vb - va;
+    });
+
+    const top20 = filtered.slice(0, 20);
+    document.getElementById('val-header').textContent = CAT_LABELS[cat] || cat;
+
+    const bestKey = BEST_KEY[cat];
+    const tbody = document.getElementById('lb-body');
+    tbody.innerHTML = top20.map((p, i) => {
+        const rank = i + 1;
+        const rankClass = rank <= 3 ? ` rank-${rank}` : '';
+        const val = p[cat];
+        const isFloat = typeof val === 'number' && !Number.isInteger(val);
+        const valFmt = isFloat ? val.toFixed(1) : (val ?? '-');
+
+        let bestVal = '-';
+        let bestGame = '-';
+        if (bestKey && p.best && p.best[bestKey]) {
+            const b = p.best[bestKey];
+            bestVal = b.value;
+            bestGame = gameRef(b.game_id);
+        }
+
+        return `<tr class="${rankClass}">
+            <td>${rank}</td>
+            <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
+            <td>${p.team}</td>
+            <td>${p.gp}</td>
+            <td><span class="val-main">${valFmt}</span></td>
+            <td class="val-best">${bestVal}</td>
+            <td class="val-best">${bestGame}</td>
+        </tr>`;
+    }).join('');
+}
+
+document.getElementById('cat-select').addEventListener('change', e => {
+    cat = e.target.value;
+    render();
+});
+
+document.getElementById('min-filter').addEventListener('input', e => {
+    minMinutes = +e.target.value;
+    document.getElementById('min-label').textContent = minMinutes;
+    render();
+});
+
+render();
+</script>
+</body>
+</html>
