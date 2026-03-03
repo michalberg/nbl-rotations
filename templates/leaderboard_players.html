@@ -14,18 +14,29 @@
             flex-wrap: wrap;
         }
         .lb-controls label { color: #888; font-size: 0.85rem; }
-        .lb-controls select, .lb-controls input[type=range] {
+        .lb-controls select {
             background: #16213e;
             color: #e0e0e0;
             border: 1px solid #333;
             border-radius: 4px;
             padding: 4px 8px;
         }
+        .min-btns { display: flex; gap: 4px; }
+        .min-btn {
+            padding: 4px 10px;
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.82rem;
+            cursor: pointer;
+        }
+        .min-btn:hover { background: #1a2a50; color: #ccc; }
+        .min-btn.active { background: #1a3a8b; color: #fff; border-color: #1a3a8b; }
         .lb-table-wrap { overflow-x: auto; }
         table {
             border-collapse: collapse;
             width: 100%;
-            max-width: 700px;
             font-size: 0.88rem;
         }
         thead th {
@@ -103,7 +114,7 @@
                     <option value="efgPct">eFG%</option>
                     <option value="usagePct">USG%</option>
                 </optgroup>
-                <optgroup label="Milníky">
+                <optgroup label="Individuální čísla">
                     <option value="doubleDoubles">Double-doubles</option>
                     <option value="tripleDoubles">Triple-doubles</option>
                     <option value="foulsOut">Foul-outy</option>
@@ -111,9 +122,13 @@
                 </optgroup>
             </select>
         </label>
-        <label>Min. minut: <span id="min-label">0</span>
-            <input type="range" id="min-filter" min="0" max="600" step="10" value="0">
-        </label>
+        <label>Min. zápasů:</label>
+        <div class="min-btns">
+            <button class="min-btn active" data-pct="0">Vše</button>
+            <button class="min-btn" data-pct="0.1">10%+</button>
+            <button class="min-btn" data-pct="0.33">33%+</button>
+            <button class="min-btn" data-pct="0.66">66%+</button>
+        </div>
     </div>
 
     <div class="lb-table-wrap">
@@ -166,10 +181,12 @@ const BEST_KEY = {
     fgm: 'fgm', fga: 'fga', fg2m: 'fg2m', fg2PerGame: 'fg2m',
     fg3m: 'fg3m', fg3a: 'fg3a', fg3PerGame: 'fg3m',
     ftm: 'ftm', fta: 'fta', ftmPerGame: 'ftm', ftPerGame: 'fta',
+    plusMinus: 'plus_minus', plusMinusPerGame: 'plus_minus',
 };
 
 let cat = 'ptsPerGame';
-let minMinutes = 0;
+let minGpPct = 0;
+const maxGP = Math.max(...PLAYERS.filter(p => p.gp > 0).map(p => p.gp));
 
 function fmt(v, decimals=1) {
     if (v === null || v === undefined) return '-';
@@ -183,16 +200,17 @@ function fmt(v, decimals=1) {
 function gameRef(gameId) {
     if (!gameId || !GAME_META[gameId]) return gameId || '-';
     const m = GAME_META[gameId];
-    const date = m.date ? m.date.slice(5).replace('-', '.') : '';
+    const parts = m.date ? m.date.split('-') : [];
+    const dateStr = parts.length === 3 ? `${parseInt(parts[2])}.${parseInt(parts[1])}.${parts[0]}` : '';
     const label = `${m.team1} – ${m.team2}`;
     const score = `${m.score1}:${m.score2}`;
-    return `<a href="../../game/${gameId}.html">${date} ${label} ${score}</a>`;
+    return `<a href="../../game/${gameId}.html">${label} ${score}${dateStr ? ' (' + dateStr + ')' : ''}</a>`;
 }
 
 function render() {
-    const minSec = minMinutes * 60;
+    const minGP = Math.round(minGpPct * maxGP);
     let filtered = PLAYERS.filter(p =>
-        p.gp > 0 && (p.totalMinutes / p.gp) >= minSec
+        p.gp > 0 && p.gp >= minGP
     );
 
     filtered.sort((a, b) => {
@@ -237,10 +255,13 @@ document.getElementById('cat-select').addEventListener('change', e => {
     render();
 });
 
-document.getElementById('min-filter').addEventListener('input', e => {
-    minMinutes = +e.target.value;
-    document.getElementById('min-label').textContent = minMinutes;
-    render();
+document.querySelectorAll('.min-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        minGpPct = +btn.dataset.pct;
+        render();
+    });
 });
 
 render();

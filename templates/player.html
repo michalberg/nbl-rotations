@@ -38,6 +38,51 @@
             <div class="stat-item"><span class="stat-label">+/&minus;</span><span class="stat-value">{{ player.seasonAverages.plusMinus }}</span></div>
         </div>
 
+        <div class="player-stats-extended">
+            <div class="pse-group">
+                <div class="pse-group-title">Základní</div>
+                <div class="pse-row">
+                    <div class="pse-item"><span class="pse-label">PTS</span><span class="pse-val">{{ player.seasonAverages.pts }}</span><span class="pse-best">Σ {{ player.seasonTotals.pts }}</span>{% if player.bestGames.pts.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.pts.game_id }}.html">max {{ player.bestGames.pts.value }}</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">REB</span><span class="pse-val">{{ player.seasonAverages.reb }}</span><span class="pse-best">Σ {{ player.seasonTotals.reb }}</span>{% if player.bestGames.reb.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.reb.game_id }}.html">max {{ player.bestGames.reb.value }}</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">OREB</span><span class="pse-val">{{ player.seasonAverages.oreb }}</span><span class="pse-best">Σ {{ player.seasonTotals.oreb }}</span>{% if player.bestGames.oreb.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.oreb.game_id }}.html">max {{ player.bestGames.oreb.value }}</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">DREB</span><span class="pse-val">{{ player.seasonAverages.dreb }}</span><span class="pse-best">Σ {{ player.seasonTotals.dreb }}</span>{% if player.bestGames.dreb.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.dreb.game_id }}.html">max {{ player.bestGames.dreb.value }}</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">AST</span><span class="pse-val">{{ player.seasonAverages.ast }}</span><span class="pse-best">Σ {{ player.seasonTotals.ast }}</span>{% if player.bestGames.ast.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.ast.game_id }}.html">max {{ player.bestGames.ast.value }}</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">STL</span><span class="pse-val">{{ player.seasonAverages.stl }}</span><span class="pse-best">Σ {{ player.seasonTotals.stl }}</span>{% if player.bestGames.stl.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.stl.game_id }}.html">max {{ player.bestGames.stl.value }}</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">BLK</span><span class="pse-val">{{ player.seasonAverages.blk }}</span><span class="pse-best">Σ {{ player.seasonTotals.blk }}</span>{% if player.bestGames.blk.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.blk.game_id }}.html">max {{ player.bestGames.blk.value }}</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">TOV</span><span class="pse-val">{{ player.seasonAverages.tov }}</span><span class="pse-best">Σ {{ player.seasonTotals.tov }}</span></div>
+                    <div class="pse-item"><span class="pse-label">+/-</span><span class="pse-val">{{ player.seasonAverages.plusMinus }}</span><span class="pse-best">Σ {{ player.seasonTotals.plusMinus }}</span>{% if player.bestGames.plusMinus.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.plusMinus.game_id }}.html">max {{ player.bestGames.plusMinus.value }}</a>{% endif %}</div>
+                </div>
+            </div>
+            <div class="pse-group">
+                <div class="pse-group-title">Střelba</div>
+                <div class="pse-row">
+                    <div class="pse-item"><span class="pse-label">FG%</span><span class="pse-val">{{ player.seasonAverages.fgPct }}%</span><span class="pse-best">{{ player.seasonTotals.fgm }}/{{ player.seasonTotals.fga }}</span>{% if player.bestGames.fgm.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.fgm.game_id }}.html">max {{ player.bestGames.fgm.value }} FGM</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">2P%</span><span class="pse-val">{{ player.seasonAverages.fg2Pct }}%</span><span class="pse-best">{{ player.seasonTotals.fg2m }}/{{ player.seasonTotals.fg2a }}</span></div>
+                    <div class="pse-item"><span class="pse-label">3P%</span><span class="pse-val">{{ player.seasonAverages.fg3Pct }}%</span><span class="pse-best">{{ player.seasonTotals.fg3m }}/{{ player.seasonTotals.fg3a }}</span>{% if player.bestGames.fg3m.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.fg3m.game_id }}.html">max {{ player.bestGames.fg3m.value }} 3PM</a>{% endif %}</div>
+                    <div class="pse-item"><span class="pse-label">FT%</span><span class="pse-val">{{ player.seasonAverages.ftPct }}%</span><span class="pse-best">{{ player.seasonTotals.ftm }}/{{ player.seasonTotals.fta }}</span>{% if player.bestGames.ftm.game_id %}<a class="pse-best" href="../../game/{{ player.bestGames.ftm.game_id }}.html">max {{ player.bestGames.ftm.value }} FTM</a>{% endif %}</div>
+                </div>
+            </div>
+            <div class="pse-group">
+                <div class="pse-group-title">Pokročilé</div>
+                <div class="pse-row">
+                    <div class="pse-item"><span class="pse-label" title="Player Efficiency Rating">PER</span><span class="pse-val">{{ player.derived.per }}</span></div>
+                    <div class="pse-item"><span class="pse-label" title="True Shooting %">TS%</span><span class="pse-val">{{ player.derived.tsPct }}%</span></div>
+                    <div class="pse-item"><span class="pse-label" title="Effective FG%">eFG%</span><span class="pse-val">{{ player.derived.efgPct }}%</span></div>
+                    <div class="pse-item"><span class="pse-label">PF/G</span><span class="pse-val">{{ player.seasonAverages.pf }}</span></div>
+                    <div class="pse-item"><span class="pse-label">PFD/G</span><span class="pse-val">{{ player.seasonAverages.pfd }}</span></div>
+                </div>
+            </div>
+            <div class="pse-group">
+                <div class="pse-group-title">Individuální čísla</div>
+                <div class="pse-row">
+                    <div class="pse-item"><span class="pse-label">Double-double</span><span class="pse-val">{{ player.milestones.doubleDoubles }}</span></div>
+                    <div class="pse-item"><span class="pse-label">Triple-double</span><span class="pse-val">{{ player.milestones.tripleDoubles }}</span></div>
+                    <div class="pse-item"><span class="pse-label">Foul-out</span><span class="pse-val">{{ player.milestones.foulsOut }}</span></div>
+                    <div class="pse-item"><span class="pse-label">TF</span><span class="pse-val">{{ player.seasonTotals.technical }}</span></div>
+                </div>
+            </div>
+        </div>
+
         <p class="mobile-warning">Web není z důvodu použitých technologií optimalizován pro zobrazení na mobilu</p>
         <div id="player-chart" class="rotation-chart"></div>
         <div id="tooltip" class="tooltip"></div>

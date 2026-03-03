@@ -135,22 +135,27 @@
 
         <!-- OPPONENT -->
         <table id="tab-opponent" class="hidden">
-            <thead><tr>
+            <thead>
+                <tr>
+                    <th colspan="3"></th>
+                    <th colspan="12" style="text-align:center;color:#6a9fd8;border-bottom:1px solid #2a4a7a;letter-spacing:1px;">Statistiky soupeřova týmu</th>
+                </tr>
+                <tr>
                 <th data-key="rank">#</th>
                 <th data-key="name">Tým</th>
                 <th data-key="gp">GP</th>
-                <th data-key="opp_ptsPerGame" class="sorted-asc col-group-sep">OPP PTS/G</th>
-                <th data-key="opp_pts">OPP PTS</th>
-                <th data-key="opp_fgPct" class="col-group-sep">OPP FG%</th>
-                <th data-key="opp_fg3Pct">OPP 3P%</th>
-                <th data-key="opp_ftPct">OPP FT%</th>
-                <th data-key="opp_rebPerGame" class="col-group-sep">OPP REB/G</th>
-                <th data-key="opp_orebPerGame">OPP OREB/G</th>
-                <th data-key="opp_astPerGame" class="col-group-sep">OPP AST/G</th>
-                <th data-key="opp_stlPerGame" class="col-group-sep">OPP STL/G</th>
-                <th data-key="opp_blkPerGame">OPP BLK/G</th>
-                <th data-key="opp_tovPerGame" class="col-group-sep">OPP TOV/G</th>
-                <th data-key="opp_pfPerGame" class="col-group-sep">OPP PF/G</th>
+                <th data-key="opp_ptsPerGame" class="sorted-asc col-group-sep">PTS/G</th>
+                <th data-key="opp_pts">PTS</th>
+                <th data-key="opp_fgPct" class="col-group-sep">FG%</th>
+                <th data-key="opp_fg3Pct">3P%</th>
+                <th data-key="opp_ftPct">FT%</th>
+                <th data-key="opp_rebPerGame" class="col-group-sep">REB/G</th>
+                <th data-key="opp_orebPerGame">OREB/G</th>
+                <th data-key="opp_astPerGame" class="col-group-sep">AST/G</th>
+                <th data-key="opp_stlPerGame" class="col-group-sep">STL/G</th>
+                <th data-key="opp_blkPerGame">BLK/G</th>
+                <th data-key="opp_tovPerGame" class="col-group-sep">TOV/G</th>
+                <th data-key="opp_pfPerGame" class="col-group-sep">PF/G</th>
             </tr></thead>
             <tbody id="body-opponent"></tbody>
         </table>
@@ -168,6 +173,13 @@
             </tr></thead>
             <tbody id="body-advanced"></tbody>
         </table>
+        <div id="advanced-legend" class="hidden" style="margin-top:18px;font-size:0.8rem;color:#666;line-height:1.8;max-width:600px;">
+            <strong style="color:#888;display:block;margin-bottom:4px;">Vysvětlivky pokročilých statistik:</strong>
+            <b style="color:#aaa">Pace</b> – průměrný počet útočných akcí (possessions) za 40 minut; vyšší hodnota = rychlejší hra<br>
+            <b style="color:#aaa">ORTG</b> – Offensive Rating: počet bodů vstřelených na 100 possessions<br>
+            <b style="color:#aaa">DRTG</b> – Defensive Rating: počet bodů inkasovaných na 100 possessions; nižší = lepší obrana<br>
+            <b style="color:#aaa">Net RTG</b> – ORTG − DRTG; kladné číslo = tým skóruje víc, než inkasuje
+        </div>
     </div>
 </div>
 
@@ -278,6 +290,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         currentTab = btn.dataset.tab;
         document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
         document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
+        document.getElementById('advanced-legend').classList.toggle('hidden', currentTab !== 'advanced');
         const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', opponent: 'opp_ptsPerGame', advanced: 'ortg' };
         const defaultDesc = { opponent: false };
         sortKey = defaults[currentTab] || 'ptsPerGame';

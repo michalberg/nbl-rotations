@@ -111,16 +111,16 @@
         <button class="tab-btn active" data-tab="basic">Základní</button>
         <button class="tab-btn" data-tab="shooting">Střelba</button>
         <button class="tab-btn" data-tab="advanced">Pokročilé</button>
-        <button class="tab-btn" data-tab="milestones">Milníky</button>
+        <button class="tab-btn" data-tab="milestones">Individuální čísla</button>
     </div>
 
     <div class="stats-controls">
-        <label>Min. minut/zápas:</label>
+        <label>Min. zápasů:</label>
         <div class="min-btns">
-            <button class="min-btn active" data-min="0">Vše</button>
-            <button class="min-btn" data-min="10">10+</button>
-            <button class="min-btn" data-min="20">20+</button>
-            <button class="min-btn" data-min="30">30+</button>
+            <button class="min-btn active" data-pct="0">Vše</button>
+            <button class="min-btn" data-pct="0.1">10%+</button>
+            <button class="min-btn" data-pct="0.33">33%+</button>
+            <button class="min-btn" data-pct="0.66">66%+</button>
         </div>
         <label>Tým:
             <select id="team-filter">
@@ -241,8 +241,9 @@ const GAME_META = {{ game_meta_json }};
 let currentTab = 'basic';
 let sortKey = 'ptsPerGame';
 let sortDesc = true;
-let minMinutes = 0;
+let minGpPct = 0;
 let teamFilter = '';
+const maxGP = Math.max(...PLAYERS.filter(p => p.gp > 0).map(p => p.gp));
 
 function fmt(v, decimals=1) {
     if (v === null || v === undefined) return '-';
@@ -328,10 +329,10 @@ function renderRow(p, rank, tab) {
 }
 
 function render() {
-    const minSec = minMinutes * 60;
+    const minGP = Math.round(minGpPct * maxGP);
     let filtered = PLAYERS.filter(p =>
         p.gp > 0 &&
-        (p.totalMinutes / p.gp) >= minSec &&
+        p.gp >= minGP &&
         (!teamFilter || p.team === teamFilter)
     );
 
@@ -361,7 +362,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
 
         // Set default sort for each tab
-        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', advanced: 'per', milestones: 'doubleDoubles' };
+        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', advanced: 'per', milestones: 'doubleDoubles', individual: 'doubleDoubles' };
         sortKey = defaults[currentTab] || 'ptsPerGame';
         sortDesc = true;
         render();
@@ -388,14 +389,26 @@ document.querySelectorAll('thead th[data-key]').forEach(th => {
     });
 });
 
-// Min minutes filter buttons
+// Min GP filter buttons
 document.querySelectorAll('.min-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        minMinutes = +btn.dataset.min;
+        minGpPct = +btn.dataset.pct;
         render();
     });
+});
+
+// Custom tooltip
+const _tipEl = document.createElement('div');
+_tipEl.style.cssText = 'position:fixed;background:#0f0f23;color:#ccc;border:1px solid #444;padding:5px 10px;border-radius:4px;font-size:0.78rem;z-index:1000;display:none;max-width:260px;white-space:normal;line-height:1.4;pointer-events:none';
+document.body.appendChild(_tipEl);
+document.querySelectorAll('thead th[title]').forEach(th => {
+    const txt = th.title;
+    th.removeAttribute('title');
+    th.addEventListener('mouseenter', () => { _tipEl.textContent = txt; _tipEl.style.display = 'block'; });
+    th.addEventListener('mousemove', e => { _tipEl.style.left = (e.clientX + 14) + 'px'; _tipEl.style.top = (e.clientY - 4) + 'px'; });
+    th.addEventListener('mouseleave', () => { _tipEl.style.display = 'none'; });
 });
 
 // Team filter
