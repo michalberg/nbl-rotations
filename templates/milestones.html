@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Očekávané milníky {{ season }} | NBL Rotations</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 32px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        .section-title:first-of-type { margin-top: 8px; }
+        .milestone-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            margin-bottom: 8px;
+        }
+        .milestone-table thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 8px 10px;
+            text-align: right;
+        }
+        .milestone-table thead th:first-child,
+        .milestone-table thead th:nth-child(2) { text-align: left; }
+        .milestone-table tbody tr {
+            border-bottom: 1px solid #222;
+            transition: background 0.1s;
+        }
+        .milestone-table tbody tr:hover { background: #16213e; }
+        .milestone-table tbody td { padding: 7px 10px; text-align: right; color: #ccc; }
+        .milestone-table tbody td.rank { color: #555; font-size: 0.75rem; }
+        .milestone-table tbody td.player { text-align: left; }
+        .milestone-table tbody td.player a { color: #4a7ab8; text-decoration: none; }
+        .milestone-table tbody td.player a:hover { text-decoration: underline; }
+        .milestone-table tbody td.team { text-align: left; color: #666; font-size: 0.75rem; }
+        .milestone-table tbody td.progress {
+            color: #e0e0e0; font-weight: bold; font-size: 0.88rem;
+        }
+        .milestone-arrow { color: #4a7ab8; margin: 0 4px; }
+        .milestone-val { color: #4caf50; }
+        .remaining-val { color: #ef9a50; }
+        .games-val { color: #e0e0e0; font-weight: bold; }
+        .wrap { overflow-x: auto; }
+        .intro { color: #555; font-size: 0.82rem; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+{% include '_nav.html' %}
+<div class="container">
+    <h1>Očekávané milníky NBL {{ season }}</h1>
+    <p class="intro">Hráči, kteří se v nejbližším zápase blíží sezónnímu milníku (násobek 100). Zobrazeni jsou ti, jimž zbývá nejvýše 1,5× průměr na zápas.</p>
+
+    {% for section in sections %}
+    <div class="section-title">{{ section.title }}</div>
+    <div class="wrap">
+    <table class="milestone-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th>Aktuální → Milník</th>
+                <th>Zbývá</th>
+                <th>Průměr/z</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in section.entries %}
+            <tr>
+                <td class="rank">{{ loop.index }}.</td>
+                <td class="player">
+                    <a href="../../player/{{ season }}/{{ e.slug }}.html">{{ e.firstName }} {{ e.familyName }}</a>
+                </td>
+                <td class="team">{{ e.team }}</td>
+                <td class="progress">
+                    {{ e.current }}
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">{{ e.milestone }}</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> {{ section.unit }}</span>
+                </td>
+                <td><span class="remaining-val">{{ e.remaining }}</span></td>
+                <td>{{ e.avg }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% endfor %}
+
+    {% if not sections %}
+    <p style="color:#555;margin-top:24px;">Žádní hráči se nyní neblíží milníku.</p>
+    {% endif %}
+
+</div>
+</body>
+</html>

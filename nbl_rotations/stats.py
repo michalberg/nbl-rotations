@@ -100,6 +100,20 @@ def update_season_log(log: dict, game_json: dict, game_id: str, game_meta: dict)
                 # Update team (player may have changed teams)
                 log["players"][slug]["team"] = team_name
 
+            # Per-quarter points from minute-level data
+            game_periods = game_json.get("periods", [])
+            q_pts = {1: 0, 2: 0, 3: 0, 4: 0}
+            if not is_dnp:
+                minutes_arr = player.get("minutes", [])
+                for pd in game_periods:
+                    pnum = pd.get("period", 0)
+                    if 1 <= pnum <= 4:
+                        start, end = pd["startMinute"], pd["endMinute"]
+                        q_pts[pnum] = sum(
+                            m.get("pts", 0) for m in minutes_arr
+                            if start <= m["minute"] < end
+                        )
+
             entry = {
                 "game_id": game_id,
                 "date": date,
@@ -114,6 +128,8 @@ def update_season_log(log: dict, game_json: dict, game_id: str, game_meta: dict)
                 "team_ftm": tt.get("ftm", 0),
                 "team_fta": tt.get("fta", 0),
                 "team_tov": tt.get("tov", 0),
+                # Per-quarter points
+                "q1": q_pts[1], "q2": q_pts[2], "q3": q_pts[3], "q4": q_pts[4],
             }
             for k in _PLAYER_STAT_KEYS:
                 entry[k] = gs.get(k, 0)
@@ -185,14 +201,21 @@ def compute_player_season_stats(slug: str, player_data: dict) -> dict:
     totals["team_fga"] = 0
     totals["team_fta"] = 0
     totals["team_tov"] = 0
+    totals["q1"] = 0
+    totals["q2"] = 0
+    totals["q3"] = 0
+    totals["q4"] = 0
 
     dd_games = []
     td_games = []
     fouls_out_games = []
+    pts20_games = []
+    pts30_games = []
     best = {k: {"value": 0, "game_id": ""} for k in
             ["pts", "reb", "oreb", "dreb", "ast", "stl", "blk",
              "fgm", "fga", "fg2m", "fg2a", "fg3m", "fg3a", "ftm", "fta",
              "minutes_seconds"]}
+    best["plus_minus"] = {"value": -9999, "game_id": ""}
 
     for g in played:
         totals["minutes_seconds"] += g.get("minutes_seconds", 0)
@@ -200,6 +223,10 @@ def compute_player_season_stats(slug: str, player_data: dict) -> dict:
         totals["team_fga"] += g.get("team_fga", 0)
         totals["team_fta"] += g.get("team_fta", 0)
         totals["team_tov"] += g.get("team_tov", 0)
+        totals["q1"] += g.get("q1", 0)
+        totals["q2"] += g.get("q2", 0)
+        totals["q3"] += g.get("q3", 0)
+        totals["q4"] += g.get("q4", 0)
 
         for k in _PLAYER_STAT_KEYS:
             totals[k] += g.get(k, 0)
@@ -217,6 +244,12 @@ def compute_player_season_stats(slug: str, player_data: dict) -> dict:
         if g.get("pf", 0) >= 5:
             fouls_out_games.append(g["game_id"])
 
+        # Scoring milestones
+        if g.get("pts", 0) >= 20:
+            pts20_games.append(g["game_id"])
+        if g.get("pts", 0) >= 30:
+            pts30_games.append(g["game_id"])
+
         # Best game
         for k in ["pts", "reb", "oreb", "dreb", "ast", "stl", "blk",
                   "fgm", "fga", "fg2m", "fg2a", "fg3m", "fg3a", "ftm", "fta",
@@ -224,6 +257,9 @@ def compute_player_season_stats(slug: str, player_data: dict) -> dict:
             val = g.get(k, 0)
             if val > best[k]["value"]:
                 best[k] = {"value": val, "game_id": g["game_id"]}
+        pm = g.get("plus_minus", 0)
+        if pm > best["plus_minus"]["value"]:
+            best["plus_minus"] = {"value": pm, "game_id": g["game_id"]}
 
     # Percentages
     fg_pct = round(totals["fgm"] / totals["fga"] * 100, 1) if totals["fga"] else 0.0
@@ -298,6 +334,12 @@ def compute_player_season_stats(slug: str, player_data: dict) -> dict:
         "ftPerGame": round(totals["fta"] / gp, 1),
         "ftmPerGame": round(totals["ftm"] / gp, 1),
         "plusMinusPerGame": round(totals["plus_minus"] / gp, 1),
+        "q1PerGame": round(totals["q1"] / gp, 1),
+        "q2PerGame": round(totals["q2"] / gp, 1),
+        "q3PerGame": round(totals["q3"] / gp, 1),
+        "q4PerGame": round(totals["q4"] / gp, 1),
+        "h1PerGame": round((totals["q1"] + totals["q2"]) / gp, 1),
+        "h2PerGame": round((totals["q3"] + totals["q4"]) / gp, 1),
         # Percentages
         "fgPct": fg_pct,
         "fg2Pct": fg2_pct,
@@ -315,8 +357,19 @@ def compute_player_season_stats(slug: str, player_data: dict) -> dict:
         "tripleDoubleGames": td_games,
         "foulsOut": len(fouls_out_games),
         "foulsOutGames": fouls_out_games,
+        "pts20": len(pts20_games),
+        "pts20Games": pts20_games,
+        "pts30": len(pts30_games),
+        "pts30Games": pts30_games,
         # Best game
         "best": best,
+        # Flat max values for sorting in stats tables
+        "maxPts": best["pts"]["value"],
+        "maxReb": best["reb"]["value"],
+        "maxAst": best["ast"]["value"],
+        "maxStl": best["stl"]["value"],
+        "maxBlk": best["blk"]["value"],
+        "maxPlusMinus": best["plus_minus"]["value"] if best["plus_minus"]["value"] != -9999 else 0,
     }
 
 

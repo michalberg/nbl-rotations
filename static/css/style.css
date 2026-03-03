@@ -291,6 +291,52 @@ h1 {
     color: #fff;
 }
 
+/* Player extended stats */
+.player-stats-extended {
+    margin-bottom: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.pse-group {
+    background: #16213e;
+    border-radius: 6px;
+    padding: 10px 14px;
+}
+.pse-group-title {
+    font-size: 0.7rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+.pse-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+.pse-item {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+.pse-label {
+    font-size: 0.72rem;
+    color: #888;
+    text-transform: uppercase;
+}
+.pse-val {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+.pse-best {
+    font-size: 0.72rem;
+    color: #4a7ab8;
+    text-decoration: none;
+}
+.pse-best:hover { text-decoration: underline; }
+
 /* Players index */
 .players-team-section {
     margin-bottom: 30px;
@@ -350,3 +396,63 @@ h1 {
         display: block;
     }
 }
+
+/* Player stats table layout */
+.pse-groups { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; align-items: flex-start; }
+/* Groups size to their content – tables must NOT be width:100% */
+.pse-group { flex: 0 0 auto; min-width: 170px; }
+/* Secondary cluster: wraps its inner groups in max 2 columns */
+.pse-secondary { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.pse-table { border-collapse: collapse; font-size: 0.82rem; }
+.pse-table th {
+    color: #555; font-size: 0.68rem; text-transform: uppercase;
+    text-align: right; padding: 2px 8px; font-weight: normal; white-space: nowrap;
+}
+.pse-table th:first-child { text-align: left; padding-left: 0; }
+.pse-table td { padding: 4px 8px; text-align: right; color: #ccc; white-space: nowrap; }
+.pse-table td:first-child {
+    text-align: left; color: #888; font-size: 0.72rem;
+    text-transform: uppercase; padding-left: 0;
+}
+.pse-table .val { font-weight: bold; color: #e0e0e0; }
+.pse-best-link { color: #4a7ab8; text-decoration: none; }
+.pse-best-link:hover { text-decoration: underline; }
+[data-tip] { position: relative; }
+[data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f0f23;
+    color: #ccc;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    z-index: 200;
+    pointer-events: none;
+}
+
+/* Time filter (shared) */
+.time-filter {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 20px; padding: 10px 14px;
+    background: #16213e; border-radius: 6px; font-size: 0.82rem;
+}
+.tf-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.tf-label { color: #666; font-size: 0.78rem; white-space: nowrap; }
+.tf-btn {
+    padding: 3px 10px; background: #1a1a2e; border: 1px solid #333;
+    border-radius: 4px; color: #888; font-size: 0.78rem; cursor: pointer;
+    white-space: nowrap;
+}
+.tf-btn:hover { color: #ccc; background: #1a2a50; }
+.tf-btn.active { background: #1a3a8b; color: #fff; border-color: #1a3a8b; }
+.tf-input {
+    width: 46px; max-width: 46px; min-width: 0; padding: 3px 6px;
+    background: #1a1a2e; border: 1px solid #333;
+    border-radius: 4px; color: #ccc; font-size: 0.78rem; box-sizing: border-box;
+}
+.tf-status { font-size: 0.75rem; color: #555; margin-left: 8px; }

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Očekávané milníky 2025-26 | NBL Rotations</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 32px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        .section-title:first-of-type { margin-top: 8px; }
+        .milestone-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            margin-bottom: 8px;
+        }
+        .milestone-table thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 8px 10px;
+            text-align: right;
+        }
+        .milestone-table thead th:first-child,
+        .milestone-table thead th:nth-child(2) { text-align: left; }
+        .milestone-table tbody tr {
+            border-bottom: 1px solid #222;
+            transition: background 0.1s;
+        }
+        .milestone-table tbody tr:hover { background: #16213e; }
+        .milestone-table tbody td { padding: 7px 10px; text-align: right; color: #ccc; }
+        .milestone-table tbody td.rank { color: #555; font-size: 0.75rem; }
+        .milestone-table tbody td.player { text-align: left; }
+        .milestone-table tbody td.player a { color: #4a7ab8; text-decoration: none; }
+        .milestone-table tbody td.player a:hover { text-decoration: underline; }
+        .milestone-table tbody td.team { text-align: left; color: #666; font-size: 0.75rem; }
+        .milestone-table tbody td.progress {
+            color: #e0e0e0; font-weight: bold; font-size: 0.88rem;
+        }
+        .milestone-arrow { color: #4a7ab8; margin: 0 4px; }
+        .milestone-val { color: #4caf50; }
+        .remaining-val { color: #ef9a50; }
+        .games-val { color: #e0e0e0; font-weight: bold; }
+        .wrap { overflow-x: auto; }
+        .intro { color: #555; font-size: 0.82rem; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+<nav class="site-nav">
+    <div class="site-nav-inner">
+        <a href="../../index.html" class="nav-brand">NBL data</a>
+        <div class="nav-links">
+            <a href="../../index.html" class="nav-link">Zápasy</a>
+            <a href="../../player/index.html" class="nav-link">Hráči</a>
+            <a href="../../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
+            <a href="../../leaderboard/2025-26/players.html" class="nav-link">TOP hráči</a>
+            <a href="../../stats/2025-26/teams.html" class="nav-link">Statistiky týmů</a>
+            <a href="../../leaderboard/2025-26/teams.html" class="nav-link">TOP týmy</a>
+            <a href="../../stats/2025-26/top_games.html" class="nav-link">TOP zápasy</a>
+            <a href="../../stats/2025-26/milestones.html" class="nav-link active">Milníky</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h1>Očekávané milníky NBL 2025-26</h1>
+    <p class="intro">Hráči, kteří se v nejbližším zápase blíží sezónnímu milníku (násobek 100). Zobrazeni jsou ti, jimž zbývá nejvýše 1,5× průměr na zápas.</p>
+
+    
+    <div class="section-title">Body (PTS)</div>
+    <div class="wrap">
+    <table class="milestone-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th>Aktuální → Milník</th>
+                <th>Zbývá</th>
+                <th>Průměr/z</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="rank">1.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-jamonda-roshawn-bryant.html">Jamonda Roshawn Bryant </a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    572
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">600</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">28</span></td>
+                <td>20.4</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">2.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/nh-ostrava-keenon-cole.html">Keenon Cole</a>
+                </td>
+                <td class="team">NH Ostrava</td>
+                <td class="progress">
+                    389
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">400</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">11</span></td>
+                <td>14.4</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">3.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-olomoucko-jaren-jamir-holmes.html">Jaren Jamir Holmes</a>
+                </td>
+                <td class="team">BK Olomoucko</td>
+                <td class="progress">
+                    291
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">300</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">9</span></td>
+                <td>17.1</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">4.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-olomoucko-kyler-filewich.html">Kyler Filewich</a>
+                </td>
+                <td class="team">BK Olomoucko</td>
+                <td class="progress">
+                    289
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">300</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">11</span></td>
+                <td>11.1</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">5.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-lubos-kovar.html">Luboš Kovář</a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    288
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">300</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">12</span></td>
+                <td>10.3</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">6.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/usk-praha-ondrej-svec.html">Ondřej Švec</a>
+                </td>
+                <td class="team">USK Praha</td>
+                <td class="progress">
+                    282
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">300</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">18</span></td>
+                <td>12.3</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">7.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/nh-ostrava-lukas-palyza.html">Lukáš Palyza</a>
+                </td>
+                <td class="team">NH Ostrava</td>
+                <td class="progress">
+                    288
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">300</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">12</span></td>
+                <td>10.3</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">8.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-armex-energy-decin-filip-kroutil.html">Filip Kroutil</a>
+                </td>
+                <td class="team">BK ARMEX ENERGY Děčín</td>
+                <td class="progress">
+                    191
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">200</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">9</span></td>
+                <td>6.8</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">9.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/era-basketball-nymburk-ondrej-sehnal.html">Ondřej Sehnal</a>
+                </td>
+                <td class="team">ERA Basketball Nymburk</td>
+                <td class="progress">
+                    199
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">200</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">1</span></td>
+                <td>9.0</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">10.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/era-basketball-nymburk-martin-kriz.html">Martin Kříž</a>
+                </td>
+                <td class="team">ERA Basketball Nymburk</td>
+                <td class="progress">
+                    188
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">200</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">12</span></td>
+                <td>8.2</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">11.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/pumpa-basket-brno-jacob-austin-groves.html">Jacob Austin Groves</a>
+                </td>
+                <td class="team">PUMPA Basket Brno</td>
+                <td class="progress">
+                    181
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">200</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">19</span></td>
+                <td>12.9</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">12.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/usk-praha-cortesao-joao-eduardo.html">Cortesao Joao Eduardo</a>
+                </td>
+                <td class="team">USK Praha</td>
+                <td class="progress">
+                    96
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">4</span></td>
+                <td>4.6</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">13.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/sk-slavia-praha-radek-pumprla.html">Radek Pumprla</a>
+                </td>
+                <td class="team">SK Slavia Praha</td>
+                <td class="progress">
+                    98
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">2</span></td>
+                <td>6.5</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">14.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/srsni-photomate-pisek-jakub-zvolanek.html">Jakub Zvolánek</a>
+                </td>
+                <td class="team">Sršni Photomate Písek</td>
+                <td class="progress">
+                    98
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">2</span></td>
+                <td>3.9</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">15.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/sk-slavia-praha-petr-machac.html">Petr Macháč</a>
+                </td>
+                <td class="team">SK Slavia Praha</td>
+                <td class="progress">
+                    93
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">7</span></td>
+                <td>4.9</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">16.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-gapa-hradec-kralove-cody-chevell-christian-john.html">Cody Chevell Christian John</a>
+                </td>
+                <td class="team">BK GAPA Hradec Králové</td>
+                <td class="progress">
+                    91
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> bodů</span>
+                </td>
+                <td><span class="remaining-val">9</span></td>
+                <td>18.2</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+    <div class="section-title">Asistence (AST)</div>
+    <div class="wrap">
+    <table class="milestone-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th>Aktuální → Milník</th>
+                <th>Zbývá</th>
+                <th>Průměr/z</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="rank">1.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-opava-jakub-sirina.html">Jakub Šiřina</a>
+                </td>
+                <td class="team">BK Opava</td>
+                <td class="progress">
+                    97
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> asistencí</span>
+                </td>
+                <td><span class="remaining-val">3</span></td>
+                <td>4.0</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">2.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-jakub-tuma.html">Jakub Tůma</a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    99
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> asistencí</span>
+                </td>
+                <td><span class="remaining-val">1</span></td>
+                <td>3.5</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">3.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/era-basketball-nymburk-sir-jabari-rice.html">Sir Jabari Rice</a>
+                </td>
+                <td class="team">ERA Basketball Nymburk</td>
+                <td class="progress">
+                    96
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> asistencí</span>
+                </td>
+                <td><span class="remaining-val">4</span></td>
+                <td>4.2</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+    <div class="section-title">Trestné hody (FTM)</div>
+    <div class="wrap">
+    <table class="milestone-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th>Aktuální → Milník</th>
+                <th>Zbývá</th>
+                <th>Průměr/z</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="rank">1.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-zed-jackson-key.html">Zed Jackson Key</a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    97
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> TH</span>
+                </td>
+                <td><span class="remaining-val">3</span></td>
+                <td>3.5</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+    <div class="section-title">Střely proměněné (FGM)</div>
+    <div class="wrap">
+    <table class="milestone-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th>Aktuální → Milník</th>
+                <th>Zbývá</th>
+                <th>Průměr/z</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="rank">1.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-jamonda-roshawn-bryant.html">Jamonda Roshawn Bryant </a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    192
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">200</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> střel</span>
+                </td>
+                <td><span class="remaining-val">8</span></td>
+                <td>6.9</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">2.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-gapa-hradec-kralove-kareem-lamonte-brewton.html">Kareem Lamonte  Brewton </a>
+                </td>
+                <td class="team">BK GAPA Hradec Králové</td>
+                <td class="progress">
+                    96
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> střel</span>
+                </td>
+                <td><span class="remaining-val">4</span></td>
+                <td>4.6</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">3.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-opava-simon-pursl.html">Šimon Puršl</a>
+                </td>
+                <td class="team">BK Opava</td>
+                <td class="progress">
+                    99
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> střel</span>
+                </td>
+                <td><span class="remaining-val">1</span></td>
+                <td>4.1</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">4.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-ryan-everett-moffatt.html">Ryan Everett Moffatt</a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    98
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">100</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> střel</span>
+                </td>
+                <td><span class="remaining-val">2</span></td>
+                <td>3.8</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+    <div class="section-title">Minuty</div>
+    <div class="wrap">
+    <table class="milestone-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th>Aktuální → Milník</th>
+                <th>Zbývá</th>
+                <th>Průměr/z</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="rank">1.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-jamonda-roshawn-bryant.html">Jamonda Roshawn Bryant </a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    769.5
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">800</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">30.5</span></td>
+                <td>27.5</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">2.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/sk-slavia-praha-rubin-patrick-jones.html">Rubin Patrick Jones</a>
+                </td>
+                <td class="team">SK Slavia Praha</td>
+                <td class="progress">
+                    777.2
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">800</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">22.8</span></td>
+                <td>31.1</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">3.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/srsni-photomate-pisek-martin-svoboda.html">Martin Svoboda</a>
+                </td>
+                <td class="team">Sršni Photomate Písek</td>
+                <td class="progress">
+                    795.5
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">800</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">4.5</span></td>
+                <td>29.5</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">4.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-gapa-hradec-kralove-david-skranc.html">David Škranc</a>
+                </td>
+                <td class="team">BK GAPA Hradec Králové</td>
+                <td class="progress">
+                    671.5
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">700</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">28.5</span></td>
+                <td>25.8</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">5.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-gapa-hradec-kralove-martin-roub.html">Martin Roub</a>
+                </td>
+                <td class="team">BK GAPA Hradec Králové</td>
+                <td class="progress">
+                    670.5
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">700</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">29.5</span></td>
+                <td>25.8</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">6.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/usk-praha-ondrej-svec.html">Ondřej Švec</a>
+                </td>
+                <td class="team">USK Praha</td>
+                <td class="progress">
+                    680.1
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">700</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">19.9</span></td>
+                <td>29.6</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">7.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/usk-praha-matej-safarik.html">Matěj Šafařík</a>
+                </td>
+                <td class="team">USK Praha</td>
+                <td class="progress">
+                    697.2
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">700</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">2.8</span></td>
+                <td>25.8</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">8.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-armex-energy-decin-jan-sterba.html">Jan Štěrba</a>
+                </td>
+                <td class="team">BK ARMEX ENERGY Děčín</td>
+                <td class="progress">
+                    677.8
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">700</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">22.2</span></td>
+                <td>24.2</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">9.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-opava-simon-pursl.html">Šimon Puršl</a>
+                </td>
+                <td class="team">BK Opava</td>
+                <td class="progress">
+                    577.5
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">600</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">22.5</span></td>
+                <td>24.1</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">10.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-kvis-pardubice-zed-jackson-key.html">Zed Jackson Key</a>
+                </td>
+                <td class="team">BK KVIS Pardubice</td>
+                <td class="progress">
+                    588.6
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">600</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">11.4</span></td>
+                <td>21.0</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">11.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/srsni-photomate-pisek-jan-karlovsky.html">Jan Karlovský</a>
+                </td>
+                <td class="team">Sršni Photomate Písek</td>
+                <td class="progress">
+                    576.7
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">600</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">23.3</span></td>
+                <td>22.2</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">12.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/sluneta-usti-nad-labem-adam-pechacek.html">Adam Pecháček</a>
+                </td>
+                <td class="team">SLUNETA  Ústí nad Labem</td>
+                <td class="progress">
+                    584.5
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">600</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">15.5</span></td>
+                <td>21.6</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">13.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/sluneta-usti-nad-labem-jayhlon-young.html">Jayhlon Young</a>
+                </td>
+                <td class="team">SLUNETA  Ústí nad Labem</td>
+                <td class="progress">
+                    587.6
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">600</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">12.4</span></td>
+                <td>21.8</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">14.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/pumpa-basket-brno-simon-svoboda.html">Šimon Svoboda</a>
+                </td>
+                <td class="team">PUMPA Basket Brno</td>
+                <td class="progress">
+                    574.6
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">600</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">25.4</span></td>
+                <td>22.1</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">15.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-olomoucko-adam-goga.html">Adam Goga</a>
+                </td>
+                <td class="team">BK Olomoucko</td>
+                <td class="progress">
+                    483.8
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">500</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">16.2</span></td>
+                <td>18.6</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">16.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-gapa-hradec-kralove-tomas-merta.html">Tomáš Merta</a>
+                </td>
+                <td class="team">BK GAPA Hradec Králové</td>
+                <td class="progress">
+                    496.2
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">500</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">3.8</span></td>
+                <td>19.1</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">17.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/bk-armex-energy-decin-lukas-festr.html">Lukáš Feštr</a>
+                </td>
+                <td class="team">BK ARMEX ENERGY Děčín</td>
+                <td class="progress">
+                    489.0
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">500</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">11.0</span></td>
+                <td>17.5</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">18.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/srsni-photomate-pisek-michal-kozak.html">Michal Kozák</a>
+                </td>
+                <td class="team">Sršni Photomate Písek</td>
+                <td class="progress">
+                    491.2
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">500</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">8.8</span></td>
+                <td>18.2</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">19.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/nh-ostrava-dominik-heinzl.html">Dominik Heinzl</a>
+                </td>
+                <td class="team">NH Ostrava</td>
+                <td class="progress">
+                    486.7
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">500</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">13.3</span></td>
+                <td>18.0</td>
+            </tr>
+            
+            <tr>
+                <td class="rank">20.</td>
+                <td class="player">
+                    <a href="../../player/2025-26/pumpa-basket-brno-radek-farsky.html">Radek Farský</a>
+                </td>
+                <td class="team">PUMPA Basket Brno</td>
+                <td class="progress">
+                    477.9
+                    <span class="milestone-arrow">→</span>
+                    <span class="milestone-val">500</span>
+                    <span style="color:#555;font-size:0.72rem;font-weight:normal"> min</span>
+                </td>
+                <td><span class="remaining-val">22.1</span></td>
+                <td>19.1</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+
+    
+
+</div>
+</body>
+</html>

@@ -24,9 +24,13 @@
             <a href="../../leaderboard/2025-26/players.html" class="nav-link">TOP hráči</a>
             <a href="../../stats/2025-26/teams.html" class="nav-link">Statistiky týmů</a>
             <a href="../../leaderboard/2025-26/teams.html" class="nav-link">TOP týmy</a>
+            <a href="../../stats/2025-26/top_games.html" class="nav-link">TOP zápasy</a>
+            <a href="../../stats/2025-26/milestones.html" class="nav-link">Milníky</a>
         </div>
     </div>
 </nav>
+<script>const PLAYER_GAMES = [{"date": "2025-09-28", "isDNP": false, "won": false, "team": "SLUNETA  Ústí nad Labem", "game_id": "2705712", "plus_minus": -13, "opponent": "PUMPA Basket Brno", "score": "64:87", "isHome": true, "q1": 3, "q2": 0, "q3": 2, "q4": 0, "pts": 5, "reb": 3, "oreb": 1, "dreb": 2, "ast": 0, "stl": 0, "blk": 0, "tov": 1, "pf": 1, "pfd": 0, "technical": 0, "fgm": 2, "fga": 6, "fg2m": 1, "fg2a": 2, "fg3m": 1, "fg3a": 4, "ftm": 0, "fta": 0}, {"date": "2025-10-01", "isDNP": false, "won": false, "team": "SLUNETA  Ústí nad Labem", "game_id": "2708056", "plus_minus": -2, "opponent": "BK KVIS Pardubice", "score": "74:92", "isHome": false, "q1": 5, "q2": 0, "q3": 2, "q4": 2, "pts": 9, "reb": 4, "oreb": 1, "dreb": 3, "ast": 0, "stl": 0, "blk": 0, "tov": 2, "pf": 3, "pfd": 3, "technical": 0, "fgm": 2, "fga": 7, "fg2m": 1, "fg2a": 4, "fg3m": 1, "fg3a": 3, "ftm": 4, "fta": 6}, {"date": "2025-10-05", "isDNP": false, "won": true, "team": "SLUNETA  Ústí nad Labem", "game_id": "2712000", "plus_minus": -7, "opponent": "BK GAPA Hradec Králové", "score": "112:80", "isHome": true, "q1": 0, "q2": 0, "q3": 0, "q4": 7, "pts": 7, "reb": 5, "oreb": 3, "dreb": 2, "ast": 0, "stl": 0, "blk": 0, "tov": 1, "pf": 2, "pfd": 3, "technical": 0, "fgm": 2, "fga": 5, "fg2m": 2, "fg2a": 4, "fg3m": 0, "fg3a": 1, "ftm": 3, "fta": 4}];
+const TEAM_RECORDS = {"Sršni Photomate Písek": {"gp": 27, "wins": 15}, "NH Ostrava": {"gp": 28, "wins": 10}, "BK Olomoucko": {"gp": 26, "wins": 9}, "BK GAPA Hradec Králové": {"gp": 26, "wins": 4}, "BK Opava": {"gp": 26, "wins": 13}, "BK KVIS Pardubice": {"gp": 28, "wins": 21}, "SLUNETA  Ústí nad Labem": {"gp": 27, "wins": 15}, "PUMPA Basket Brno": {"gp": 27, "wins": 17}, "USK Praha": {"gp": 27, "wins": 8}, "BK ARMEX ENERGY Děčín": {"gp": 28, "wins": 16}, "SK Slavia Praha": {"gp": 27, "wins": 9}, "ERA Basketball Nymburk": {"gp": 25, "wins": 24}};</script>
     <div class="container">
         <h1 class="player-name-header">Jordan Glover</h1>
         <p class="player-team-info">
@@ -50,50 +54,7 @@
             <div class="stat-item"><span class="stat-label">+/&minus;</span><span class="stat-value">-7.3</span></div>
         </div>
 
-        <div class="player-stats-extended">
-            <div class="pse-group">
-                <div class="pse-group-title">Základní</div>
-                <div class="pse-row">
-                    <div class="pse-item"><span class="pse-label">PTS</span><span class="pse-val">7.0</span><span class="pse-best">Σ 21</span><a class="pse-best" href="../../game/2708056.html">max 9</a></div>
-                    <div class="pse-item"><span class="pse-label">REB</span><span class="pse-val">4.0</span><span class="pse-best">Σ 12</span><a class="pse-best" href="../../game/2712000.html">max 5</a></div>
-                    <div class="pse-item"><span class="pse-label">OREB</span><span class="pse-val">1.7</span><span class="pse-best">Σ 5</span><a class="pse-best" href="../../game/2712000.html">max 3</a></div>
-                    <div class="pse-item"><span class="pse-label">DREB</span><span class="pse-val">2.3</span><span class="pse-best">Σ 7</span><a class="pse-best" href="../../game/2708056.html">max 3</a></div>
-                    <div class="pse-item"><span class="pse-label">AST</span><span class="pse-val">0.0</span><span class="pse-best">Σ 0</span></div>
-                    <div class="pse-item"><span class="pse-label">STL</span><span class="pse-val">0.0</span><span class="pse-best">Σ 0</span></div>
-                    <div class="pse-item"><span class="pse-label">BLK</span><span class="pse-val">0.0</span><span class="pse-best">Σ 0</span></div>
-                    <div class="pse-item"><span class="pse-label">TOV</span><span class="pse-val">1.3</span><span class="pse-best">Σ 4</span></div>
-                    <div class="pse-item"><span class="pse-label">+/-</span><span class="pse-val">-7.3</span><span class="pse-best">Σ -22</span><a class="pse-best" href="../../game/2708056.html">max -2</a></div>
-                </div>
-            </div>
-            <div class="pse-group">
-                <div class="pse-group-title">Střelba</div>
-                <div class="pse-row">
-                    <div class="pse-item"><span class="pse-label">FG%</span><span class="pse-val">33.3%</span><span class="pse-best">6/18</span><a class="pse-best" href="../../game/2705712.html">max 2 FGM</a></div>
-                    <div class="pse-item"><span class="pse-label">2P%</span><span class="pse-val">40.0%</span><span class="pse-best">4/10</span></div>
-                    <div class="pse-item"><span class="pse-label">3P%</span><span class="pse-val">25.0%</span><span class="pse-best">2/8</span><a class="pse-best" href="../../game/2705712.html">max 1 3PM</a></div>
-                    <div class="pse-item"><span class="pse-label">FT%</span><span class="pse-val">70.0%</span><span class="pse-best">7/10</span><a class="pse-best" href="../../game/2708056.html">max 4 FTM</a></div>
-                </div>
-            </div>
-            <div class="pse-group">
-                <div class="pse-group-title">Pokročilé</div>
-                <div class="pse-row">
-                    <div class="pse-item"><span class="pse-label" title="Player Efficiency Rating">PER</span><span class="pse-val">4.67</span></div>
-                    <div class="pse-item"><span class="pse-label" title="True Shooting %">TS%</span><span class="pse-val">46.9%</span></div>
-                    <div class="pse-item"><span class="pse-label" title="Effective FG%">eFG%</span><span class="pse-val">38.9%</span></div>
-                    <div class="pse-item"><span class="pse-label">PF/G</span><span class="pse-val">2.0</span></div>
-                    <div class="pse-item"><span class="pse-label">PFD/G</span><span class="pse-val">2.0</span></div>
-                </div>
-            </div>
-            <div class="pse-group">
-                <div class="pse-group-title">Individuální čísla</div>
-                <div class="pse-row">
-                    <div class="pse-item"><span class="pse-label">Double-double</span><span class="pse-val">0</span></div>
-                    <div class="pse-item"><span class="pse-label">Triple-double</span><span class="pse-val">0</span></div>
-                    <div class="pse-item"><span class="pse-label">Foul-out</span><span class="pse-val">0</span></div>
-                    <div class="pse-item"><span class="pse-label">TF</span><span class="pse-val">0</span></div>
-                </div>
-            </div>
-        </div>
+        <div id="player-stats-section"></div>
 
         <p class="mobile-warning">Web není z důvodu použitých technologií optimalizován pro zobrazení na mobilu</p>
         <div id="player-chart" class="rotation-chart"></div>
@@ -103,5 +64,341 @@
         const PLAYER_DATA_URL = "../../data/player/2025-26/sluneta-usti-nad-labem-jordan-glover.json";
     </script>
     <script src="../../js/player-chart.js"></script>
+    <script>
+const MONTH_CS = {
+    '01':'Leden','02':'Únor','03':'Březen','04':'Duben',
+    '05':'Květen','06':'Červen','07':'Červenec','08':'Srpen',
+    '09':'Září','10':'Říjen','11':'Listopad','12':'Prosinec'
+};
+const STAT_KEYS = ['pts','reb','oreb','dreb','ast','stl','blk','tov',
+                   'pf','pfd','technical','fgm','fga','fg2m','fg2a','fg3m','fg3a','ftm','fta',
+                   'q1','q2','q3','q4'];
+const BEST_KEYS = ['pts','reb','oreb','dreb','ast','stl','blk','tov','fgm','fga','fg2m','fg3m','fg3a','ftm','fta'];
+
+const _playedGames = PLAYER_GAMES.filter(g => !g.isDNP);
+const _months = [...new Set(_playedGames.map(g => g.date.slice(0, 7)))].sort();
+
+let activeFilter = {type: 'all'};
+let _lastCustomN = '';
+let _firstCustomN = '';
+
+function filterGames(filter) {
+    if (filter.type === 'all') return _playedGames;
+    if (filter.type === 'month') return _playedGames.filter(g => g.date.startsWith(filter.val));
+    if (filter.type === 'last') return _playedGames.slice(-filter.n);
+    if (filter.type === 'first') return _playedGames.slice(0, filter.n);
+    return _playedGames;
+}
+
+function computeStats(games) {
+    const gp = games.length;
+    if (!gp) return null;
+    const t = Object.fromEntries(STAT_KEYS.map(k => [k, 0]));
+    let pm = 0;
+    const _emptyBest = () => ({v: 0, gid: '', date: '', opp: '', score: '', home: false});
+    const best = Object.fromEntries(BEST_KEYS.map(k => [k, _emptyBest()]));
+    best.plus_minus = {v: -9999, gid: '', date: '', opp: '', score: '', home: false};
+    let dd = 0, td = 0, fo = 0, pts20 = 0, pts30 = 0;
+    for (const g of games) {
+        for (const k of STAT_KEYS) t[k] += g[k] || 0;
+        pm += g.plus_minus || 0;
+        const meta = {gid: g.game_id, date: g.date, opp: g.opponent, score: g.score, home: g.isHome};
+        for (const k of BEST_KEYS) {
+            if ((g[k] || 0) > best[k].v) best[k] = {v: g[k], ...meta};
+        }
+        if ((g.plus_minus || 0) > best.plus_minus.v) best.plus_minus = {v: g.plus_minus, ...meta};
+        const ddc = ['pts','reb','ast','stl'].filter(c => (g[c] || 0) >= 10).length;
+        if (ddc >= 3) { td++; dd++; } else if (ddc >= 2) dd++;
+        if ((g.pf || 0) >= 5) fo++;
+        if ((g.pts || 0) >= 20) pts20++;
+        if ((g.pts || 0) >= 30) pts30++;
+    }
+    const tsDenom = 2 * (t.fga + 0.44 * t.fta);
+    const tsPct = tsDenom ? (t.pts / tsDenom * 100).toFixed(1) : '0.0';
+    const efgPct = t.fga ? ((t.fgm + 0.5 * t.fg3m) / t.fga * 100).toFixed(1) : '0.0';
+    const per = ((t.pts + t.reb + t.ast + t.stl + t.blk - (t.fga - t.fgm) - (t.fta - t.ftm) - t.tov) / gp).toFixed(2);
+    return {gp, t, pm, best, dd, td, fo, pts20, pts30, tsPct, efgPct, per};
+}
+
+function r1(v) { return (Math.round(v * 10) / 10).toFixed(1); }
+function pct(made, att) { return att ? (made / att * 100).toFixed(1) + '%' : '0.0%'; }
+
+function fmtDate(d) {
+    if (!d) return '';
+    const p = d.split('-');
+    return `${p[2]}.${p[1]}.${p[0]}`;
+}
+
+function maxLink(key, s) {
+    const b = s.best[key];
+    if (!b || !b.gid || b.v <= 0) return '-';
+    const loc = b.home ? 'vs' : '@';
+    const tip = b.opp ? `${fmtDate(b.date)} · ${loc} ${b.opp} · ${b.score}` : fmtDate(b.date);
+    return `<a class="pse-best-link" href="../../game/${b.gid}.html" data-tip="${tip}">${b.v}</a>`;
+}
+
+function renderFilter() {
+    const af = activeFilter;
+    const allActive = af.type === 'all' ? ' active' : '';
+    const monthBtns = _months.map(m => {
+        const active = (af.type === 'month' && af.val === m) ? ' active' : '';
+        return `<button class="tf-btn${active}" data-action="month" data-val="${m}">${MONTH_CS[m.slice(5)]}</button>`;
+    }).join('');
+
+    const lastBtns = [5, 10, 15].map(n => {
+        const active = (af.type === 'last' && af.n === n && !_lastCustomN) ? ' active' : '';
+        return `<button class="tf-btn${active}" data-action="last" data-n="${n}">${n}</button>`;
+    }).join('');
+    const lastCustomActive = (af.type === 'last' && _lastCustomN) ? ' active' : '';
+
+    const firstBtns = [5, 10].map(n => {
+        const active = (af.type === 'first' && af.n === n && !_firstCustomN) ? ' active' : '';
+        return `<button class="tf-btn${active}" data-action="first" data-n="${n}">${n}</button>`;
+    }).join('');
+    const firstCustomActive = (af.type === 'first' && _firstCustomN) ? ' active' : '';
+
+    const played = filterGames(af).length;
+    const total = _playedGames.length;
+    const statusStr = af.type === 'all' ? '' :
+        `<span class="tf-status">${played} z ${total} zápasů</span>`;
+
+    return `<div class="time-filter">
+        <div class="tf-row">
+            <button class="tf-btn${allActive}" data-action="all">Vše</button>
+            ${monthBtns}
+            ${statusStr}
+        </div>
+        <div class="tf-row">
+            <span class="tf-label">Posledních:</span>
+            ${lastBtns}
+            <span class="tf-label">vlastní:</span>
+            <input class="tf-input" id="last-n-input" type="number" min="1" value="${_lastCustomN}">
+            <button class="tf-btn${lastCustomActive}" id="last-n-btn">OK</button>
+            <span class="tf-label">zápasů</span>
+        </div>
+        <div class="tf-row">
+            <span class="tf-label">Prvních:</span>
+            ${firstBtns}
+            <span class="tf-label">vlastní:</span>
+            <input class="tf-input" id="first-n-input" type="number" min="1" value="${_firstCustomN}">
+            <button class="tf-btn${firstCustomActive}" id="first-n-btn">OK</button>
+            <span class="tf-label">zápasů</span>
+        </div>
+    </div>`;
+}
+
+function renderStatsHTML(s) {
+    if (!s) return '<p style="color:#666;padding:10px 0">Žádné zápasy v tomto filtru.</p>';
+    const {gp, t, pm, best, dd, td, fo, pts20, pts30, tsPct, efgPct, per} = s;
+
+    const basicRows = [
+        ['PTS',  r1(t.pts / gp),  t.pts,  maxLink('pts', s)],
+        ['REB',  r1(t.reb / gp),  t.reb,  maxLink('reb', s)],
+        ['OREB', r1(t.oreb / gp), t.oreb, maxLink('oreb', s)],
+        ['DREB', r1(t.dreb / gp), t.dreb, maxLink('dreb', s)],
+        ['AST',  r1(t.ast / gp),  t.ast,  maxLink('ast', s)],
+        ['STL',  r1(t.stl / gp),  t.stl,  maxLink('stl', s)],
+        ['BLK',  r1(t.blk / gp),  t.blk,  maxLink('blk', s)],
+        ['TOV',  r1(t.tov / gp),  t.tov,  maxLink('tov', s)],
+        ['+/-',  r1(pm / gp),     pm,     maxLink('plus_minus', s)],
+    ].map(([label, avg, sum, mx]) =>
+        `<tr><td>${label}</td><td class="val">${avg}</td><td>${sum}</td><td>${mx}</td></tr>`
+    ).join('');
+
+    const shootRows = [
+        ['FG%', pct(t.fgm, t.fga),   `${t.fgm}/${t.fga}`,   maxLink('fgm', s)],
+        ['2P%', pct(t.fg2m, t.fg2a), `${t.fg2m}/${t.fg2a}`, maxLink('fg2m', s)],
+        ['3P%', pct(t.fg3m, t.fg3a), `${t.fg3m}/${t.fg3a}`, maxLink('fg3m', s)],
+        ['FT%', pct(t.ftm, t.fta),   `${t.ftm}/${t.fta}`,   maxLink('ftm', s)],
+    ].map(([label, perc, made, mx]) =>
+        `<tr><td>${label}</td><td class="val">${perc}</td><td>${made}</td><td>${mx}</td></tr>`
+    ).join('');
+
+    const advRows = [
+        ['PER',  per,          'Player Efficiency Rating – souhrnné hodnocení efektivity'],
+        ['TS%',  tsPct + '%',  'True Shooting % – efektivita střelby včetně 3P a TH'],
+        ['eFG%', efgPct + '%', 'Effective FG% – FG% upravené o hodnotu trojek'],
+    ].map(([label, val, tip]) =>
+        `<tr><td data-tip="${tip}">${label}</td><td class="val">${val}</td></tr>`
+    ).join('');
+
+    const foulRows = [
+        ['PF/G',  r1(t.pf / gp),  t.pf,  'Osobní chyby za zápas'],
+        ['PFD/G', r1(t.pfd / gp), t.pfd, 'Získané fauly za zápas'],
+    ].map(([label, val, sum, tip]) =>
+        `<tr><td data-tip="${tip}">${label}</td><td class="val">${val}</td><td>${sum}</td></tr>`
+    ).join('') +
+    `<tr><td data-tip="Vyloučení – 5 a více osobních chyb v zápase">Foul-out</td><td class="val">${fo}</td><td></td></tr>` +
+    `<tr><td data-tip="Technická chyba">TF</td><td class="val">${t.technical}</td><td></td></tr>`;
+
+    const milRows = [
+        ['Double-double', dd,    '2+ kategorií s 10+ body (PTS / REB / AST / STL)'],
+        ['Triple-double', td,    '3+ kategorií s 10+ body (PTS / REB / AST / STL)'],
+        ['20+ bodů',      pts20, 'Zápasy s alespoň 20 body'],
+        ['30+ bodů',      pts30, 'Zápasy s alespoň 30 body'],
+    ].map(([label, val, tip]) =>
+        `<tr><td data-tip="${tip}">${label}</td><td class="val">${val}</td></tr>`
+    ).join('');
+
+    return `<div class="pse-groups">
+        <div class="pse-group">
+            <div class="pse-group-title">Základní &middot; ${gp} zápasů</div>
+            <table class="pse-table">
+                <thead><tr><th></th>
+                    <th data-tip="Průměr za zápas">/zápas</th>
+                    <th data-tip="Součet za sezónu / filtr">Σ</th>
+                    <th data-tip="Nejlepší výkon – kliknutím otevřeš zápas">Max</th>
+                </tr></thead>
+                <tbody>${basicRows}</tbody>
+            </table>
+        </div>
+        <div class="pse-group">
+            <div class="pse-group-title">Střelba</div>
+            <table class="pse-table">
+                <thead><tr><th></th>
+                    <th data-tip="Procentuální úspěšnost">%</th>
+                    <th data-tip="Proměněné / Pokusy">Made/Att</th>
+                    <th data-tip="Nejvíce proměněných v jednom zápase">Max</th>
+                </tr></thead>
+                <tbody>${shootRows}</tbody>
+            </table>
+        </div>
+        ${(() => {
+            const winsTeams = [...new Set(PLAYER_GAMES.map(g => g.team).filter(Boolean))];
+            const multiTeam = winsTeams.length > 1;
+            const rows = winsTeams.map(teamName => {
+                const rec = TEAM_RECORDS[teamName] || {gp: 0, wins: 0};
+                const teamGP = rec.gp;
+                const teamWins = rec.wins;
+                const teamWinPct = teamGP ? Math.round(teamWins / teamGP * 100) : 0;
+                const playerGames = PLAYER_GAMES.filter(g => g.team === teamName && !g.isDNP);
+                const playerGP = playerGames.length;
+                const playerWins = playerGames.filter(g => g.won).length;
+                const playerWinPct = playerGP ? Math.round(playerWins / playerGP * 100) : 0;
+                const delta = playerWinPct - teamWinPct;
+                const deltaColor = delta > 0 ? '#4caf50' : delta < 0 ? '#ef5350' : '#888';
+                const deltaStr = delta > 0 ? `+${delta}%` : `${delta}%`;
+                const teamHeader = multiTeam
+                    ? `<tr><td colspan="5" style="color:#666;font-size:0.75rem;padding-top:8px;padding-bottom:2px">${teamName}</td></tr>`
+                    : '';
+                return teamHeader +
+                    `<tr><td>Celá sezona</td><td>${teamGP}</td><td>${teamWins}</td><td>${teamGP - teamWins}</td><td>${teamWinPct}%</td></tr>` +
+                    `<tr><td>S hráčem</td><td>${playerGP}</td><td>${playerWins}</td><td>${playerGP - playerWins}</td><td>${playerWinPct}%</td></tr>` +
+                    `<tr><td style="color:#555">Δ Win%</td><td></td><td></td><td></td><td style="color:${deltaColor};font-weight:bold">${deltaStr}</td></tr>`;
+            }).join('');
+            return `<div class="pse-group">
+                <div class="pse-group-title">Vliv na výhry týmu</div>
+                <table class="pse-table">
+                    <thead><tr><th></th><th>Zápasy</th><th>Výhry</th><th>Prohry</th><th>Win%</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+        })()}
+        <div class="pse-secondary">
+            <div class="pse-group">
+                <div class="pse-group-title">Pokročilé</div>
+                <table class="pse-table">
+                    <thead><tr><th></th><th>hodnota</th></tr></thead>
+                    <tbody>${advRows}</tbody>
+                </table>
+            </div>
+            <div class="pse-group">
+                <div class="pse-group-title">Čtvrtiny</div>
+                <table class="pse-table">
+                    <thead><tr><th></th><th>Body/čtvrtina</th></tr></thead>
+                    <tbody>
+                        ${[
+                            ['Q1','q1','Průměr bodů v 1. čtvrtině (minuty 1–10)'],
+                            ['Q2','q2','Průměr bodů v 2. čtvrtině (minuty 11–20)'],
+                            ['Q3','q3','Průměr bodů v 3. čtvrtině (minuty 21–30)'],
+                            ['Q4','q4','Průměr bodů v 4. čtvrtině (minuty 31–40)'],
+                        ].map(([label, key, tip]) =>
+                            `<tr><td data-tip="${tip}">${label}</td><td class="val">${r1(t[key] / gp)}</td></tr>`
+                        ).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="pse-group">
+                <div class="pse-group-title">Fauly</div>
+                <table class="pse-table">
+                    <thead><tr><th></th><th>/zápas</th><th>Σ</th></tr></thead>
+                    <tbody>${foulRows}</tbody>
+                </table>
+            </div>
+            <div class="pse-group">
+                <div class="pse-group-title">Doubles</div>
+                <table class="pse-table">
+                    <thead><tr><th></th><th>počet</th></tr></thead>
+                    <tbody>${milRows}</tbody>
+                </table>
+            </div>
+        </div>
+    </div>`;
+}
+
+function renderAll() {
+    const games = filterGames(activeFilter);
+    const s = computeStats(games);
+    const container = document.getElementById('player-stats-section');
+    container.innerHTML = renderFilter() + renderStatsHTML(s);
+    attachFilterListeners();
+}
+
+function setFilter(filter) {
+    activeFilter = filter;
+    renderAll();
+}
+
+function attachFilterListeners() {
+    document.querySelectorAll('#player-stats-section .tf-btn[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.dataset.action;
+            if (action === 'all') {
+                _lastCustomN = '';
+                _firstCustomN = '';
+                setFilter({type: 'all'});
+            } else if (action === 'month') {
+                setFilter({type: 'month', val: btn.dataset.val});
+            } else if (action === 'last') {
+                _lastCustomN = '';
+                setFilter({type: 'last', n: parseInt(btn.dataset.n)});
+            } else if (action === 'first') {
+                _firstCustomN = '';
+                setFilter({type: 'first', n: parseInt(btn.dataset.n)});
+            }
+        });
+    });
+
+    const lastInput = document.getElementById('last-n-input');
+    const lastBtn = document.getElementById('last-n-btn');
+    if (lastBtn && lastInput) {
+        lastBtn.addEventListener('click', () => {
+            const n = parseInt(lastInput.value);
+            if (n > 0) {
+                _lastCustomN = lastInput.value;
+                _firstCustomN = '';
+                setFilter({type: 'last', n});
+            }
+        });
+        lastInput.addEventListener('keydown', e => { if (e.key === 'Enter') lastBtn.click(); });
+    }
+
+    const firstInput = document.getElementById('first-n-input');
+    const firstBtn = document.getElementById('first-n-btn');
+    if (firstBtn && firstInput) {
+        firstBtn.addEventListener('click', () => {
+            const n = parseInt(firstInput.value);
+            if (n > 0) {
+                _firstCustomN = firstInput.value;
+                _lastCustomN = '';
+                setFilter({type: 'first', n});
+            }
+        });
+        firstInput.addEventListener('keydown', e => { if (e.key === 'Enter') firstBtn.click(); });
+    }
+}
+
+renderAll();
+    </script>
 </body>
 </html>

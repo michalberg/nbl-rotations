@@ -46,8 +46,15 @@
         }
         thead th:first-child, thead th:nth-child(2) { text-align: left; }
         thead th:hover { color: #ccc; }
-        thead th.sorted-asc::after { content: " ↑"; color: #6a9fd8; }
-        thead th.sorted-desc::after { content: " ↓"; color: #6a9fd8; }
+        thead th.sorted-asc::before { content: "↑ "; color: #6a9fd8; }
+        thead th.sorted-desc::before { content: "↓ "; color: #6a9fd8; }
+        thead th[data-tip]:hover::after { display: none; }
+        #th-tooltip {
+            position: fixed; pointer-events: none;
+            background: #0f0f23; color: #ccc; border: 1px solid #444;
+            border-radius: 4px; padding: 4px 8px; font-size: 0.72rem;
+            white-space: nowrap; z-index: 500; display: none;
+        }
         tbody tr { border-bottom: 1px solid #222; transition: background 0.1s; }
         tbody tr:hover { background: #16213e; }
         tbody td { padding: 7px 10px; text-align: right; color: #ccc; }
@@ -67,8 +74,33 @@
     <div class="tab-nav">
         <button class="tab-btn active" data-tab="basic">Základní</button>
         <button class="tab-btn" data-tab="shooting">Střelba</button>
+        <button class="tab-btn" data-tab="fouls">Fauly a ztráty</button>
         <button class="tab-btn" data-tab="opponent">Soupeř</button>
+        <button class="tab-btn" data-tab="doubles">Doubles</button>
         <button class="tab-btn" data-tab="advanced">Pokročilé</button>
+    </div>
+
+    <div class="time-filter">
+        <div class="tf-row" id="tf-months"></div>
+        <div class="tf-row">
+            <span class="tf-label">Posledních:</span>
+            <button class="tf-btn" data-tlast="5">5</button>
+            <button class="tf-btn" data-tlast="10">10</button>
+            <button class="tf-btn" data-tlast="15">15</button>
+            <span class="tf-label">vlastní:</span>
+            <input class="tf-input" id="tlast-n" type="number" min="1">
+            <button class="tf-btn" id="tlast-btn">OK</button>
+            <span class="tf-label">zápasů</span>
+        </div>
+        <div class="tf-row">
+            <span class="tf-label">Prvních:</span>
+            <button class="tf-btn" data-tfirst="5">5</button>
+            <button class="tf-btn" data-tfirst="10">10</button>
+            <span class="tf-label">vlastní:</span>
+            <input class="tf-input" id="tfirst-n" type="number" min="1">
+            <button class="tf-btn" id="tfirst-btn">OK</button>
+            <span class="tf-label">zápasů</span>
+        </div>
     </div>
 
     <div class="stats-table-wrap">
@@ -77,20 +109,20 @@
             <thead><tr>
                 <th data-key="rank">#</th>
                 <th data-key="name">Tým</th>
-                <th data-key="gp">GP</th>
-                <th data-key="wins">W</th>
-                <th data-key="losses">L</th>
-                <th data-key="ptsPerGame" class="sorted-desc col-group-sep">PTS/G</th>
-                <th data-key="pts">PTS</th>
-                <th data-key="rebPerGame" class="col-group-sep">REB/G</th>
-                <th data-key="orebPerGame">OREB/G</th>
-                <th data-key="drebPerGame">DREB/G</th>
-                <th data-key="astPerGame" class="col-group-sep">AST/G</th>
-                <th data-key="stlPerGame" class="col-group-sep">STL/G</th>
-                <th data-key="blkPerGame">BLK/G</th>
-                <th data-key="tovPerGame" class="col-group-sep">TOV/G</th>
-                <th data-key="pfPerGame" class="col-group-sep">PF/G</th>
-                <th data-key="pfdPerGame">PFD/G</th>
+                <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
+                <th data-key="wins" data-tip="Výhry">W</th>
+                <th data-key="losses" data-tip="Prohry">L</th>
+                <th data-key="ptsPerGame" class="sorted-desc col-group-sep" data-tip="Body za zápas">PTS/G</th>
+                <th data-key="pts" data-tip="Body celkem">PTS</th>
+                <th data-key="rebPerGame" class="col-group-sep" data-tip="Doskoky za zápas">REB/G</th>
+                <th data-key="orebPerGame" data-tip="Útočné doskoky za zápas">OREB/G</th>
+                <th data-key="drebPerGame" data-tip="Obranné doskoky za zápas">DREB/G</th>
+                <th data-key="astPerGame" class="col-group-sep" data-tip="Asistence za zápas">AST/G</th>
+                <th data-key="stlPerGame" class="col-group-sep" data-tip="Zisky za zápas">STL/G</th>
+                <th data-key="blkPerGame" data-tip="Bloky za zápas">BLK/G</th>
+                <th data-key="tovPerGame" class="col-group-sep" data-tip="Ztráty za zápas">TOV/G</th>
+                <th data-key="pfPerGame" class="col-group-sep" data-tip="Osobní chyby za zápas">PF/G</th>
+                <th data-key="pfdPerGame" data-tip="Vyprovokované osobní chyby za zápas">PFD/G</th>
             </tr></thead>
             <tbody id="body-basic"></tbody>
         </table>
@@ -100,25 +132,41 @@
             <thead><tr>
                 <th data-key="rank">#</th>
                 <th data-key="name">Tým</th>
-                <th data-key="gp">GP</th>
-                <th data-key="fgPct" class="sorted-desc col-group-sep">FG%</th>
-                <th data-key="fgm">FGM</th>
-                <th data-key="fga">FGA</th>
-                <th data-key="fg2Pct" class="col-group-sep">2P%</th>
-                <th data-key="fg2m">2PM</th>
-                <th data-key="fg2a">2PA</th>
-                <th data-key="fg2mPerGame">2P/G</th>
-                <th data-key="fg3Pct" class="col-group-sep">3P%</th>
-                <th data-key="fg3m">3PM</th>
-                <th data-key="fg3a">3PA</th>
-                <th data-key="fg3mPerGame">3P/G</th>
-                <th data-key="ftPct" class="col-group-sep">FT%</th>
-                <th data-key="ftm">FTM</th>
-                <th data-key="fta">FTA</th>
-                <th data-key="ftmPerGame">FTM/G</th>
-                <th data-key="ftaPerGame">FTA/G</th>
+                <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
+                <th data-key="fgPct" class="sorted-desc col-group-sep" data-tip="Úspěšnost střelby z pole">FG%</th>
+                <th data-key="fgm" data-tip="Proměněné střely z pole">FGM</th>
+                <th data-key="fga" data-tip="Pokusy ze hry celkem">FGA</th>
+                <th data-key="fg2Pct" class="col-group-sep" data-tip="Úspěšnost dvojkových pokusů">2P%</th>
+                <th data-key="fg2m" data-tip="Proměněné dvojky">2PM</th>
+                <th data-key="fg2a" data-tip="Pokusy na dvojky">2PA</th>
+                <th data-key="fg2mPerGame" data-tip="Proměněné dvojky za zápas">2P/G</th>
+                <th data-key="fg3Pct" class="col-group-sep" data-tip="Úspěšnost trojkových pokusů">3P%</th>
+                <th data-key="fg3m" data-tip="Proměněné trojky">3PM</th>
+                <th data-key="fg3a" data-tip="Pokusy na trojky">3PA</th>
+                <th data-key="fg3mPerGame" data-tip="Proměněné trojky za zápas">3P/G</th>
+                <th data-key="ftPct" class="col-group-sep" data-tip="Úspěšnost trestných hodů">FT%</th>
+                <th data-key="ftm" data-tip="Proměněné trestné hody">FTM</th>
+                <th data-key="fta" data-tip="Pokusy na trestné hody">FTA</th>
+                <th data-key="ftmPerGame" data-tip="Proměněné TH za zápas">FTM/G</th>
+                <th data-key="ftaPerGame" data-tip="Pokusy na TH za zápas">FTA/G</th>
             </tr></thead>
             <tbody id="body-shooting"></tbody>
+        </table>
+
+        <!-- FOULS -->
+        <table id="tab-fouls" class="hidden">
+            <thead><tr>
+                <th data-key="rank">#</th>
+                <th data-key="name">Tým</th>
+                <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
+                <th data-key="tovPerGame" class="sorted-desc col-group-sep" data-tip="Ztráty za zápas">TOV/G</th>
+                <th data-key="tov" data-tip="Ztráty celkem">ΣTOV</th>
+                <th data-key="pfPerGame" class="col-group-sep" data-tip="Osobní chyby za zápas">PF/G</th>
+                <th data-key="pf" data-tip="Osobní chyby celkem">ΣPF</th>
+                <th data-key="pfdPerGame" class="col-group-sep" data-tip="Získané fauly za zápas">PFD/G</th>
+                <th data-key="pfd" data-tip="Získané fauly celkem">ΣPFD</th>
+            </tr></thead>
+            <tbody id="body-fouls"></tbody>
         </table>
 
         <!-- OPPONENT -->
@@ -131,21 +179,33 @@
                 <tr>
                 <th data-key="rank">#</th>
                 <th data-key="name">Tým</th>
-                <th data-key="gp">GP</th>
-                <th data-key="opp_ptsPerGame" class="sorted-asc col-group-sep">PTS/G</th>
-                <th data-key="opp_pts">PTS</th>
-                <th data-key="opp_fgPct" class="col-group-sep">FG%</th>
-                <th data-key="opp_fg3Pct">3P%</th>
-                <th data-key="opp_ftPct">FT%</th>
-                <th data-key="opp_rebPerGame" class="col-group-sep">REB/G</th>
-                <th data-key="opp_orebPerGame">OREB/G</th>
-                <th data-key="opp_astPerGame" class="col-group-sep">AST/G</th>
-                <th data-key="opp_stlPerGame" class="col-group-sep">STL/G</th>
-                <th data-key="opp_blkPerGame">BLK/G</th>
-                <th data-key="opp_tovPerGame" class="col-group-sep">TOV/G</th>
-                <th data-key="opp_pfPerGame" class="col-group-sep">PF/G</th>
+                <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
+                <th data-key="opp_ptsPerGame" class="sorted-asc col-group-sep" data-tip="Body inkasované za zápas">PTS/G</th>
+                <th data-key="opp_pts" data-tip="Body inkasované celkem">PTS</th>
+                <th data-key="opp_fgPct" class="col-group-sep" data-tip="Úspěšnost střelby soupeře z pole">FG%</th>
+                <th data-key="opp_fg3Pct" data-tip="Úspěšnost trojek soupeře">3P%</th>
+                <th data-key="opp_ftPct" data-tip="Úspěšnost trestných hodů soupeře">FT%</th>
+                <th data-key="opp_rebPerGame" class="col-group-sep" data-tip="Doskoky soupeře za zápas">REB/G</th>
+                <th data-key="opp_orebPerGame" data-tip="Útočné doskoky soupeře za zápas">OREB/G</th>
+                <th data-key="opp_astPerGame" class="col-group-sep" data-tip="Asistence soupeře za zápas">AST/G</th>
+                <th data-key="opp_stlPerGame" class="col-group-sep" data-tip="Zisky soupeře za zápas">STL/G</th>
+                <th data-key="opp_blkPerGame" data-tip="Bloky soupeře za zápas">BLK/G</th>
+                <th data-key="opp_tovPerGame" class="col-group-sep" data-tip="Ztráty soupeře za zápas">TOV/G</th>
+                <th data-key="opp_pfPerGame" class="col-group-sep" data-tip="Osobní chyby soupeře za zápas">PF/G</th>
             </tr></thead>
             <tbody id="body-opponent"></tbody>
+        </table>
+
+        <!-- DOUBLES -->
+        <table id="tab-doubles" class="hidden">
+            <thead><tr>
+                <th data-key="rank">#</th>
+                <th data-key="name">Tým</th>
+                <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
+                <th data-key="dd" class="sorted-desc col-group-sep" data-tip="Počet double-doubles hráčů v sezóně">DD</th>
+                <th data-key="td" class="col-group-sep" data-tip="Počet triple-doubles hráčů v sezóně">TD</th>
+            </tr></thead>
+            <tbody id="body-doubles"></tbody>
         </table>
 
         <!-- ADVANCED -->
@@ -153,11 +213,11 @@
             <thead><tr>
                 <th data-key="rank">#</th>
                 <th data-key="name">Tým</th>
-                <th data-key="gp">GP</th>
-                <th data-key="pace" class="col-group-sep">Pace</th>
-                <th data-key="ortg" class="sorted-desc col-group-sep">ORTG</th>
-                <th data-key="drtg">DRTG</th>
-                <th data-key="netRtg">Net RTG</th>
+                <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
+                <th data-key="pace" class="col-group-sep" data-tip="Průměrný počet possessions za 40 min – vyšší = rychlejší hra">Pace</th>
+                <th data-key="ortg" class="sorted-desc col-group-sep" data-tip="Offensive Rating – body vstřelené na 100 possessions">ORTG</th>
+                <th data-key="drtg" data-tip="Defensive Rating – body inkasované na 100 possessions; nižší = lepší">DRTG</th>
+                <th data-key="netRtg" data-tip="Net Rating – ORTG minus DRTG; kladné číslo = tým skóruje víc než inkasuje">Net RTG</th>
             </tr></thead>
             <tbody id="body-advanced"></tbody>
         </table>
@@ -172,7 +232,121 @@
 </div>
 
 <script>
-const TEAMS = {{ teams_json }};
+const TEAMS_GAMES = {{ teams_games_json }};
+
+const MONTH_CS = {
+    '01':'Leden','02':'Únor','03':'Březen','04':'Duben',
+    '05':'Květen','06':'Červen','07':'Červenec','08':'Srpen',
+    '09':'Září','10':'Říjen','11':'Listopad','12':'Prosinec'
+};
+
+const TEAM_STAT_KEYS = ['pts','reb','oreb','dreb','ast','stl','blk',
+                        'fgm','fga','fg2m','fg2a','fg3m','fg3a',
+                        'ftm','fta','tov','pf','pfd'];
+
+// Detect months from data
+const _allDates = [];
+Object.values(TEAMS_GAMES).forEach(t => t.games.forEach(g => _allDates.push(g.date)));
+const teamMonths = [...new Set(_allDates.map(d => d.slice(0, 7)))].sort();
+
+// Build month row
+const monthRow = document.getElementById('tf-months');
+let monthHTML = '<button class="tf-btn active" data-tmonth="all">Vše</button>';
+teamMonths.forEach(m => {
+    monthHTML += `<button class="tf-btn" data-tmonth="${m}">${MONTH_CS[m.slice(5)]}</button>`;
+});
+monthRow.innerHTML = monthHTML;
+
+let teamFilter = {type: 'all'};
+let teamLastCustom = '';
+let teamFirstCustom = '';
+
+function filterTeamGames(games, filter) {
+    if (filter.type === 'all') return games;
+    if (filter.type === 'month') return games.filter(g => g.date.startsWith(filter.val));
+    if (filter.type === 'last') return games.slice(-filter.n);
+    if (filter.type === 'first') return games.slice(0, filter.n);
+    return games;
+}
+
+function r1t(v) { return Math.round(v * 10) / 10; }
+
+function computeTeamStats(slug, teamInfo, games) {
+    const gp = games.length;
+    if (!gp) return null;
+
+    let wins = 0, totalPts = 0, totalOppPts = 0, dd = 0, td = 0;
+    const totals = Object.fromEntries(TEAM_STAT_KEYS.map(k => [k, 0]));
+    const oppTotals = Object.fromEntries(TEAM_STAT_KEYS.map(k => [k, 0]));
+    let teamPossTotal = 0, oppPossTotal = 0;
+
+    for (const g of games) {
+        if (g.won) wins++;
+        dd += g.dd || 0;
+        td += g.td || 0;
+        totalPts += g.pts || 0;
+        totalOppPts += g.opp_pts || 0;
+        for (const k of TEAM_STAT_KEYS) {
+            totals[k] += g[k] || 0;
+            oppTotals[k] += g[`opp_${k}`] || 0;
+        }
+        const tFga = g.fga || 0, tOreb = g.oreb || 0, tTov = g.tov || 0, tFta = g.fta || 0;
+        const oFga = g.opp_fga || 0, oOreb = g.opp_oreb || 0, oTov = g.opp_tov || 0, oFta = g.opp_fta || 0;
+        const oppDreb = g.opp_dreb || 0, tDreb = g.dreb || 0;
+        const denomT = tOreb + oppDreb;
+        const denomO = oOreb + tDreb;
+        teamPossTotal += tFga + 0.44 * tFta - (denomT ? 1.07 * tOreb / denomT * tFga : 0) + tTov;
+        oppPossTotal  += oFga + 0.44 * oFta - (denomO ? 1.07 * oOreb / denomO * oFga : 0) + oTov;
+    }
+
+    totals.pts = totalPts;
+    oppTotals.pts = totalOppPts;
+
+    function pct(m, a) { return a ? Math.round(m / a * 1000) / 10 : 0.0; }
+    const totalMinutes = gp * 40.0;
+    const pace   = totalMinutes ? r1t(40 * ((teamPossTotal + oppPossTotal) / 2) / totalMinutes) : 0.0;
+    const ortg   = teamPossTotal ? r1t(totalPts / teamPossTotal * 100) : 0.0;
+    const drtg   = oppPossTotal  ? r1t(totalOppPts / oppPossTotal * 100) : 0.0;
+    const netRtg = r1t(ortg - drtg);
+
+    const result = {
+        slug, name: teamInfo.name, gp, wins, losses: gp - wins,
+        dd, td, ddPerGame: r1t(dd / gp), tdPerGame: r1t(td / gp),
+        pts: totalPts, opp_pts: totalOppPts,
+        ptsPerGame:     r1t(totalPts / gp),
+        opp_ptsPerGame: r1t(totalOppPts / gp),
+        fgPct:     pct(totals.fgm,     totals.fga),
+        fg2Pct:    pct(totals.fg2m,    totals.fg2a),
+        fg3Pct:    pct(totals.fg3m,    totals.fg3a),
+        ftPct:     pct(totals.ftm,     totals.fta),
+        opp_fgPct:  pct(oppTotals.fgm,  oppTotals.fga),
+        opp_fg3Pct: pct(oppTotals.fg3m, oppTotals.fg3a),
+        opp_ftPct:  pct(oppTotals.ftm,  oppTotals.fta),
+        pace, ortg, drtg, netRtg,
+    };
+
+    for (const k of TEAM_STAT_KEYS) {
+        if (k !== 'pts') {
+            result[k] = totals[k];
+            result[`opp_${k}`] = oppTotals[k];
+            result[`${k}PerGame`] = r1t(totals[k] / gp);
+            result[`opp_${k}PerGame`] = r1t(oppTotals[k] / gp);
+        }
+    }
+
+    return result;
+}
+
+function computeAllTeamStats(filter) {
+    return Object.entries(TEAMS_GAMES)
+        .map(([slug, info]) => {
+            const games = filterTeamGames(info.games, filter);
+            return computeTeamStats(slug, info, games);
+        })
+        .filter(t => t && t.gp > 0);
+}
+
+let TEAMS = computeAllTeamStats(teamFilter);
 
 let currentTab = 'basic';
 let sortKey = 'ptsPerGame';
@@ -228,6 +402,16 @@ function renderRow(t, rank, tab) {
         <td>${t.fta}</td>
         <td>${fmt(t.ftmPerGame)}</td>
         <td>${fmt(t.ftaPerGame)}</td>`;
+    if (tab === 'fouls') return `
+        <td>${rank}</td>
+        <td>${t.name}</td>
+        <td>${t.gp}</td>
+        <td class="col-group-sep">${fmt(t.tovPerGame)}</td>
+        <td>${t.tov}</td>
+        <td class="col-group-sep">${fmt(t.pfPerGame)}</td>
+        <td>${t.pf}</td>
+        <td class="col-group-sep">${fmt(t.pfdPerGame)}</td>
+        <td>${t.pfd}</td>`;
     if (tab === 'opponent') return `
         <td>${rank}</td>
         <td>${t.name}</td>
@@ -244,6 +428,12 @@ function renderRow(t, rank, tab) {
         <td>${fmt(t.opp_blkPerGame)}</td>
         <td class="col-group-sep">${fmt(t.opp_tovPerGame)}</td>
         <td class="col-group-sep">${fmt(t.opp_pfPerGame)}</td>`;
+    if (tab === 'doubles') return `
+        <td>${rank}</td>
+        <td>${t.name}</td>
+        <td>${t.gp}</td>
+        <td class="col-group-sep">${t.dd}</td>
+        <td class="col-group-sep">${t.td}</td>`;
     if (tab === 'advanced') return `
         <td>${rank}</td>
         <td>${t.name}</td>
@@ -271,6 +461,94 @@ function render() {
     ).join('');
 }
 
+function updateFilterButtons() {
+    document.querySelectorAll('.time-filter .tf-btn').forEach(b => b.classList.remove('active'));
+    if (teamFilter.type === 'all') {
+        document.querySelector('.tf-btn[data-tmonth="all"]')?.classList.add('active');
+    } else if (teamFilter.type === 'month') {
+        document.querySelector(`.tf-btn[data-tmonth="${teamFilter.val}"]`)?.classList.add('active');
+    } else if (teamFilter.type === 'last') {
+        if (!teamLastCustom) {
+            document.querySelector(`.tf-btn[data-tlast="${teamFilter.n}"]`)?.classList.add('active');
+        } else {
+            document.getElementById('tlast-btn')?.classList.add('active');
+        }
+    } else if (teamFilter.type === 'first') {
+        if (!teamFirstCustom) {
+            document.querySelector(`.tf-btn[data-tfirst="${teamFilter.n}"]`)?.classList.add('active');
+        } else {
+            document.getElementById('tfirst-btn')?.classList.add('active');
+        }
+    }
+}
+
+function applyFilter() {
+    TEAMS = computeAllTeamStats(teamFilter);
+    updateFilterButtons();
+    render();
+}
+
+// Month buttons
+document.querySelectorAll('#tf-months .tf-btn[data-tmonth]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const val = btn.dataset.tmonth;
+        if (val === 'all') {
+            teamFilter = {type: 'all'};
+        } else {
+            teamFilter = {type: 'month', val};
+        }
+        teamLastCustom = '';
+        teamFirstCustom = '';
+        applyFilter();
+    });
+});
+
+// Last N preset buttons
+document.querySelectorAll('.tf-btn[data-tlast]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        teamLastCustom = '';
+        teamFilter = {type: 'last', n: parseInt(btn.dataset.tlast)};
+        applyFilter();
+    });
+});
+
+// Last N custom
+const tlastInput = document.getElementById('tlast-n');
+const tlastBtn = document.getElementById('tlast-btn');
+tlastBtn.addEventListener('click', () => {
+    const n = parseInt(tlastInput.value);
+    if (n > 0) {
+        teamLastCustom = tlastInput.value;
+        teamFirstCustom = '';
+        teamFilter = {type: 'last', n};
+        applyFilter();
+    }
+});
+tlastInput.addEventListener('keydown', e => { if (e.key === 'Enter') tlastBtn.click(); });
+
+// First N preset buttons
+document.querySelectorAll('.tf-btn[data-tfirst]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        teamFirstCustom = '';
+        teamFilter = {type: 'first', n: parseInt(btn.dataset.tfirst)};
+        applyFilter();
+    });
+});
+
+// First N custom
+const tfirstInput = document.getElementById('tfirst-n');
+const tfirstBtn = document.getElementById('tfirst-btn');
+tfirstBtn.addEventListener('click', () => {
+    const n = parseInt(tfirstInput.value);
+    if (n > 0) {
+        teamFirstCustom = tfirstInput.value;
+        teamLastCustom = '';
+        teamFilter = {type: 'first', n};
+        applyFilter();
+    }
+});
+tfirstInput.addEventListener('keydown', e => { if (e.key === 'Enter') tfirstBtn.click(); });
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -279,7 +557,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
         document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
         document.getElementById('advanced-legend').classList.toggle('hidden', currentTab !== 'advanced');
-        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', opponent: 'opp_ptsPerGame', advanced: 'ortg' };
+        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', fouls: 'tovPerGame', doubles: 'dd', opponent: 'opp_ptsPerGame', advanced: 'ortg' };
         const defaultDesc = { opponent: false };
         sortKey = defaults[currentTab] || 'ptsPerGame';
         sortDesc = defaultDesc[currentTab] !== false;
@@ -305,7 +583,25 @@ document.querySelectorAll('thead th[data-key]').forEach(th => {
     });
 });
 
+updateFilterButtons();
 render();
+
+const thTip = document.createElement('div');
+thTip.id = 'th-tooltip';
+document.body.appendChild(thTip);
+document.querySelectorAll('thead th[data-tip]').forEach(th => {
+    th.addEventListener('mouseenter', () => {
+        thTip.textContent = th.dataset.tip;
+        thTip.style.display = 'block';
+        const r = th.getBoundingClientRect();
+        const tw = thTip.offsetWidth;
+        let left = r.left + r.width / 2 - tw / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+        thTip.style.left = left + 'px';
+        thTip.style.top = (r.bottom + 4) + 'px';
+    });
+    th.addEventListener('mouseleave', () => { thTip.style.display = 'none'; });
+});
 </script>
 </body>
 </html>

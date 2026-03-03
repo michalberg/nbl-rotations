@@ -12,6 +12,7 @@ from nbl_rotations.generator import (
     build_game_json, generate_site, generate_index,
     generate_player_pages, generate_team_data,
     generate_stats_pages, generate_leaderboard_pages,
+    generate_top_games_page, generate_milestones_page,
 )
 from nbl_rotations.stats import load_season_log, update_season_log, save_season_log
 from nbl_rotations.scraper import (
@@ -112,6 +113,8 @@ def main():
             all_games_data = _load_and_build_all_games()
             generate_player_pages(all_games_data)
             generate_team_data(all_games_data)
+            print("Regenerating top games page...")
+            generate_top_games_page(all_games_data)
 
             # Update season log with new games only
             print("Updating season log...")
@@ -134,6 +137,8 @@ def main():
         generate_player_pages(all_games_data)
         print(f"\nGenerating team data...")
         generate_team_data(all_games_data)
+        print(f"\nGenerating top games page...")
+        generate_top_games_page(all_games_data)
         print(f"\nUpdating season log...")
         _update_and_generate_stats(all_games_data, all_games_meta)
         print(f"\nDone! {len(all_games_data)} games processed.")
@@ -205,6 +210,8 @@ def _update_and_generate_stats(games_data: list[dict], games_meta: list[dict]) -
     generate_stats_pages(docs_path)
     print("Generating leaderboard pages...")
     generate_leaderboard_pages(docs_path)
+    print("Generating milestones page...")
+    generate_milestones_page(docs_path)
 
 
 def _load_and_build_all_games() -> list[dict]:

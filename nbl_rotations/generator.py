@@ -600,6 +600,19 @@ def generate_player_pages(all_games_data: list[dict]):
     Aggregates player data across all games, computes season stats,
     and generates individual player pages.
     """
+    # Build full team season records (all games, regardless of player roster)
+    team_records: dict[str, dict] = {}
+    for game_json in all_games_data:
+        for tno_str in ["1", "2"]:
+            team_name = game_json[f"team{tno_str}"]["name"]
+            opp_tno = "2" if tno_str == "1" else "1"
+            won = game_json[f"team{tno_str}"]["score"] > game_json[f"team{opp_tno}"]["score"]
+            if team_name not in team_records:
+                team_records[team_name] = {"gp": 0, "wins": 0}
+            team_records[team_name]["gp"] += 1
+            if won:
+                team_records[team_name]["wins"] += 1
+
     # Collect player data across games: key = "firstName_familyName"
     players_index: dict[str, dict] = {}
 
@@ -685,6 +698,48 @@ def generate_player_pages(all_games_data: list[dict]):
         # Compute season stats
         totals, averages = _compute_season_stats(pi["games"])
 
+        # Compute derived stats and best games
+        gp = totals.get("gp", 0)
+        if gp > 0:
+            _pts, _reb, _ast = totals["pts"], totals["reb"], totals["ast"]
+            _stl, _blk, _tov = totals["stl"], totals["blk"], totals["tov"]
+            _fgm, _fga, _fg3m = totals["fgm"], totals["fga"], totals["fg3m"]
+            _ftm, _fta = totals["ftm"], totals["fta"]
+            per = round((_pts + _reb + _ast + _stl + _blk
+                         - (_fga - _fgm) - (_fta - _ftm) - _tov) / gp, 2)
+            ts_denom = 2 * (_fga + 0.44 * _fta)
+            ts_pct = round(_pts / ts_denom * 100, 1) if ts_denom else 0.0
+            efg_pct = round((_fgm + 0.5 * _fg3m) / _fga * 100, 1) if _fga else 0.0
+        else:
+            per = ts_pct = efg_pct = 0.0
+
+        _best_keys = ["pts", "reb", "oreb", "dreb", "ast", "stl", "blk",
+                      "fgm", "fga", "fg3m", "fg3a", "ftm", "fta"]
+        best_games = {k: {"value": 0, "game_id": "", "date": "", "opponent": ""}
+                      for k in _best_keys}
+        best_games["plusMinus"] = {"value": -9999, "game_id": "", "date": "", "opponent": ""}
+        dd_count = td_count = fouls_out_count = 0
+        for g in pi["games"]:
+            if g.get("isDNP"):
+                continue
+            gs = g.get("gameStats", {})
+            pm = g.get("totalPlusMinus", 0)
+            gid, gdate, gopp = g["gameId"], g.get("date", ""), g.get("opponent", "")
+            for k in _best_keys:
+                val = gs.get(k, 0)
+                if val > best_games[k]["value"]:
+                    best_games[k] = {"value": val, "game_id": gid, "date": gdate, "opponent": gopp}
+            if pm > best_games["plusMinus"]["value"]:
+                best_games["plusMinus"] = {"value": pm, "game_id": gid, "date": gdate, "opponent": gopp}
+            dd_cats = sum(1 for c in ["pts", "reb", "ast", "stl"] if gs.get(c, 0) >= 10)
+            if dd_cats >= 3:
+                td_count += 1
+                dd_count += 1
+            elif dd_cats == 2:
+                dd_count += 1
+            if gs.get("pf", 0) >= 5:
+                fouls_out_count += 1
+
         # Build player JSON
         player_json = {
             "firstName": pi["firstName"],
@@ -695,6 +750,10 @@ def generate_player_pages(all_games_data: list[dict]):
             "teams": pi["teamNames"],
             "seasonTotals": totals,
             "seasonAverages": averages,
+            "derived": {"per": per, "tsPct": ts_pct, "efgPct": efg_pct},
+            "milestones": {"doubleDoubles": dd_count, "tripleDoubles": td_count,
+                           "foulsOut": fouls_out_count},
+            "bestGames": best_games,
             "games": pi["games"],
         }
 
@@ -705,12 +764,49 @@ def generate_player_pages(all_games_data: list[dict]):
         with open(json_path, "w") as f:
             json.dump(player_json, f)
 
+        # Build condensed games for JS filter
+        condensed_games = []
+        for g in pi["games"]:
+            score_parts = g.get("score", "0:0").split(":")
+            won = int(score_parts[0]) > int(score_parts[1]) if len(score_parts) == 2 else False
+            entry = {"date": g["date"], "isDNP": g.get("isDNP", False), "won": won,
+                     "team": g.get("teamName", "")}
+            if not g.get("isDNP"):
+                gs = g.get("gameStats", {})
+                # Per-quarter points from minute-level data
+                minutes = g.get("minutes", [])
+                q_pts = {1: 0, 2: 0, 3: 0, 4: 0}
+                for pd in g.get("periods", []):
+                    pnum = pd.get("period", 0)
+                    if 1 <= pnum <= 4:
+                        start, end = pd["startMinute"], pd["endMinute"]
+                        q_pts[pnum] = sum(
+                            m.get("pts", 0) for m in minutes
+                            if start <= m["minute"] < end
+                        )
+                entry.update({
+                    "game_id": g["gameId"],
+                    "plus_minus": g["totalPlusMinus"],
+                    "opponent": g.get("opponent", ""),
+                    "score": g.get("score", ""),
+                    "isHome": g.get("isHome", False),
+                    "q1": q_pts[1], "q2": q_pts[2], "q3": q_pts[3], "q4": q_pts[4],
+                    **{k: gs.get(k, 0) for k in [
+                        "pts", "reb", "oreb", "dreb", "ast", "stl", "blk", "tov",
+                        "pf", "pfd", "technical", "fgm", "fga", "fg2m", "fg2a",
+                        "fg3m", "fg3a", "ftm", "fta",
+                    ]},
+                })
+            condensed_games.append(entry)
+
         # Render HTML
         html_dir = DOCS_DIR / "player" / season
         html_dir.mkdir(parents=True, exist_ok=True)
         template = env.get_template("player.html")
         html = template.render(
             player=player_json,
+            player_games_json=json.dumps(condensed_games, ensure_ascii=False),
+            team_records_json=json.dumps(team_records, ensure_ascii=False),
             nav_base="../../", nav_active="players", nav_season=season,
         )
         html_path = html_dir / f"{slug}.html"
@@ -936,10 +1032,38 @@ def generate_stats_pages(docs_path: Path | None = None):
         ]
         team_stats = [t for t in team_stats if t.get("gp", 0) > 0]
 
+        # Build teams_games, augmenting each game with DD/TD counts derived
+        # from player game logs (avoids need to reprocess season_log).
+        teams_games = {}
+        for slug, tdata in sdata["teams"].items():
+            team_name = tdata["name"]
+            # Build lookup: game_id -> {dd, td} for this team's players
+            game_dd_td: dict[str, dict] = {}
+            for pdata in sdata["players"].values():
+                for pg in pdata.get("games", []):
+                    if pg.get("isDNP", False) or pg.get("team") != team_name:
+                        continue
+                    gid = pg.get("game_id", "")
+                    if gid not in game_dd_td:
+                        game_dd_td[gid] = {"dd": 0, "td": 0}
+                    dd_cats = sum(1 for cat in ["pts", "reb", "ast", "stl"]
+                                  if pg.get(cat, 0) >= 10)
+                    if dd_cats >= 3:
+                        game_dd_td[gid]["td"] += 1
+                        game_dd_td[gid]["dd"] += 1
+                    elif dd_cats == 2:
+                        game_dd_td[gid]["dd"] += 1
+            augmented = [
+                {**g, **game_dd_td.get(g.get("game_id", ""), {"dd": 0, "td": 0})}
+                for g in tdata.get("games", [])
+            ]
+            teams_games[slug] = {"name": team_name, "games": augmented}
+
         template = env.get_template("stats_teams.html")
         html = template.render(
             season=season,
             teams_json=json.dumps(team_stats, ensure_ascii=False),
+            teams_games_json=json.dumps(teams_games, ensure_ascii=False),
             nav_base="../../", nav_active="stats-teams", nav_season=season,
         )
         with open(out_dir / "teams.html", "w") as f:
@@ -1021,3 +1145,350 @@ def generate_leaderboard_pages(docs_path: Path | None = None):
         count += 1
 
     print(f"  Generated: leaderboard pages for {count} season(s)")
+
+
+def generate_top_games_page(all_games_data: list[dict], docs_path: Path | None = None):
+    """Generate top game records page."""
+    base = docs_path or DOCS_DIR
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+
+    if not all_games_data:
+        print("  No game data for top games page.")
+        return
+
+    season = _date_to_season(all_games_data[0].get("date", ""))
+
+    # ── Compute per-game metrics ──────────────────────────────────────────────
+    def _team_totals(game, tno):
+        players = [p for p in game["players"].get(str(tno), [])
+                   if not p.get("isDNP", False)]
+        keys = ["pf", "fta", "ftm", "fg3a", "fg3m"]
+        return {k: sum(p.get("gameStats", {}).get(k, 0) for p in players) for k in keys}
+
+    def _comeback(game):
+        pm = game.get("teamPlusMinus", {}).get("1", [])
+        if not pm:
+            return 0
+        s, mn, mx = 0, 0, 0
+        for v in pm:
+            s += v
+            mn = min(mn, s)
+            mx = max(mx, s)
+        s1, s2 = game["team1"]["score"], game["team2"]["score"]
+        if s1 > s2:
+            return max(0, -mn)   # team1 won: how far behind were they?
+        elif s2 > s1:
+            return max(0, mx)    # team2 won: how far ahead was team1 at max?
+        return 0
+
+    rows = []
+    for g in all_games_data:
+        gid = g["gameId"]
+        t1, s1 = g["team1"]["name"], g["team1"]["score"]
+        t2, s2 = g["team2"]["name"], g["team2"]["score"]
+        tt1, tt2 = _team_totals(g, 1), _team_totals(g, 2)
+
+        ft_pct1 = round(tt1["ftm"] / tt1["fta"] * 100, 1) if tt1["fta"] >= 5 else None
+        ft_pct2 = round(tt2["ftm"] / tt2["fta"] * 100, 1) if tt2["fta"] >= 5 else None
+        ft_pct_both = (round((tt1["ftm"] + tt2["ftm"]) / (tt1["fta"] + tt2["fta"]) * 100, 1)
+                       if (tt1["fta"] + tt2["fta"]) >= 10 else None)
+        fg3_pct1 = round(tt1["fg3m"] / tt1["fg3a"] * 100, 1) if tt1["fg3a"] >= 5 else None
+        fg3_pct2 = round(tt2["fg3m"] / tt2["fg3a"] * 100, 1) if tt2["fg3a"] >= 5 else None
+        fg3_pct_both = (round((tt1["fg3m"] + tt2["fg3m"]) / (tt1["fg3a"] + tt2["fg3a"]) * 100, 1)
+                        if (tt1["fg3a"] + tt2["fg3a"]) >= 10 else None)
+
+        rows.append({
+            "gid": gid, "date": g.get("date", ""),
+            "t1": t1, "s1": s1, "t2": t2, "s2": s2,
+            # score
+            "diff": abs(s1 - s2), "combined": s1 + s2, "comeback": _comeback(g),
+            # fouls
+            "pf1": tt1["pf"], "pf2": tt2["pf"], "pf_both": tt1["pf"] + tt2["pf"],
+            # FT
+            "fta1": tt1["fta"], "fta2": tt2["fta"], "fta_both": tt1["fta"] + tt2["fta"],
+            "ftm1": tt1["ftm"], "ftm2": tt2["ftm"], "ftm_both": tt1["ftm"] + tt2["ftm"],
+            "ftx1": tt1["fta"] - tt1["ftm"], "ftx2": tt2["fta"] - tt2["ftm"],
+            "ftx_both": (tt1["fta"] - tt1["ftm"]) + (tt2["fta"] - tt2["ftm"]),
+            "ft_pct1": ft_pct1, "ft_pct2": ft_pct2, "ft_pct_both": ft_pct_both,
+            # FT raw for note
+            "ftm1_raw": tt1["ftm"], "fta1_raw": tt1["fta"],
+            "ftm2_raw": tt2["ftm"], "fta2_raw": tt2["fta"],
+            # 3P
+            "fg3a1": tt1["fg3a"], "fg3a2": tt2["fg3a"], "fg3a_both": tt1["fg3a"] + tt2["fg3a"],
+            "fg3m1": tt1["fg3m"], "fg3m2": tt2["fg3m"], "fg3m_both": tt1["fg3m"] + tt2["fg3m"],
+            "fg3x1": tt1["fg3a"] - tt1["fg3m"], "fg3x2": tt2["fg3a"] - tt2["fg3m"],
+            "fg3x_both": (tt1["fg3a"] - tt1["fg3m"]) + (tt2["fg3a"] - tt2["fg3m"]),
+            "fg3_pct1": fg3_pct1, "fg3_pct2": fg3_pct2, "fg3_pct_both": fg3_pct_both,
+            "fg3m1_raw": tt1["fg3m"], "fg3a1_raw": tt1["fg3a"],
+            "fg3m2_raw": tt2["fg3m"], "fg3a2_raw": tt2["fg3a"],
+        })
+
+    # ── Record finders ────────────────────────────────────────────────────────
+    def _ginfo(r):
+        return {"gid": r["gid"], "date": r["date"],
+                "t1": r["t1"], "s1": r["s1"], "t2": r["t2"], "s2": r["s2"]}
+
+    def _max_both(key, label, unit="", note_fn=None):
+        r = max(rows, key=lambda x: x[key])
+        return {"label": label, "value": r[key], "unit": unit,
+                "note": note_fn(r) if note_fn else "", **_ginfo(r)}
+
+    def _min_both(key, label, unit="", note_fn=None):
+        r = min(rows, key=lambda x: x[key])
+        return {"label": label, "value": r[key], "unit": unit,
+                "note": note_fn(r) if note_fn else "", **_ginfo(r)}
+
+    def _max_one(k1, k2, label, unit="", note_fn=None):
+        best_val, best_r, best_which = -1, None, 1
+        for r in rows:
+            if r[k1] > best_val:
+                best_val, best_r, best_which = r[k1], r, 1
+            if r[k2] > best_val:
+                best_val, best_r, best_which = r[k2], r, 2
+        note = note_fn(best_r, best_which) if note_fn else (best_r["t1"] if best_which == 1 else best_r["t2"])
+        return {"label": label, "value": best_val, "unit": unit, "note": note, **_ginfo(best_r)}
+
+    def _max_one_pct(pk1, pk2, mk1, ak1, mk2, ak2, label, min_att=5):
+        cands = [(r, 1, r[pk1]) for r in rows if r[pk1] is not None] + \
+                [(r, 2, r[pk2]) for r in rows if r[pk2] is not None]
+        if not cands:
+            return None
+        best_r, best_which, best_val = max(cands, key=lambda x: x[2])
+        m, a = (best_r[mk1], best_r[ak1]) if best_which == 1 else (best_r[mk2], best_r[ak2])
+        team = best_r["t1"] if best_which == 1 else best_r["t2"]
+        return {"label": label, "value": f"{best_val}%", "unit": "",
+                "note": f"{team}: {m}/{a}", **_ginfo(best_r)}
+
+    def _min_one_pct(pk1, pk2, mk1, ak1, mk2, ak2, label):
+        cands = [(r, 1, r[pk1]) for r in rows if r[pk1] is not None] + \
+                [(r, 2, r[pk2]) for r in rows if r[pk2] is not None]
+        if not cands:
+            return None
+        best_r, best_which, best_val = min(cands, key=lambda x: x[2])
+        m, a = (best_r[mk1], best_r[ak1]) if best_which == 1 else (best_r[mk2], best_r[ak2])
+        team = best_r["t1"] if best_which == 1 else best_r["t2"]
+        return {"label": label, "value": f"{best_val}%", "unit": "",
+                "note": f"{team}: {m}/{a}", **_ginfo(best_r)}
+
+    def _max_both_pct(pk, mk, ak, label):
+        cands = [r for r in rows if r[pk] is not None]
+        if not cands:
+            return None
+        r = max(cands, key=lambda x: x[pk])
+        m1, a1 = r[mk.replace("_both", "1")], r[ak.replace("_both", "1")]
+        m2, a2 = r[mk.replace("_both", "2")], r[ak.replace("_both", "2")]
+        return {"label": label, "value": f"{r[pk]}%", "unit": "",
+                "note": f"{m1+m2}/{a1+a2}", **_ginfo(r)}
+
+    def _min_both_pct(pk, mk, ak, label):
+        cands = [r for r in rows if r[pk] is not None]
+        if not cands:
+            return None
+        r = min(cands, key=lambda x: x[pk])
+        m1, a1 = r[mk.replace("_both", "1")], r[ak.replace("_both", "1")]
+        m2, a2 = r[mk.replace("_both", "2")], r[ak.replace("_both", "2")]
+        return {"label": label, "value": f"{r[pk]}%", "unit": "",
+                "note": f"{m1+m2}/{a1+a2}", **_ginfo(r)}
+
+    def _ft_note(r, which):
+        if which == 1:
+            return f"{r['t1']}: {r['ftm1_raw']}/{r['fta1_raw']}"
+        return f"{r['t2']}: {r['ftm2_raw']}/{r['fta2_raw']}"
+
+    def _ftx_note(r, which):
+        if which == 1:
+            return f"{r['t1']}: {r['fta1_raw'] - r['ftm1_raw']}/{r['fta1_raw']}"
+        return f"{r['t2']}: {r['fta2_raw'] - r['ftm2_raw']}/{r['fta2_raw']}"
+
+    def _3p_note(r, which):
+        if which == 1:
+            return f"{r['t1']}: {r['fg3m1_raw']}/{r['fg3a1_raw']}"
+        return f"{r['t2']}: {r['fg3m2_raw']}/{r['fg3a2_raw']}"
+
+    def _3px_note(r, which):
+        if which == 1:
+            return f"{r['t1']}: {r['fg3a1_raw'] - r['fg3m1_raw']}/{r['fg3a1_raw']}"
+        return f"{r['t2']}: {r['fg3a2_raw'] - r['fg3m2_raw']}/{r['fg3a2_raw']}"
+
+    def _pf_note(r, which):
+        return r["t1"] if which == 1 else r["t2"]
+
+    # ── Build sections ────────────────────────────────────────────────────────
+    def _filter_none(lst):
+        return [x for x in lst if x is not None]
+
+    def _comeback_record():
+        cands = [r for r in rows if r["comeback"] > 0]
+        if not cands:
+            return None
+        r = max(cands, key=lambda x: x["comeback"])
+        team = r["t1"] if r["s1"] > r["s2"] else r["t2"]
+        return {"label": "Největší comeback", "value": r["comeback"], "unit": "bodů",
+                "note": team, **_ginfo(r)}
+
+    sections = [
+        {
+            "title": "Skóre & výsledky",
+            "records": _filter_none([
+                _max_both("diff",     "Nejvyšší rozdíl skóre",                "bodů"),
+                _max_both("combined", "Nejvíce bodů v zápase celkem",         "bodů"),
+                _min_both("combined", "Nejméně bodů v zápase celkem",         "bodů"),
+                _comeback_record(),
+            ]),
+        },
+        {
+            "title": "Fauly & trestné hody",
+            "records": _filter_none([
+                _max_one("pf1",  "pf2",  "Nejvíce faulů – jeden tým",  "faulů", _pf_note),
+                _max_both("pf_both",  "Nejvíce faulů – oba týmy",      "faulů"),
+                _max_one("fta1", "fta2", "Nejvíce pokusů TH – jeden tým", "TH", _ft_note),
+                _max_both("fta_both", "Nejvíce pokusů TH – oba týmy", "TH",
+                          note_fn=lambda r: f"{r['ftm_both']}/{r['fta_both']}"),
+                _max_one("ftm1", "ftm2", "Nejvíce proměněných TH – jeden tým", "TH", _ft_note),
+                _max_both("ftm_both", "Nejvíce proměněných TH – oba týmy", "TH",
+                          note_fn=lambda r: f"{r['ftm_both']}/{r['fta_both']}"),
+                _max_one("ftx1", "ftx2", "Nejvíce neproměněných TH – jeden tým", "TH", _ftx_note),
+                _max_both("ftx_both", "Nejvíce neproměněných TH – oba týmy", "TH",
+                          note_fn=lambda r: f"{r['ftx_both']}/{r['fta_both']}"),
+                _max_one_pct("ft_pct1", "ft_pct2", "ftm1_raw", "fta1_raw", "ftm2_raw", "fta2_raw",
+                             "Nejlepší % TH – jeden tým"),
+                _min_one_pct("ft_pct1", "ft_pct2", "ftm1_raw", "fta1_raw", "ftm2_raw", "fta2_raw",
+                             "Nejhorší % TH – jeden tým"),
+            ]),
+        },
+        {
+            "title": "Trojky",
+            "records": _filter_none([
+                _max_one("fg3a1", "fg3a2", "Nejvíce pokusů o trojku – jeden tým", "3PA", _3p_note),
+                _max_both("fg3a_both", "Nejvíce pokusů o trojku – oba týmy",       "3PA"),
+                _max_one("fg3m1", "fg3m2", "Nejvíce proměněných trojek – jeden tým", "3PM", _3p_note),
+                _max_both("fg3m_both", "Nejvíce proměněných trojek – oba týmy",    "3PM"),
+                _max_one("fg3x1", "fg3x2", "Nejvíce neproměněných trojek – jeden tým", "3Px", _3px_note),
+                _max_both("fg3x_both", "Nejvíce neproměněných trojek – oba týmy",  "3Px"),
+                _max_one_pct("fg3_pct1", "fg3_pct2", "fg3m1_raw", "fg3a1_raw", "fg3m2_raw", "fg3a2_raw",
+                             "Nejlepší % trojek – jeden tým"),
+                _max_both_pct("fg3_pct_both", "fg3m_both", "fg3a_both",
+                              "Nejlepší % trojek – oba týmy"),
+                _min_one_pct("fg3_pct1", "fg3_pct2", "fg3m1_raw", "fg3a1_raw", "fg3m2_raw", "fg3a2_raw",
+                             "Nejhorší % trojek – jeden tým"),
+                _min_both_pct("fg3_pct_both", "fg3m_both", "fg3a_both",
+                              "Nejhorší % trojek – oba týmy"),
+            ]),
+        },
+    ]
+
+    # ── Render ────────────────────────────────────────────────────────────────
+    out_dir = base / "stats" / season
+    out_dir.mkdir(parents=True, exist_ok=True)
+    template = env.get_template("top_games.html")
+    html = template.render(
+        season=season,
+        sections=sections,
+        nav_base="../../", nav_active="top-games", nav_season=season,
+    )
+    with open(out_dir / "top_games.html", "w") as f:
+        f.write(html)
+    print(f"  Generated: stats/{season}/top_games.html")
+
+
+_MILESTONE_CATEGORIES = [
+    {"key": "pts",             "label": "Body (PTS)",             "unit": "bodů",      "scale": 1,      "threshold": 1.5},
+    {"key": "ast",             "label": "Asistence (AST)",        "unit": "asistencí", "scale": 1,      "threshold": 1.5},
+    {"key": "ftm",             "label": "Trestné hody (FTM)",     "unit": "TH",        "scale": 1,      "threshold": 1.5},
+    {"key": "fgm",             "label": "Střely proměněné (FGM)", "unit": "střel",     "scale": 1,      "threshold": 1.5},
+    {"key": "fg3m",            "label": "Trojky (3PM)",           "unit": "trojek",    "scale": 1,      "threshold": 1.5},
+    {"key": "minutes_seconds", "label": "Minuty",                 "unit": "min",       "scale": 1 / 60, "threshold": 1.2},
+]
+
+
+def generate_milestones_page(docs_path: Path | None = None):
+    """Generate expected milestones page."""
+    base = docs_path or DOCS_DIR
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+
+    log_path = base / "data" / "season_log.json"
+    if not log_path.exists():
+        print("  No season_log.json found for milestones page.")
+        return
+
+    with open(log_path) as f:
+        log = json.load(f)
+
+    players = log.get("players", {})
+    all_dates = [g["date"] for p in players.values()
+                 for g in p.get("games", []) if g.get("date")]
+    season = _date_to_season(max(all_dates)) if all_dates else "2025-26"
+
+    from .stats import _make_player_slug
+
+    def _next_milestone(value: float, step: int = 100) -> int:
+        return (int(value // step) + 1) * step
+
+    def _fmt(value: float, scale: float) -> str:
+        if scale != 1:
+            return f"{value:.1f}"
+        return str(int(round(value)))
+
+    sections = []
+    for cat in _MILESTONE_CATEGORIES:
+        key = cat["key"]
+        scale = cat["scale"]
+        unit = cat["unit"]
+        threshold = cat["threshold"]
+        entries = []
+
+        for pdata in players.values():
+            played = [g for g in pdata.get("games", []) if not g.get("isDNP", False)]
+            gp = len(played)
+            if gp == 0:
+                continue
+
+            total_raw = sum(g.get(key, 0) for g in played)
+            total = total_raw * scale
+            avg = total / gp
+            if avg == 0:
+                continue
+
+            milestone = _next_milestone(total)
+            remaining = milestone - total
+
+            if remaining <= avg * threshold:
+                slug = _make_player_slug(
+                    pdata["firstName"], pdata["familyName"], pdata["team"])
+                entries.append({
+                    "firstName": pdata["firstName"],
+                    "familyName": pdata["familyName"],
+                    "team": pdata["team"],
+                    "slug": slug,
+                    "current": _fmt(total, scale),
+                    "milestone": milestone,
+                    "remaining": _fmt(remaining, scale),
+                    "avg": f"{avg:.1f}",
+                    "games_to_go": f"{remaining / avg:.1f}",
+                })
+
+        if not entries:
+            continue
+
+        # For minutes: keep only players above 50% of the highest milestone in section
+        if key == "minutes_seconds":
+            max_milestone = max(e["milestone"] for e in entries)
+            entries = [e for e in entries if float(e["current"]) >= max_milestone * 0.5]
+
+        if not entries:
+            continue
+
+        entries.sort(key=lambda e: e["milestone"], reverse=True)
+        sections.append({"title": cat["label"], "unit": unit, "entries": entries})
+
+    out_dir = base / "stats" / season
+    out_dir.mkdir(parents=True, exist_ok=True)
+    template = env.get_template("milestones.html")
+    html = template.render(
+        season=season,
+        sections=sections,
+        nav_base="../../", nav_active="milestones", nav_season=season,
+    )
+    with open(out_dir / "milestones.html", "w") as f:
+        f.write(html)
+    print(f"  Generated: stats/{season}/milestones.html")

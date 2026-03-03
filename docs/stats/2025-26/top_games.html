@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOP zápasy 2025-26 | NBL Rotations</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 32px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        .section-title:first-child { margin-top: 8px; }
+        .records-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            margin-bottom: 8px;
+        }
+        .records-table thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .records-table thead th.num { text-align: right; }
+        .records-table tbody tr {
+            border-bottom: 1px solid #222;
+            transition: background 0.1s;
+        }
+        .records-table tbody tr:hover { background: #16213e; }
+        .records-table tbody td { padding: 7px 10px; color: #ccc; }
+        .records-table tbody td.num { text-align: right; }
+        .records-table tbody td.label { color: #888; font-size: 0.78rem; }
+        .records-table tbody td.value { font-weight: bold; color: #e0e0e0; }
+        .records-table tbody td.unit { color: #666; font-size: 0.75rem; padding-left: 0; }
+        .records-table tbody td.note { color: #aaa; }
+        .records-table tbody td.game { text-align: right; }
+        .records-table tbody td.date { text-align: right; color: #666; font-size: 0.75rem; }
+        .game-link {
+            color: #4a7ab8;
+            text-decoration: none;
+            font-size: 0.78rem;
+        }
+        .game-link:hover { text-decoration: underline; }
+        .game-score { color: #888; font-size: 0.72rem; }
+        .wrap { overflow-x: auto; }
+    </style>
+</head>
+<body>
+<nav class="site-nav">
+    <div class="site-nav-inner">
+        <a href="../../index.html" class="nav-brand">NBL data</a>
+        <div class="nav-links">
+            <a href="../../index.html" class="nav-link">Zápasy</a>
+            <a href="../../player/index.html" class="nav-link">Hráči</a>
+            <a href="../../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
+            <a href="../../leaderboard/2025-26/players.html" class="nav-link">TOP hráči</a>
+            <a href="../../stats/2025-26/teams.html" class="nav-link">Statistiky týmů</a>
+            <a href="../../leaderboard/2025-26/teams.html" class="nav-link">TOP týmy</a>
+            <a href="../../stats/2025-26/top_games.html" class="nav-link active">TOP zápasy</a>
+            <a href="../../stats/2025-26/milestones.html" class="nav-link">Milníky</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h1>TOP zápasy NBL 2025-26</h1>
+
+    
+    <div class="section-title">Skóre & výsledky</div>
+    <div class="wrap">
+    <table class="records-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Rekord</th>
+                <th class="num">Hodnota</th>
+                <th></th>
+                <th>Tým / poznámka</th>
+                <th class="num">Zápas</th>
+                <th class="num">Datum</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="label">1.</td>
+                <td>Nejvyšší rozdíl skóre</td>
+                <td class="value num">88</td>
+                <td class="unit">bodů</td>
+                <td class="note">–</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2787959.html">
+                        ERA Basketball Nymburk – BK Olomoucko <span class="game-score">131:43</span>
+                    </a>
+                </td>
+                <td class="date">30. 12. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">2.</td>
+                <td>Nejvíce bodů v zápase celkem</td>
+                <td class="value num">213</td>
+                <td class="unit">bodů</td>
+                <td class="note">–</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2711134.html">
+                        BK Opava – Sršni Photomate Písek <span class="game-score">120:93</span>
+                    </a>
+                </td>
+                <td class="date">4. 10. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">3.</td>
+                <td>Nejméně bodů v zápase celkem</td>
+                <td class="value num">58</td>
+                <td class="unit">bodů</td>
+                <td class="note">–</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2711136.html">
+                        SK Slavia Praha – PUMPA Basket Brno <span class="game-score">23:35</span>
+                    </a>
+                </td>
+                <td class="date">4. 10. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">4.</td>
+                <td>Největší comeback</td>
+                <td class="value num">18</td>
+                <td class="unit">bodů</td>
+                <td class="note">BK KVIS Pardubice</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2787956.html">
+                        BK KVIS Pardubice – NH Ostrava <span class="game-score">83:80</span>
+                    </a>
+                </td>
+                <td class="date">30. 12. 2025</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+    <div class="section-title">Fauly & trestné hody</div>
+    <div class="wrap">
+    <table class="records-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Rekord</th>
+                <th class="num">Hodnota</th>
+                <th></th>
+                <th>Tým / poznámka</th>
+                <th class="num">Zápas</th>
+                <th class="num">Datum</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="label">1.</td>
+                <td>Nejvíce faulů – jeden tým</td>
+                <td class="value num">33</td>
+                <td class="unit">faulů</td>
+                <td class="note">PUMPA Basket Brno</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2769231.html">
+                        USK Praha – PUMPA Basket Brno <span class="game-score">95:83</span>
+                    </a>
+                </td>
+                <td class="date">15. 1. 2026</td>
+            </tr>
+            
+            <tr>
+                <td class="label">2.</td>
+                <td>Nejvíce faulů – oba týmy</td>
+                <td class="value num">63</td>
+                <td class="unit">faulů</td>
+                <td class="note">–</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2769231.html">
+                        USK Praha – PUMPA Basket Brno <span class="game-score">95:83</span>
+                    </a>
+                </td>
+                <td class="date">15. 1. 2026</td>
+            </tr>
+            
+            <tr>
+                <td class="label">3.</td>
+                <td>Nejvíce pokusů TH – jeden tým</td>
+                <td class="value num">48</td>
+                <td class="unit">TH</td>
+                <td class="note">Sršni Photomate Písek: 39/48</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2787027.html">
+                        Sršni Photomate Písek – ERA Basketball Nymburk <span class="game-score">92:105</span>
+                    </a>
+                </td>
+                <td class="date">27. 12. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">4.</td>
+                <td>Nejvíce pokusů TH – oba týmy</td>
+                <td class="value num">83</td>
+                <td class="unit">TH</td>
+                <td class="note">59/83</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2757870.html">
+                        PUMPA Basket Brno – Sršni Photomate Písek <span class="game-score">110:100</span>
+                    </a>
+                </td>
+                <td class="date">1. 11. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">5.</td>
+                <td>Nejvíce proměněných TH – jeden tým</td>
+                <td class="value num">39</td>
+                <td class="unit">TH</td>
+                <td class="note">Sršni Photomate Písek: 39/48</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2787027.html">
+                        Sršni Photomate Písek – ERA Basketball Nymburk <span class="game-score">92:105</span>
+                    </a>
+                </td>
+                <td class="date">27. 12. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">6.</td>
+                <td>Nejvíce proměněných TH – oba týmy</td>
+                <td class="value num">64</td>
+                <td class="unit">TH</td>
+                <td class="note">64/82</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2787027.html">
+                        Sršni Photomate Písek – ERA Basketball Nymburk <span class="game-score">92:105</span>
+                    </a>
+                </td>
+                <td class="date">27. 12. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">7.</td>
+                <td>Nejvíce neproměněných TH – jeden tým</td>
+                <td class="value num">18</td>
+                <td class="unit">TH</td>
+                <td class="note">PUMPA Basket Brno: 18/44</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2782891.html">
+                        PUMPA Basket Brno – NH Ostrava <span class="game-score">84:82</span>
+                    </a>
+                </td>
+                <td class="date">20. 12. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">8.</td>
+                <td>Nejvíce neproměněných TH – oba týmy</td>
+                <td class="value num">30</td>
+                <td class="unit">TH</td>
+                <td class="note">30/81</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2782891.html">
+                        PUMPA Basket Brno – NH Ostrava <span class="game-score">84:82</span>
+                    </a>
+                </td>
+                <td class="date">20. 12. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">9.</td>
+                <td>Nejlepší % TH – jeden tým</td>
+                <td class="value num">93.3%</td>
+                <td class="unit"></td>
+                <td class="note">SLUNETA  Ústí nad Labem: 14/15</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2787024.html">
+                        NH Ostrava – SLUNETA  Ústí nad Labem <span class="game-score">100:97</span>
+                    </a>
+                </td>
+                <td class="date">27. 12. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">10.</td>
+                <td>Nejhorší % TH – jeden tým</td>
+                <td class="value num">22.2%</td>
+                <td class="unit"></td>
+                <td class="note">BK Olomoucko: 2/9</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2708058.html">
+                        Sršni Photomate Písek – BK Olomoucko <span class="game-score">70:60</span>
+                    </a>
+                </td>
+                <td class="date">1. 10. 2025</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+    <div class="section-title">Trojky</div>
+    <div class="wrap">
+    <table class="records-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Rekord</th>
+                <th class="num">Hodnota</th>
+                <th></th>
+                <th>Tým / poznámka</th>
+                <th class="num">Zápas</th>
+                <th class="num">Datum</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td class="label">1.</td>
+                <td>Nejvíce pokusů o trojku – jeden tým</td>
+                <td class="value num">49</td>
+                <td class="unit">3PA</td>
+                <td class="note">ERA Basketball Nymburk: 16/49</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2789369.html">
+                        BK Opava – ERA Basketball Nymburk <span class="game-score">77:99</span>
+                    </a>
+                </td>
+                <td class="date">3. 1. 2026</td>
+            </tr>
+            
+            <tr>
+                <td class="label">2.</td>
+                <td>Nejvíce pokusů o trojku – oba týmy</td>
+                <td class="value num">83</td>
+                <td class="unit">3PA</td>
+                <td class="note">–</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2789369.html">
+                        BK Opava – ERA Basketball Nymburk <span class="game-score">77:99</span>
+                    </a>
+                </td>
+                <td class="date">3. 1. 2026</td>
+            </tr>
+            
+            <tr>
+                <td class="label">3.</td>
+                <td>Nejvíce proměněných trojek – jeden tým</td>
+                <td class="value num">21</td>
+                <td class="unit">3PM</td>
+                <td class="note">BK Opava: 21/44</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2711134.html">
+                        BK Opava – Sršni Photomate Písek <span class="game-score">120:93</span>
+                    </a>
+                </td>
+                <td class="date">4. 10. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">4.</td>
+                <td>Nejvíce proměněných trojek – oba týmy</td>
+                <td class="value num">33</td>
+                <td class="unit">3PM</td>
+                <td class="note">–</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2711134.html">
+                        BK Opava – Sršni Photomate Písek <span class="game-score">120:93</span>
+                    </a>
+                </td>
+                <td class="date">4. 10. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">5.</td>
+                <td>Nejvíce neproměněných trojek – jeden tým</td>
+                <td class="value num">33</td>
+                <td class="unit">3Px</td>
+                <td class="note">ERA Basketball Nymburk: 33/49</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2789369.html">
+                        BK Opava – ERA Basketball Nymburk <span class="game-score">77:99</span>
+                    </a>
+                </td>
+                <td class="date">3. 1. 2026</td>
+            </tr>
+            
+            <tr>
+                <td class="label">6.</td>
+                <td>Nejvíce neproměněných trojek – oba týmy</td>
+                <td class="value num">60</td>
+                <td class="unit">3Px</td>
+                <td class="note">–</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2789369.html">
+                        BK Opava – ERA Basketball Nymburk <span class="game-score">77:99</span>
+                    </a>
+                </td>
+                <td class="date">3. 1. 2026</td>
+            </tr>
+            
+            <tr>
+                <td class="label">7.</td>
+                <td>Nejlepší % trojek – jeden tým</td>
+                <td class="value num">58.8%</td>
+                <td class="unit"></td>
+                <td class="note">BK KVIS Pardubice: 10/17</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2711135.html">
+                        USK Praha – BK KVIS Pardubice <span class="game-score">34:66</span>
+                    </a>
+                </td>
+                <td class="date">4. 10. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">8.</td>
+                <td>Nejlepší % trojek – oba týmy</td>
+                <td class="value num">52.2%</td>
+                <td class="unit"></td>
+                <td class="note">12/23</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2711135.html">
+                        USK Praha – BK KVIS Pardubice <span class="game-score">34:66</span>
+                    </a>
+                </td>
+                <td class="date">4. 10. 2025</td>
+            </tr>
+            
+            <tr>
+                <td class="label">9.</td>
+                <td>Nejhorší % trojek – jeden tým</td>
+                <td class="value num">4.5%</td>
+                <td class="unit"></td>
+                <td class="note">PUMPA Basket Brno: 1/22</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2804240.html">
+                        SLUNETA  Ústí nad Labem – PUMPA Basket Brno <span class="game-score">82:70</span>
+                    </a>
+                </td>
+                <td class="date">15. 2. 2026</td>
+            </tr>
+            
+            <tr>
+                <td class="label">10.</td>
+                <td>Nejhorší % trojek – oba týmy</td>
+                <td class="value num">16.7%</td>
+                <td class="unit"></td>
+                <td class="note">6/36</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/2779305.html">
+                        BK ARMEX ENERGY Děčín – PUMPA Basket Brno <span class="game-score">77:73</span>
+                    </a>
+                </td>
+                <td class="date">10. 12. 2025</td>
+            </tr>
+            
+        </tbody>
+    </table>
+    </div>
+    
+
+</div>
+</body>
+</html>
