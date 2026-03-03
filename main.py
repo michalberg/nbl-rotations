@@ -13,6 +13,7 @@ from nbl_rotations.generator import (
     generate_player_pages, generate_team_data,
     generate_stats_pages, generate_leaderboard_pages,
     generate_top_games_page, generate_milestones_page,
+    generate_ratings_pages,
 )
 from nbl_rotations.stats import load_season_log, update_season_log, save_season_log
 from nbl_rotations.scraper import (
@@ -116,6 +117,9 @@ def main():
             print("Regenerating top games page...")
             generate_top_games_page(all_games_data)
 
+            print("Regenerating ratings pages...")
+            generate_ratings_pages(all_games_data)
+
             # Update season log with new games only
             print("Updating season log...")
             _update_and_generate_stats(new_games_data, new_games)
@@ -141,6 +145,8 @@ def main():
         generate_top_games_page(all_games_data)
         print(f"\nUpdating season log...")
         _update_and_generate_stats(all_games_data, all_games_meta)
+        print(f"\nGenerating ratings pages...")
+        generate_ratings_pages(all_games_data)
         print(f"\nDone! {len(all_games_data)} games processed.")
         return
 

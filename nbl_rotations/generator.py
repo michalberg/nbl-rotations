@@ -11,6 +11,7 @@ from jinja2 import Environment, FileSystemLoader
 from .parser import GameData, Player, parse_time_to_seconds
 from .rotations import PlayerRotation
 from .ratings import PlayerRating
+from .lineups import aggregate_season_lineups, compute_season_onoff
 
 PROJECT_DIR = Path(__file__).parent.parent
 TEMPLATES_DIR = PROJECT_DIR / "templates"
@@ -641,6 +642,7 @@ def generate_player_pages(all_games_data: list[dict]):
                     players_index[player_key] = {
                         "firstName": first_name,
                         "familyName": family_name,
+                        "shortName": player.get("name", ""),
                         "teams": [],
                         "teamNames": [],
                         "games": [],
@@ -679,6 +681,11 @@ def generate_player_pages(all_games_data: list[dict]):
         return
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+
+    # Precompute lineup / on-off data for player pages
+    print("  Computing lineup/on-off stats for player pages…")
+    season_onoff = compute_season_onoff(all_games_data)
+    season_lineups = aggregate_season_lineups(all_games_data, season_onoff)
 
     count = 0
     for player_key, pi in players_index.items():
@@ -799,6 +806,48 @@ def generate_player_pages(all_games_data: list[dict]):
                 })
             condensed_games.append(entry)
 
+        # Compute on/off data per team
+        short_name = pi.get("shortName", "")
+        onoff_data = []
+        for team_name in pi["teamNames"]:
+            key = f"{_slugify(team_name)}|{short_name}"
+            raw = season_onoff.get(key)
+            if not raw:
+                continue
+            on, off = raw["on"], raw["off"]
+            if on["poss"] <= 0 or on["opp_poss"] <= 0:
+                continue
+            on_ortg = round(on["pts"] / on["poss"] * 100, 1)
+            on_drtg = round(on["opp_pts"] / on["opp_poss"] * 100, 1)
+            on_net = round(on_ortg - on_drtg, 1)
+            has_off = off["poss"] > 0 and off["opp_poss"] > 0
+            off_ortg = round(off["pts"] / off["poss"] * 100, 1) if has_off else None
+            off_drtg = round(off["opp_pts"] / off["opp_poss"] * 100, 1) if has_off else None
+            off_net = round(off_ortg - off_drtg, 1) if has_off else None
+            delta_ortg = round(on_ortg - off_ortg, 1) if has_off else None
+            delta_drtg = round(on_drtg - off_drtg, 1) if has_off else None
+            delta_net = round(on_net - off_net, 1) if has_off else None
+            onoff_data.append({
+                "team": team_name,
+                "on_ortg": on_ortg, "on_drtg": on_drtg, "on_net": on_net,
+                "off_ortg": off_ortg, "off_drtg": off_drtg, "off_net": off_net,
+                "delta_ortg": delta_ortg, "delta_drtg": delta_drtg, "delta_net": delta_net,
+                "on_minutes": on["minutes"], "off_minutes": off["minutes"] if has_off else 0,
+                "has_off": has_off,
+            })
+
+        # Compute best quintets (top 3 by net_rtg, min 10 min)
+        best_quintets = []
+        for team_name in pi["teamNames"]:
+            tslug = _slugify(team_name)
+            team_q = season_lineups.get(tslug, {}).get("lineups", {}).get(5, [])
+            best_quintets.extend([
+                {**q, "team": team_name}
+                for q in team_q
+                if short_name in q["players"] and q["minutes"] >= 10
+            ])
+        best_quintets = sorted(best_quintets, key=lambda q: -q["stabilized_net"])[:3]
+
         # Render HTML
         html_dir = DOCS_DIR / "player" / season
         html_dir.mkdir(parents=True, exist_ok=True)
@@ -807,6 +856,8 @@ def generate_player_pages(all_games_data: list[dict]):
             player=player_json,
             player_games_json=json.dumps(condensed_games, ensure_ascii=False),
             team_records_json=json.dumps(team_records, ensure_ascii=False),
+            onoff_json=json.dumps(onoff_data, ensure_ascii=False),
+            best_quintets_json=json.dumps(best_quintets, ensure_ascii=False),
             nav_base="../../", nav_active="players", nav_season=season,
         )
         html_path = html_dir / f"{slug}.html"
@@ -1492,3 +1543,155 @@ def generate_milestones_page(docs_path: Path | None = None):
     with open(out_dir / "milestones.html", "w") as f:
         f.write(html)
     print(f"  Generated: stats/{season}/milestones.html")
+
+
+_MIN_MINUTES: dict[int, int] = {2: 20, 3: 15, 4: 12, 5: 10}
+
+
+def generate_ratings_pages(all_games_data: list[dict], docs_path: Path | None = None):
+    """Generate ratings.html and per-team ratings pages."""
+    base = docs_path or DOCS_DIR
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+
+    if not all_games_data:
+        print("  No game data for ratings pages.")
+        return
+
+    # Use last game's date to determine season
+    dates = [g.get("date", "") for g in all_games_data if g.get("date")]
+    season = _date_to_season(dates[-1]) if dates else "2025-26"
+
+    print("  Computing lineup/on-off stats…")
+    season_onoff = compute_season_onoff(all_games_data)
+    data = aggregate_season_lineups(all_games_data, season_onoff)
+
+    teams_sorted = sorted(data.values(), key=lambda t: -t["net_rtg"])
+
+    # League top/bottom 5 per combo size
+    league_combos: dict[int, dict] = {}
+    for size in [2, 3, 4, 5]:
+        all_combos = [
+            {**combo, "team": td["name"], "team_slug": slug}
+            for slug, td in data.items()
+            for combo in td["lineups"].get(size, [])
+            if combo["minutes"] >= _MIN_MINUTES[size]
+        ]
+        all_combos.sort(key=lambda c: -c["stabilized_net"])
+        worst = sorted(all_combos, key=lambda c: c["stabilized_net"])
+        league_combos[size] = {
+            "best": all_combos[:5],
+            "worst": worst[:5],
+        }
+
+    # Build short_name → player_slug lookup
+    _player_last_team: dict[str, str] = {}
+    _player_names: dict[str, tuple] = {}
+    for game_json in all_games_data:
+        for tno in ["1", "2"]:
+            team_name = game_json.get(f"team{tno}", {}).get("name", "")
+            if not team_name:
+                continue
+            for player in game_json.get("players", {}).get(tno, []):
+                first = player.get("firstName", "")
+                family = player.get("familyName", "")
+                short = player.get("name", "")
+                if not first or not family or not short:
+                    continue
+                pk = f"{first}_{family}"
+                _player_names[pk] = (short, first, family)
+                _player_last_team[pk] = team_name
+    _short_to_slug: dict[str, str] = {}
+    for pk, (short, first, family) in _player_names.items():
+        last_team = _player_last_team[pk]
+        _short_to_slug[short] = f"{_slugify(last_team)}-{_slugify(first)}-{_slugify(family)}"
+
+    # Build per-team player on/off for "Přínos hráčů" section
+    team_players_onoff: dict[str, list] = {}
+    for slug, td in data.items():
+        total_minutes = td["total_minutes"]
+        prefix = f"{slug}|"
+        players = []
+        for key, od in season_onoff.items():
+            if not key.startswith(prefix):
+                continue
+            player_name = key[len(prefix):]
+            on = od["on"]
+            off = od["off"]
+            if on["poss"] <= 0 or on["opp_poss"] <= 0:
+                continue
+            on_ortg = round(on["pts"] / on["poss"] * 100, 1)
+            on_drtg = round(on["opp_pts"] / on["opp_poss"] * 100, 1)
+            on_net = round(on_ortg - on_drtg, 1)
+            on_minutes = on["minutes"]
+            on_pct = round(on_minutes / total_minutes * 100) if total_minutes > 0 else 0
+            has_off = off["poss"] > 0 and off["opp_poss"] > 0
+            off_ortg = round(off["pts"] / off["poss"] * 100, 1) if has_off else None
+            off_drtg = round(off["opp_pts"] / off["opp_poss"] * 100, 1) if has_off else None
+            off_net = round(off_ortg - off_drtg, 1) if has_off else None
+            off_minutes = off["minutes"] if has_off else 0
+            delta_net = round(on_net - off_net, 1) if has_off else None
+            players.append({
+                "name": player_name,
+                "slug": _short_to_slug.get(player_name, ""),
+                "on_minutes": on_minutes,
+                "on_pct": on_pct,
+                "on_ortg": on_ortg,
+                "on_drtg": on_drtg,
+                "on_net": on_net,
+                "off_minutes": off_minutes,
+                "off_ortg": off_ortg,
+                "off_drtg": off_drtg,
+                "off_net": off_net,
+                "has_off": has_off,
+                "delta_net": delta_net,
+            })
+        players.sort(key=lambda p: -(p["delta_net"] if p["delta_net"] is not None else float("-inf")))
+        team_players_onoff[slug] = players
+
+    # Render main ratings.html
+    out_dir = base / "stats" / season
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    template = env.get_template("ratings.html")
+    html = template.render(
+        season=season,
+        teams=teams_sorted,
+        league_combos=league_combos,
+        sizes=[2, 3, 4, 5],
+        size_labels={2: "Duo", 3: "Trio", 4: "Čtveřice", 5: "Pětka"},
+        min_minutes=_MIN_MINUTES,
+        nav_base="../../", nav_active="ratings", nav_season=season,
+    )
+    with open(out_dir / "ratings.html", "w") as f:
+        f.write(html)
+    print(f"  Generated: stats/{season}/ratings.html")
+
+    # Render per-team ratings pages
+    ratings_dir = out_dir / "ratings"
+    ratings_dir.mkdir(exist_ok=True)
+
+    template_team = env.get_template("ratings_team.html")
+    for slug, td in data.items():
+        # Filter combos per size by minimum minutes
+        filtered_lineups: dict[int, list] = {}
+        for size in [2, 3, 4, 5]:
+            filtered_lineups[size] = sorted(
+                [c for c in td["lineups"].get(size, []) if c["minutes"] >= _MIN_MINUTES[size]],
+                key=lambda c: -c["stabilized_net"],
+            )
+
+        html = template_team.render(
+            season=season,
+            team=td,
+            filtered_lineups=filtered_lineups,
+            players_onoff=team_players_onoff.get(slug, []),
+            sizes=[2, 3, 4, 5],
+            size_labels={2: "Duo", 3: "Trio", 4: "Čtveřice", 5: "Pětka"},
+            min_minutes=_MIN_MINUTES,
+            nav_base="../../../", nav_active="ratings", nav_season=season,
+        )
+        html_path = ratings_dir / f"{slug}.html"
+        with open(html_path, "w") as f:
+            f.write(html)
+
+    print(f"  Generated: stats/{season}/ratings/{{}}.html for {len(data)} teams")

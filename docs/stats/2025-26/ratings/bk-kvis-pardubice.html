@@ -1,0 +1,4010 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BK KVIS Pardubice – Ratings sestav 2025-26 | NBL data</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <style>
+        .team-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .team-rtg-summary {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+        }
+        .rtg-stat { text-align: center; }
+        .rtg-stat .label { font-size: 0.72rem; color: #666; text-transform: uppercase; letter-spacing: 0.4px; }
+        .rtg-stat .value { font-size: 1.5rem; font-weight: bold; color: #fff; }
+        .rtg-stat .value.positive { color: #4caf50; }
+        .rtg-stat .value.negative { color: #ef5350; }
+
+        .combo-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+        .combo-tab {
+            background: #16213e;
+            border: 1px solid #333;
+            color: #888;
+            border-radius: 4px;
+            padding: 4px 14px;
+            cursor: pointer;
+            font-size: 0.82rem;
+        }
+        .combo-tab.active { background: #1e3a6e; color: #fff; border-color: #4a8fd4; }
+
+        .combo-panel { display: none; }
+        .combo-panel.active { display: block; }
+
+        .combo-table {
+            border-collapse: collapse;
+            width: auto;
+            font-size: 0.86rem;
+        }
+        .combo-table thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.70rem;
+            letter-spacing: 0.4px;
+            padding: 7px 12px;
+            text-align: right;
+            border-bottom: 1px solid #333;
+            white-space: nowrap;
+        }
+        .combo-table thead th:nth-child(2) { text-align: left; }
+        .combo-table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        .combo-table thead th.sortable:hover { color: #ccc; }
+        .combo-table thead th.sort-asc::after  { content: ' ↑'; color: #4a8fd4; }
+        .combo-table thead th.sort-desc::after { content: ' ↓'; color: #4a8fd4; }
+        .combo-table tbody tr { border-bottom: 1px solid #1e1e1e; transition: background 0.1s; }
+        .combo-table tbody tr:hover { background: #16213e; }
+        .combo-table tbody td { padding: 8px 12px; text-align: right; color: #ccc; }
+        .combo-table tbody td:first-child { color: #555; font-size: 0.78rem; }
+        .combo-table tbody td:nth-child(2) { text-align: left; color: #e0e0e0; }
+
+        .positive { color: #4caf50; font-weight: bold; }
+        .negative { color: #ef5350; font-weight: bold; }
+        .min-note { font-size: 0.78rem; color: #555; margin: 6px 0 12px; }
+
+        .raw-net { font-size: 0.78rem; color: #555; margin-left: 4px; }
+
+        .conf-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .conf-Low      { background: #2a2a2a; color: #666; }
+        .conf-Medium   { background: #3a3000; color: #f0c040; }
+        .conf-High     { background: #0d2a4a; color: #4a8fd4; }
+        .conf-Very-High { background: #0d2a1a; color: #4caf50; }
+
+        .explain-box {
+            margin-top: 40px;
+            border-top: 1px solid #222;
+            padding-top: 24px;
+            color: #666;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            max-width: 720px;
+        }
+        .explain-box h3 {
+            color: #999;
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin: 0 0 10px;
+        }
+        .explain-box h4 {
+            color: #777;
+            font-size: 0.82rem;
+            margin: 16px 0 4px;
+            font-weight: bold;
+        }
+        .explain-box .formula {
+            font-family: monospace;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #bbb;
+            margin: 6px 0;
+            font-size: 0.82rem;
+        }
+        .explain-box ul { margin: 4px 0 0 18px; padding: 0; }
+        .explain-box li { margin-bottom: 3px; }
+        .conf-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .conf-legend span { font-size: 0.72rem; }
+    </style>
+</head>
+<body>
+<nav class="site-nav">
+    <div class="site-nav-inner">
+        <a href="../../../index.html" class="nav-brand">NBL data</a>
+        <div class="nav-links">
+            <a href="../../../index.html" class="nav-link">Zápasy</a>
+            <a href="../../../player/index.html" class="nav-link">Hráči</a>
+            <a href="../../../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
+            <a href="../../../leaderboard/2025-26/players.html" class="nav-link">TOP hráči</a>
+            <a href="../../../stats/2025-26/teams.html" class="nav-link">Statistiky týmů</a>
+            <a href="../../../leaderboard/2025-26/teams.html" class="nav-link">TOP týmy</a>
+            <a href="../../../stats/2025-26/top_games.html" class="nav-link">TOP zápasy</a>
+            <a href="../../../stats/2025-26/milestones.html" class="nav-link">Milníky</a>
+            <a href="../../../stats/2025-26/ratings.html" class="nav-link active">Ratings</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <p style="margin-bottom:4px">
+        <a href="../ratings.html" style="color:#666;font-size:0.85rem;text-decoration:none">&larr; Všechny týmy</a>
+    </p>
+    <div class="team-header">
+        <h1>BK KVIS Pardubice</h1>
+        <span style="color:#666;font-size:0.88rem">2025-26</span>
+    </div>
+
+    <div class="team-rtg-summary">
+        <div class="rtg-stat">
+            <div class="label">ORTG</div>
+            <div class="value">136.6</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">DRTG</div>
+            <div class="value">113.1</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Net RTG</div>
+            <div class="value positive">
+                +23.5
+            </div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Zápasy</div>
+            <div class="value" style="font-size:1.1rem;color:#ccc">28</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Minut</div>
+            <div class="value" style="font-size:1.1rem;color:#ccc">1110</div>
+        </div>
+    </div>
+
+    <div class="combo-tabs">
+        
+        <button class="combo-tab active" data-size="players">Hráči</button>
+        
+        
+        <button class="combo-tab" data-size="2">
+            Duo
+        </button>
+        
+        <button class="combo-tab" data-size="3">
+            Trio
+        </button>
+        
+        <button class="combo-tab" data-size="4">
+            Čtveřice
+        </button>
+        
+        <button class="combo-tab" data-size="5">
+            Pětka
+        </button>
+        
+    </div>
+
+    <!-- ── Player On/Off panel ───────────────────────────────────────── -->
+    
+    <div class="combo-panel active" data-size="players">
+        <div id="onoff-filters" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+            <button class="combo-tab active" data-min-pct="0">Všichni</button>
+            <button class="combo-tab" data-min-pct="10">≥ 10 % minut</button>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="combo-table" id="onoff-table" style="width:auto">
+            <thead>
+                <tr>
+                    <th style="text-align:left">Hráč</th>
+                    <th data-tip="Minuty s hráčem na hřišti">ON min</th>
+                    <th data-tip="Offensive Rating s hráčem na hřišti">ORTG</th>
+                    <th data-tip="Defensive Rating s hráčem na hřišti">DRTG</th>
+                    <th data-tip="Net Rating s hráčem na hřišti">Net</th>
+                    <th data-tip="Minuty bez hráče">OFF min</th>
+                    <th data-tip="Offensive Rating bez hráče">ORTG</th>
+                    <th data-tip="Defensive Rating bez hráče">DRTG</th>
+                    <th data-tip="Net Rating bez hráče">Net</th>
+                    <th data-tip="Rozdíl Net Ratingu – jak tým hraje lépe/hůře s hráčem na hřišti">Δ Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-on-pct="34"
+                    data-on-net="41.2"
+                    data-off-net="16.1"
+                    data-delta-net="25.1"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-jamonda-roshawn-bryant.html" style="color:#4a8fd4;text-decoration:none">J. Bryant </a>
+                        
+                    </td>
+                    <td>380</td>
+                    <td>141.3</td>
+                    <td>100.1</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>122</td>
+                    <td>133.3</td>
+                    <td>117.2</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="21"
+                    data-on-net="43.2"
+                    data-off-net="28.6"
+                    data-delta-net="14.6"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-jakub-tuma.html" style="color:#4a8fd4;text-decoration:none">J. Tůma</a>
+                        
+                    </td>
+                    <td>230</td>
+                    <td>148.3</td>
+                    <td>105.1</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>272</td>
+                    <td>132.1</td>
+                    <td>103.5</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="34"
+                    data-on-net="38.5"
+                    data-off-net="25.4"
+                    data-delta-net="13.1"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-lubos-kovar.html" style="color:#4a8fd4;text-decoration:none">L. Kovář</a>
+                        
+                    </td>
+                    <td>375</td>
+                    <td>142.0</td>
+                    <td>103.5</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>127</td>
+                    <td>132.0</td>
+                    <td>106.6</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="32"
+                    data-on-net="36.9"
+                    data-off-net="30.4"
+                    data-delta-net="6.5"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-ryan-everett-moffatt.html" style="color:#4a8fd4;text-decoration:none">R. Moffatt</a>
+                        
+                    </td>
+                    <td>360</td>
+                    <td>139.9</td>
+                    <td>103.0</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>104</td>
+                    <td>133.9</td>
+                    <td>103.5</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="8"
+                    data-on-net="35.0"
+                    data-off-net="32.4"
+                    data-delta-net="2.6"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-martin-nabelek.html" style="color:#4a8fd4;text-decoration:none">M. Nábělek</a>
+                        
+                    </td>
+                    <td>87</td>
+                    <td>138.0</td>
+                    <td>103.0</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>313</td>
+                    <td>138.8</td>
+                    <td>106.4</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="4"
+                    data-on-net="25.8"
+                    data-off-net="25.5"
+                    data-delta-net="0.3"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-jacob-nicholas-evans-iii.html" style="color:#4a8fd4;text-decoration:none">J. Evans Iii</a>
+                        
+                    </td>
+                    <td>45</td>
+                    <td>126.3</td>
+                    <td>100.5</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>100</td>
+                    <td>128.9</td>
+                    <td>103.4</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="2"
+                    data-on-net="16.3"
+                    data-off-net="16.2"
+                    data-delta-net="0.1"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-marek-simonides.html" style="color:#4a8fd4;text-decoration:none">M. Simonides</a>
+                        
+                    </td>
+                    <td>23</td>
+                    <td>109.5</td>
+                    <td>93.2</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>166</td>
+                    <td>130.8</td>
+                    <td>114.6</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="13"
+                    data-on-net="32.6"
+                    data-off-net="36.0"
+                    data-delta-net="-3.4"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-kamil-svrdlik.html" style="color:#4a8fd4;text-decoration:none">K. Švrdlík</a>
+                        
+                    </td>
+                    <td>143</td>
+                    <td>135.9</td>
+                    <td>103.3</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>359</td>
+                    <td>140.7</td>
+                    <td>104.7</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="29"
+                    data-on-net="33.6"
+                    data-off-net="37.6"
+                    data-delta-net="-4.0"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-zed-jackson-key.html" style="color:#4a8fd4;text-decoration:none">Z. Key</a>
+                        
+                    </td>
+                    <td>325</td>
+                    <td>140.3</td>
+                    <td>106.7</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>177</td>
+                    <td>137.6</td>
+                    <td>100.0</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="1"
+                    data-on-net="34.9"
+                    data-off-net="39.4"
+                    data-delta-net="-4.5"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-petr-stovicek.html" style="color:#4a8fd4;text-decoration:none">P. Šťovíček</a>
+                        
+                    </td>
+                    <td>14</td>
+                    <td>147.5</td>
+                    <td>112.6</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>152</td>
+                    <td>146.3</td>
+                    <td>106.9</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="32"
+                    data-on-net="32.1"
+                    data-off-net="38.1"
+                    data-delta-net="-6.0"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-robert-lee-bonham.html" style="color:#4a8fd4;text-decoration:none">R. Bonham</a>
+                        
+                    </td>
+                    <td>354</td>
+                    <td>140.5</td>
+                    <td>108.4</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>130</td>
+                    <td>134.6</td>
+                    <td>96.5</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="1"
+                    data-on-net="44.9"
+                    data-off-net="55.8"
+                    data-delta-net="-10.9"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-vladimir-vondra.html" style="color:#4a8fd4;text-decoration:none">V. Vondra</a>
+                        
+                    </td>
+                    <td>6</td>
+                    <td>107.3</td>
+                    <td>62.4</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>48</td>
+                    <td>160.3</td>
+                    <td>104.5</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="14"
+                    data-on-net="17.3"
+                    data-off-net="42.6"
+                    data-delta-net="-25.3"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-adam-lukes.html" style="color:#4a8fd4;text-decoration:none">A. Lukeš</a>
+                        
+                    </td>
+                    <td>153</td>
+                    <td>125.0</td>
+                    <td>107.7</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>236</td>
+                    <td>142.6</td>
+                    <td>100.0</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="1"
+                    data-on-net="19.1"
+                    data-off-net="60.7"
+                    data-delta-net="-41.6"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-michal-svojanovsky.html" style="color:#4a8fd4;text-decoration:none">M. Svojanovský</a>
+                        
+                    </td>
+                    <td>12</td>
+                    <td>138.6</td>
+                    <td>119.5</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>92</td>
+                    <td>163.5</td>
+                    <td>102.8</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="0"
+                    data-on-net="-44.1"
+                    data-off-net="22.6"
+                    data-delta-net="-66.7"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-kvis-pardubice-filip-horvath.html" style="color:#4a8fd4;text-decoration:none">F. Horváth</a>
+                        
+                    </td>
+                    <td>3</td>
+                    <td>67.2</td>
+                    <td>111.3</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>49</td>
+                    <td>143.7</td>
+                    <td>121.1</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+
+    
+    <div class="combo-panel" data-size="2">
+        <p class="min-note">Minimum minut: 20</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="142"
+                    data-raw_ortg="151.3"
+                    data-raw_drtg="97.5"
+                    data-raw_net="53.8"
+                    data-stabilized_net="48.1"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma</td>
+                    <td>142</td>
+                    <td>151.3</td>
+                    <td>97.5</td>
+                    <td>
+                        +48.1
+                    </td>
+                    <td>
+                        +53.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="121"
+                    data-raw_ortg="156.1"
+                    data-raw_drtg="102.2"
+                    data-raw_net="53.9"
+                    data-stabilized_net="46.0"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Tůma, Z. Key</td>
+                    <td>121</td>
+                    <td>156.1</td>
+                    <td>102.2</td>
+                    <td>
+                        +46.0
+                    </td>
+                    <td>
+                        +53.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="156.9"
+                    data-raw_drtg="52.4"
+                    data-raw_net="104.5"
+                    data-stabilized_net="44.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Evans Iii</td>
+                    <td>20</td>
+                    <td>156.9</td>
+                    <td>52.4</td>
+                    <td>
+                        +44.1
+                    </td>
+                    <td>
+                        +104.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="46"
+                    data-raw_ortg="154.5"
+                    data-raw_drtg="93.2"
+                    data-raw_net="61.3"
+                    data-stabilized_net="43.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , M. Nábělek</td>
+                    <td>46</td>
+                    <td>154.5</td>
+                    <td>93.2</td>
+                    <td>
+                        +43.8
+                    </td>
+                    <td>
+                        +61.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="35"
+                    data-raw_ortg="159.7"
+                    data-raw_drtg="96.8"
+                    data-raw_net="62.9"
+                    data-stabilized_net="43.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, M. Nábělek</td>
+                    <td>35</td>
+                    <td>159.7</td>
+                    <td>96.8</td>
+                    <td>
+                        +43.4
+                    </td>
+                    <td>
+                        +62.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="146.6"
+                    data-raw_drtg="64.7"
+                    data-raw_net="81.9"
+                    data-stabilized_net="43.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>K. Švrdlík, M. Nábělek</td>
+                    <td>28</td>
+                    <td>146.6</td>
+                    <td>64.7</td>
+                    <td>
+                        +43.0
+                    </td>
+                    <td>
+                        +81.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="135"
+                    data-raw_ortg="151.7"
+                    data-raw_drtg="105.6"
+                    data-raw_net="46.1"
+                    data-stabilized_net="42.4"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Tůma, R. Moffatt</td>
+                    <td>135</td>
+                    <td>151.7</td>
+                    <td>105.6</td>
+                    <td>
+                        +42.4
+                    </td>
+                    <td>
+                        +46.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="300"
+                    data-raw_ortg="142.6"
+                    data-raw_drtg="99.6"
+                    data-raw_net="43.0"
+                    data-stabilized_net="41.5"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář</td>
+                    <td>300</td>
+                    <td>142.6</td>
+                    <td>99.6</td>
+                    <td>
+                        +41.5
+                    </td>
+                    <td>
+                        +43.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="39"
+                    data-raw_ortg="149.7"
+                    data-raw_drtg="89.4"
+                    data-raw_net="60.3"
+                    data-stabilized_net="41.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>M. Nábělek, R. Moffatt</td>
+                    <td>39</td>
+                    <td>149.7</td>
+                    <td>89.4</td>
+                    <td>
+                        +41.1
+                    </td>
+                    <td>
+                        +60.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="287"
+                    data-raw_ortg="139.9"
+                    data-raw_drtg="98.3"
+                    data-raw_net="41.6"
+                    data-stabilized_net="40.2"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , R. Moffatt</td>
+                    <td>287</td>
+                    <td>139.9</td>
+                    <td>98.3</td>
+                    <td>
+                        +40.2
+                    </td>
+                    <td>
+                        +41.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="114"
+                    data-raw_ortg="155.2"
+                    data-raw_drtg="110.5"
+                    data-raw_net="44.7"
+                    data-stabilized_net="40.1"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Tůma, R. Bonham</td>
+                    <td>114</td>
+                    <td>155.2</td>
+                    <td>110.5</td>
+                    <td>
+                        +40.1
+                    </td>
+                    <td>
+                        +44.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="143"
+                    data-raw_ortg="146.5"
+                    data-raw_drtg="105.2"
+                    data-raw_net="41.3"
+                    data-stabilized_net="39.8"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Tůma, L. Kovář</td>
+                    <td>143</td>
+                    <td>146.5</td>
+                    <td>105.2</td>
+                    <td>
+                        +39.8
+                    </td>
+                    <td>
+                        +41.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="78"
+                    data-raw_ortg="145.5"
+                    data-raw_drtg="102.6"
+                    data-raw_net="42.9"
+                    data-stabilized_net="37.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>K. Švrdlík, L. Kovář</td>
+                    <td>78</td>
+                    <td>145.5</td>
+                    <td>102.6</td>
+                    <td>
+                        +37.2
+                    </td>
+                    <td>
+                        +42.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="263"
+                    data-raw_ortg="139.3"
+                    data-raw_drtg="100.9"
+                    data-raw_net="38.4"
+                    data-stabilized_net="37.1"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , R. Bonham</td>
+                    <td>263</td>
+                    <td>139.3</td>
+                    <td>100.9</td>
+                    <td>
+                        +37.1
+                    </td>
+                    <td>
+                        +38.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="295"
+                    data-raw_ortg="142.3"
+                    data-raw_drtg="103.8"
+                    data-raw_net="38.5"
+                    data-stabilized_net="37.0"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>L. Kovář, R. Bonham</td>
+                    <td>295</td>
+                    <td>142.3</td>
+                    <td>103.8</td>
+                    <td>
+                        +37.0
+                    </td>
+                    <td>
+                        +38.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="268"
+                    data-raw_ortg="140.6"
+                    data-raw_drtg="103.0"
+                    data-raw_net="37.6"
+                    data-stabilized_net="36.7"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , Z. Key</td>
+                    <td>268</td>
+                    <td>140.6</td>
+                    <td>103.0</td>
+                    <td>
+                        +36.7
+                    </td>
+                    <td>
+                        +37.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="260"
+                    data-raw_ortg="141.2"
+                    data-raw_drtg="103.6"
+                    data-raw_net="37.6"
+                    data-stabilized_net="36.7"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>L. Kovář, R. Moffatt</td>
+                    <td>260</td>
+                    <td>141.2</td>
+                    <td>103.6</td>
+                    <td>
+                        +36.7
+                    </td>
+                    <td>
+                        +37.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="266"
+                    data-raw_ortg="142.2"
+                    data-raw_drtg="104.6"
+                    data-raw_net="37.6"
+                    data-stabilized_net="36.3"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>L. Kovář, Z. Key</td>
+                    <td>266</td>
+                    <td>142.2</td>
+                    <td>104.6</td>
+                    <td>
+                        +36.3
+                    </td>
+                    <td>
+                        +37.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="232"
+                    data-raw_ortg="142.2"
+                    data-raw_drtg="104.8"
+                    data-raw_net="37.4"
+                    data-stabilized_net="35.8"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>R. Moffatt, Z. Key</td>
+                    <td>232</td>
+                    <td>142.2</td>
+                    <td>104.8</td>
+                    <td>
+                        +35.8
+                    </td>
+                    <td>
+                        +37.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="91"
+                    data-raw_ortg="136.4"
+                    data-raw_drtg="100.4"
+                    data-raw_net="36.0"
+                    data-stabilized_net="34.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík</td>
+                    <td>91</td>
+                    <td>136.4</td>
+                    <td>100.4</td>
+                    <td>
+                        +34.7
+                    </td>
+                    <td>
+                        +36.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="44"
+                    data-raw_ortg="151.9"
+                    data-raw_drtg="117.7"
+                    data-raw_net="34.2"
+                    data-stabilized_net="33.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>L. Kovář, M. Nábělek</td>
+                    <td>44</td>
+                    <td>151.9</td>
+                    <td>117.7</td>
+                    <td>
+                        +33.5
+                    </td>
+                    <td>
+                        +34.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="257"
+                    data-raw_ortg="143.0"
+                    data-raw_drtg="108.3"
+                    data-raw_net="34.7"
+                    data-stabilized_net="33.3"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>R. Bonham, Z. Key</td>
+                    <td>257</td>
+                    <td>143.0</td>
+                    <td>108.3</td>
+                    <td>
+                        +33.3
+                    </td>
+                    <td>
+                        +34.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="104"
+                    data-raw_ortg="137.5"
+                    data-raw_drtg="103.9"
+                    data-raw_net="33.6"
+                    data-stabilized_net="32.5"
+                    data-confidence="High">
+                    <td></td>
+                    <td>K. Švrdlík, R. Moffatt</td>
+                    <td>104</td>
+                    <td>137.5</td>
+                    <td>103.9</td>
+                    <td>
+                        +32.5
+                    </td>
+                    <td>
+                        +33.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="91"
+                    data-raw_ortg="137.4"
+                    data-raw_drtg="110.0"
+                    data-raw_net="27.4"
+                    data-stabilized_net="30.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík</td>
+                    <td>91</td>
+                    <td>137.4</td>
+                    <td>110.0</td>
+                    <td>
+                        +30.7
+                    </td>
+                    <td>
+                        +27.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="139.1"
+                    data-raw_drtg="91.4"
+                    data-raw_net="47.7"
+                    data-stabilized_net="30.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, K. Švrdlík</td>
+                    <td>25</td>
+                    <td>139.1</td>
+                    <td>91.4</td>
+                    <td>
+                        +30.6
+                    </td>
+                    <td>
+                        +47.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="126.1"
+                    data-raw_drtg="88.4"
+                    data-raw_net="37.7"
+                    data-stabilized_net="30.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, R. Moffatt</td>
+                    <td>28</td>
+                    <td>126.1</td>
+                    <td>88.4</td>
+                    <td>
+                        +30.2
+                    </td>
+                    <td>
+                        +37.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="85"
+                    data-raw_ortg="131.0"
+                    data-raw_drtg="97.9"
+                    data-raw_net="33.1"
+                    data-stabilized_net="28.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, L. Kovář</td>
+                    <td>85</td>
+                    <td>131.0</td>
+                    <td>97.9</td>
+                    <td>
+                        +28.7
+                    </td>
+                    <td>
+                        +33.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="270"
+                    data-raw_ortg="133.7"
+                    data-raw_drtg="106.9"
+                    data-raw_net="26.8"
+                    data-stabilized_net="27.8"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>R. Bonham, R. Moffatt</td>
+                    <td>270</td>
+                    <td>133.7</td>
+                    <td>106.9</td>
+                    <td>
+                        +27.8
+                    </td>
+                    <td>
+                        +26.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="135.7"
+                    data-raw_drtg="120.5"
+                    data-raw_net="15.2"
+                    data-stabilized_net="26.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, J. Tůma</td>
+                    <td>28</td>
+                    <td>135.7</td>
+                    <td>120.5</td>
+                    <td>
+                        +26.9
+                    </td>
+                    <td>
+                        +15.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="74"
+                    data-raw_ortg="133.7"
+                    data-raw_drtg="116.4"
+                    data-raw_net="17.3"
+                    data-stabilized_net="23.4"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>K. Švrdlík, R. Bonham</td>
+                    <td>74</td>
+                    <td>133.7</td>
+                    <td>116.4</td>
+                    <td>
+                        +23.4
+                    </td>
+                    <td>
+                        +17.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="85"
+                    data-raw_ortg="137.9"
+                    data-raw_drtg="113.6"
+                    data-raw_net="24.3"
+                    data-stabilized_net="22.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, R. Bonham</td>
+                    <td>85</td>
+                    <td>137.9</td>
+                    <td>113.6</td>
+                    <td>
+                        +22.7
+                    </td>
+                    <td>
+                        +24.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="109.0"
+                    data-raw_drtg="87.9"
+                    data-raw_net="21.1"
+                    data-stabilized_net="22.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, M. Nábělek</td>
+                    <td>24</td>
+                    <td>109.0</td>
+                    <td>87.9</td>
+                    <td>
+                        +22.2
+                    </td>
+                    <td>
+                        +21.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="76"
+                    data-raw_ortg="132.4"
+                    data-raw_drtg="112.7"
+                    data-raw_net="19.7"
+                    data-stabilized_net="21.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, R. Moffatt</td>
+                    <td>76</td>
+                    <td>132.4</td>
+                    <td>112.7</td>
+                    <td>
+                        +21.7
+                    </td>
+                    <td>
+                        +19.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="89"
+                    data-raw_ortg="125.5"
+                    data-raw_drtg="109.5"
+                    data-raw_net="16.0"
+                    data-stabilized_net="21.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma</td>
+                    <td>89</td>
+                    <td>125.5</td>
+                    <td>109.5</td>
+                    <td>
+                        +21.2
+                    </td>
+                    <td>
+                        +16.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="151.8"
+                    data-raw_drtg="159.9"
+                    data-raw_net="-8.1"
+                    data-stabilized_net="20.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>M. Nábělek, R. Bonham</td>
+                    <td>28</td>
+                    <td>151.8</td>
+                    <td>159.9</td>
+                    <td>
+                        +20.5
+                    </td>
+                    <td>
+                        -8.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="43"
+                    data-raw_ortg="129.8"
+                    data-raw_drtg="134.2"
+                    data-raw_net="-4.4"
+                    data-stabilized_net="18.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>M. Nábělek, Z. Key</td>
+                    <td>43</td>
+                    <td>129.8</td>
+                    <td>134.2</td>
+                    <td>
+                        +18.8
+                    </td>
+                    <td>
+                        -4.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="64"
+                    data-raw_ortg="120.9"
+                    data-raw_drtg="106.9"
+                    data-raw_net="14.0"
+                    data-stabilized_net="18.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, K. Švrdlík</td>
+                    <td>64</td>
+                    <td>120.9</td>
+                    <td>106.9</td>
+                    <td>
+                        +18.2
+                    </td>
+                    <td>
+                        +14.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="123.2"
+                    data-raw_drtg="138.7"
+                    data-raw_net="-15.5"
+                    data-stabilized_net="16.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, R. Bonham</td>
+                    <td>23</td>
+                    <td>123.2</td>
+                    <td>138.7</td>
+                    <td>
+                        +16.6
+                    </td>
+                    <td>
+                        -15.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="86"
+                    data-raw_ortg="118.4"
+                    data-raw_drtg="113.5"
+                    data-raw_net="4.9"
+                    data-stabilized_net="15.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant </td>
+                    <td>86</td>
+                    <td>118.4</td>
+                    <td>113.5</td>
+                    <td>
+                        +15.2
+                    </td>
+                    <td>
+                        +4.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="79"
+                    data-raw_ortg="124.2"
+                    data-raw_drtg="116.2"
+                    data-raw_net="8.0"
+                    data-stabilized_net="15.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, Z. Key</td>
+                    <td>79</td>
+                    <td>124.2</td>
+                    <td>116.2</td>
+                    <td>
+                        +15.2
+                    </td>
+                    <td>
+                        +8.0
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="3">
+        <p class="min-note">Minimum minut: 15</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="44"
+                    data-raw_ortg="163.9"
+                    data-raw_drtg="87.0"
+                    data-raw_net="76.9"
+                    data-stabilized_net="49.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, R. Bonham</td>
+                    <td>44</td>
+                    <td>163.9</td>
+                    <td>87.0</td>
+                    <td>
+                        +49.4
+                    </td>
+                    <td>
+                        +76.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="59"
+                    data-raw_ortg="167.0"
+                    data-raw_drtg="99.0"
+                    data-raw_net="68.0"
+                    data-stabilized_net="48.0"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, R. Moffatt, Z. Key</td>
+                    <td>59</td>
+                    <td>167.0</td>
+                    <td>99.0</td>
+                    <td>
+                        +48.0
+                    </td>
+                    <td>
+                        +68.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="80"
+                    data-raw_ortg="157.7"
+                    data-raw_drtg="96.6"
+                    data-raw_net="61.1"
+                    data-stabilized_net="48.0"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, Z. Key</td>
+                    <td>80</td>
+                    <td>157.7</td>
+                    <td>96.6</td>
+                    <td>
+                        +48.0
+                    </td>
+                    <td>
+                        +61.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="61"
+                    data-raw_ortg="171.8"
+                    data-raw_drtg="103.9"
+                    data-raw_net="67.9"
+                    data-stabilized_net="47.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, R. Bonham, Z. Key</td>
+                    <td>61</td>
+                    <td>171.8</td>
+                    <td>103.9</td>
+                    <td>
+                        +47.3
+                    </td>
+                    <td>
+                        +67.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="19"
+                    data-raw_ortg="176.5"
+                    data-raw_drtg="81.2"
+                    data-raw_net="95.3"
+                    data-stabilized_net="46.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, M. Nábělek</td>
+                    <td>19</td>
+                    <td>176.5</td>
+                    <td>81.2</td>
+                    <td>
+                        +46.9
+                    </td>
+                    <td>
+                        +95.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="85"
+                    data-raw_ortg="153.9"
+                    data-raw_drtg="97.2"
+                    data-raw_net="56.7"
+                    data-stabilized_net="46.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, R. Moffatt</td>
+                    <td>85</td>
+                    <td>153.9</td>
+                    <td>97.2</td>
+                    <td>
+                        +46.8
+                    </td>
+                    <td>
+                        +56.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="169.0"
+                    data-raw_drtg="60.4"
+                    data-raw_net="108.6"
+                    data-stabilized_net="46.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, M. Nábělek, R. Moffatt</td>
+                    <td>16</td>
+                    <td>169.0</td>
+                    <td>60.4</td>
+                    <td>
+                        +46.4
+                    </td>
+                    <td>
+                        +108.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="88"
+                    data-raw_ortg="152.1"
+                    data-raw_drtg="98.6"
+                    data-raw_net="53.5"
+                    data-stabilized_net="45.5"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, L. Kovář</td>
+                    <td>88</td>
+                    <td>152.1</td>
+                    <td>98.6</td>
+                    <td>
+                        +45.5
+                    </td>
+                    <td>
+                        +53.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="164.6"
+                    data-raw_drtg="76.2"
+                    data-raw_net="88.4"
+                    data-stabilized_net="44.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , M. Nábělek, R. Moffatt</td>
+                    <td>21</td>
+                    <td>164.6</td>
+                    <td>76.2</td>
+                    <td>
+                        +44.8
+                    </td>
+                    <td>
+                        +88.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="78"
+                    data-raw_ortg="156.9"
+                    data-raw_drtg="101.7"
+                    data-raw_net="55.2"
+                    data-stabilized_net="44.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, L. Kovář, R. Bonham</td>
+                    <td>78</td>
+                    <td>156.9</td>
+                    <td>101.7</td>
+                    <td>
+                        +44.3
+                    </td>
+                    <td>
+                        +55.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="158.8"
+                    data-raw_drtg="62.7"
+                    data-raw_net="96.1"
+                    data-stabilized_net="44.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>K. Švrdlík, M. Nábělek, R. Moffatt</td>
+                    <td>21</td>
+                    <td>158.8</td>
+                    <td>62.7</td>
+                    <td>
+                        +44.1
+                    </td>
+                    <td>
+                        +96.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="82"
+                    data-raw_ortg="155.0"
+                    data-raw_drtg="102.0"
+                    data-raw_net="53.0"
+                    data-stabilized_net="43.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, L. Kovář, Z. Key</td>
+                    <td>82</td>
+                    <td>155.0</td>
+                    <td>102.0</td>
+                    <td>
+                        +43.7
+                    </td>
+                    <td>
+                        +53.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="18"
+                    data-raw_ortg="156.9"
+                    data-raw_drtg="70.4"
+                    data-raw_net="86.5"
+                    data-stabilized_net="42.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, M. Nábělek</td>
+                    <td>18</td>
+                    <td>156.9</td>
+                    <td>70.4</td>
+                    <td>
+                        +42.0
+                    </td>
+                    <td>
+                        +86.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="155.9"
+                    data-raw_drtg="94.7"
+                    data-raw_net="61.2"
+                    data-stabilized_net="40.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, M. Nábělek</td>
+                    <td>22</td>
+                    <td>155.9</td>
+                    <td>94.7</td>
+                    <td>
+                        +40.1
+                    </td>
+                    <td>
+                        +61.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="49"
+                    data-raw_ortg="149.8"
+                    data-raw_drtg="99.4"
+                    data-raw_net="50.4"
+                    data-stabilized_net="39.9"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, L. Kovář</td>
+                    <td>49</td>
+                    <td>149.8</td>
+                    <td>99.4</td>
+                    <td>
+                        +39.9
+                    </td>
+                    <td>
+                        +50.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="221"
+                    data-raw_ortg="140.5"
+                    data-raw_drtg="98.9"
+                    data-raw_net="41.6"
+                    data-stabilized_net="39.8"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, R. Moffatt</td>
+                    <td>221</td>
+                    <td>140.5</td>
+                    <td>98.9</td>
+                    <td>
+                        +39.8
+                    </td>
+                    <td>
+                        +41.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="233"
+                    data-raw_ortg="140.8"
+                    data-raw_drtg="99.0"
+                    data-raw_net="41.8"
+                    data-stabilized_net="39.6"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, R. Bonham</td>
+                    <td>233</td>
+                    <td>140.8</td>
+                    <td>99.0</td>
+                    <td>
+                        +39.6
+                    </td>
+                    <td>
+                        +41.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="202"
+                    data-raw_ortg="141.4"
+                    data-raw_drtg="99.4"
+                    data-raw_net="42.0"
+                    data-stabilized_net="39.5"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , R. Moffatt, Z. Key</td>
+                    <td>202</td>
+                    <td>141.4</td>
+                    <td>99.4</td>
+                    <td>
+                        +39.5
+                    </td>
+                    <td>
+                        +42.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="181.0"
+                    data-raw_drtg="109.9"
+                    data-raw_net="71.1"
+                    data-stabilized_net="39.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, M. Nábělek, Z. Key</td>
+                    <td>16</td>
+                    <td>181.0</td>
+                    <td>109.9</td>
+                    <td>
+                        +39.5
+                    </td>
+                    <td>
+                        +71.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="65"
+                    data-raw_ortg="152.8"
+                    data-raw_drtg="111.4"
+                    data-raw_net="41.4"
+                    data-stabilized_net="38.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, L. Kovář, R. Moffatt</td>
+                    <td>65</td>
+                    <td>152.8</td>
+                    <td>111.4</td>
+                    <td>
+                        +38.3
+                    </td>
+                    <td>
+                        +41.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="226"
+                    data-raw_ortg="141.7"
+                    data-raw_drtg="102.1"
+                    data-raw_net="39.6"
+                    data-stabilized_net="38.1"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, Z. Key</td>
+                    <td>226</td>
+                    <td>141.7</td>
+                    <td>102.1</td>
+                    <td>
+                        +38.1
+                    </td>
+                    <td>
+                        +39.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="186"
+                    data-raw_ortg="142.6"
+                    data-raw_drtg="103.9"
+                    data-raw_net="38.7"
+                    data-stabilized_net="36.8"
+                    data-confidence="High">
+                    <td></td>
+                    <td>L. Kovář, R. Moffatt, Z. Key</td>
+                    <td>186</td>
+                    <td>142.6</td>
+                    <td>103.9</td>
+                    <td>
+                        +36.8
+                    </td>
+                    <td>
+                        +38.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="222"
+                    data-raw_ortg="142.9"
+                    data-raw_drtg="104.5"
+                    data-raw_net="38.4"
+                    data-stabilized_net="36.4"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>L. Kovář, R. Bonham, Z. Key</td>
+                    <td>222</td>
+                    <td>142.9</td>
+                    <td>104.5</td>
+                    <td>
+                        +36.4
+                    </td>
+                    <td>
+                        +38.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="54"
+                    data-raw_ortg="146.1"
+                    data-raw_drtg="92.8"
+                    data-raw_net="53.3"
+                    data-stabilized_net="36.4"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, L. Kovář, R. Bonham</td>
+                    <td>54</td>
+                    <td>146.1</td>
+                    <td>92.8</td>
+                    <td>
+                        +36.4
+                    </td>
+                    <td>
+                        +53.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="210"
+                    data-raw_ortg="139.7"
+                    data-raw_drtg="104.4"
+                    data-raw_net="35.3"
+                    data-stabilized_net="34.3"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , R. Bonham, Z. Key</td>
+                    <td>210</td>
+                    <td>139.7</td>
+                    <td>104.4</td>
+                    <td>
+                        +34.3
+                    </td>
+                    <td>
+                        +35.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="212"
+                    data-raw_ortg="132.5"
+                    data-raw_drtg="98.3"
+                    data-raw_net="34.2"
+                    data-stabilized_net="33.9"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Bryant , R. Bonham, R. Moffatt</td>
+                    <td>212</td>
+                    <td>132.5</td>
+                    <td>98.3</td>
+                    <td>
+                        +33.9
+                    </td>
+                    <td>
+                        +34.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="64"
+                    data-raw_ortg="140.1"
+                    data-raw_drtg="105.5"
+                    data-raw_net="34.6"
+                    data-stabilized_net="33.9"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, R. Moffatt</td>
+                    <td>64</td>
+                    <td>140.1</td>
+                    <td>105.5</td>
+                    <td>
+                        +33.9
+                    </td>
+                    <td>
+                        +34.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="50"
+                    data-raw_ortg="146.1"
+                    data-raw_drtg="107.0"
+                    data-raw_net="39.1"
+                    data-stabilized_net="33.9"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>K. Švrdlík, L. Kovář, R. Bonham</td>
+                    <td>50</td>
+                    <td>146.1</td>
+                    <td>107.0</td>
+                    <td>
+                        +33.9
+                    </td>
+                    <td>
+                        +39.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="52"
+                    data-raw_ortg="136.0"
+                    data-raw_drtg="105.1"
+                    data-raw_net="30.9"
+                    data-stabilized_net="33.6"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, K. Švrdlík</td>
+                    <td>52</td>
+                    <td>136.0</td>
+                    <td>105.1</td>
+                    <td>
+                        +33.6
+                    </td>
+                    <td>
+                        +30.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="45"
+                    data-raw_ortg="140.9"
+                    data-raw_drtg="111.1"
+                    data-raw_net="29.8"
+                    data-stabilized_net="32.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík, L. Kovář</td>
+                    <td>45</td>
+                    <td>140.9</td>
+                    <td>111.1</td>
+                    <td>
+                        +32.9
+                    </td>
+                    <td>
+                        +29.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="36"
+                    data-raw_ortg="140.8"
+                    data-raw_drtg="105.0"
+                    data-raw_net="35.8"
+                    data-stabilized_net="32.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, R. Bonham</td>
+                    <td>36</td>
+                    <td>140.8</td>
+                    <td>105.0</td>
+                    <td>
+                        +32.9
+                    </td>
+                    <td>
+                        +35.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="221"
+                    data-raw_ortg="135.6"
+                    data-raw_drtg="102.8"
+                    data-raw_net="32.8"
+                    data-stabilized_net="32.6"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>221</td>
+                    <td>135.6</td>
+                    <td>102.8</td>
+                    <td>
+                        +32.6
+                    </td>
+                    <td>
+                        +32.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="137.7"
+                    data-raw_drtg="90.9"
+                    data-raw_net="46.8"
+                    data-stabilized_net="31.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, L. Kovář, R. Moffatt</td>
+                    <td>24</td>
+                    <td>137.7</td>
+                    <td>90.9</td>
+                    <td>
+                        +31.6
+                    </td>
+                    <td>
+                        +46.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="62"
+                    data-raw_ortg="142.0"
+                    data-raw_drtg="114.6"
+                    data-raw_net="27.4"
+                    data-stabilized_net="31.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík, R. Moffatt</td>
+                    <td>62</td>
+                    <td>142.0</td>
+                    <td>114.6</td>
+                    <td>
+                        +31.2
+                    </td>
+                    <td>
+                        +27.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="50"
+                    data-raw_ortg="141.5"
+                    data-raw_drtg="114.0"
+                    data-raw_net="27.5"
+                    data-stabilized_net="30.6"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>K. Švrdlík, L. Kovář, R. Moffatt</td>
+                    <td>50</td>
+                    <td>141.5</td>
+                    <td>114.0</td>
+                    <td>
+                        +30.6
+                    </td>
+                    <td>
+                        +27.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="17"
+                    data-raw_ortg="131.7"
+                    data-raw_drtg="88.3"
+                    data-raw_net="43.4"
+                    data-stabilized_net="30.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, K. Švrdlík, R. Moffatt</td>
+                    <td>17</td>
+                    <td>131.7</td>
+                    <td>88.3</td>
+                    <td>
+                        +30.6
+                    </td>
+                    <td>
+                        +43.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="15"
+                    data-raw_ortg="134.7"
+                    data-raw_drtg="102.5"
+                    data-raw_net="32.2"
+                    data-stabilized_net="30.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, J. Tůma, K. Švrdlík</td>
+                    <td>15</td>
+                    <td>134.7</td>
+                    <td>102.5</td>
+                    <td>
+                        +30.5
+                    </td>
+                    <td>
+                        +32.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="35"
+                    data-raw_ortg="152.2"
+                    data-raw_drtg="115.0"
+                    data-raw_net="37.2"
+                    data-stabilized_net="30.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, R. Bonham</td>
+                    <td>35</td>
+                    <td>152.2</td>
+                    <td>115.0</td>
+                    <td>
+                        +30.1
+                    </td>
+                    <td>
+                        +37.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="130.0"
+                    data-raw_drtg="110.7"
+                    data-raw_net="19.3"
+                    data-stabilized_net="30.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , M. Nábělek, Z. Key</td>
+                    <td>22</td>
+                    <td>130.0</td>
+                    <td>110.7</td>
+                    <td>
+                        +30.1
+                    </td>
+                    <td>
+                        +19.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="59"
+                    data-raw_ortg="138.0"
+                    data-raw_drtg="113.3"
+                    data-raw_net="24.7"
+                    data-stabilized_net="30.0"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Tůma, R. Bonham, R. Moffatt</td>
+                    <td>59</td>
+                    <td>138.0</td>
+                    <td>113.3</td>
+                    <td>
+                        +30.0
+                    </td>
+                    <td>
+                        +24.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="126.0"
+                    data-raw_drtg="82.5"
+                    data-raw_net="43.5"
+                    data-stabilized_net="29.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, K. Švrdlík, L. Kovář</td>
+                    <td>25</td>
+                    <td>126.0</td>
+                    <td>82.5</td>
+                    <td>
+                        +29.9
+                    </td>
+                    <td>
+                        +43.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="40"
+                    data-raw_ortg="149.9"
+                    data-raw_drtg="121.2"
+                    data-raw_net="28.7"
+                    data-stabilized_net="28.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, R. Moffatt</td>
+                    <td>40</td>
+                    <td>149.9</td>
+                    <td>121.2</td>
+                    <td>
+                        +28.8
+                    </td>
+                    <td>
+                        +28.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="196"
+                    data-raw_ortg="137.1"
+                    data-raw_drtg="109.2"
+                    data-raw_net="27.9"
+                    data-stabilized_net="28.7"
+                    data-confidence="High">
+                    <td></td>
+                    <td>R. Bonham, R. Moffatt, Z. Key</td>
+                    <td>196</td>
+                    <td>137.1</td>
+                    <td>109.2</td>
+                    <td>
+                        +28.7
+                    </td>
+                    <td>
+                        +27.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="45"
+                    data-raw_ortg="128.8"
+                    data-raw_drtg="101.3"
+                    data-raw_net="27.5"
+                    data-stabilized_net="28.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , L. Kovář</td>
+                    <td>45</td>
+                    <td>128.8</td>
+                    <td>101.3</td>
+                    <td>
+                        +28.3
+                    </td>
+                    <td>
+                        +27.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="153.3"
+                    data-raw_drtg="137.4"
+                    data-raw_net="15.9"
+                    data-stabilized_net="28.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>L. Kovář, M. Nábělek, Z. Key</td>
+                    <td>28</td>
+                    <td>153.3</td>
+                    <td>137.4</td>
+                    <td>
+                        +28.0
+                    </td>
+                    <td>
+                        +15.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="174.3"
+                    data-raw_drtg="163.6"
+                    data-raw_net="10.7"
+                    data-stabilized_net="27.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>L. Kovář, M. Nábělek, R. Bonham</td>
+                    <td>20</td>
+                    <td>174.3</td>
+                    <td>163.6</td>
+                    <td>
+                        +27.6
+                    </td>
+                    <td>
+                        +10.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="46"
+                    data-raw_ortg="133.7"
+                    data-raw_drtg="105.0"
+                    data-raw_net="28.7"
+                    data-stabilized_net="27.1"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, L. Kovář, Z. Key</td>
+                    <td>46</td>
+                    <td>133.7</td>
+                    <td>105.0</td>
+                    <td>
+                        +27.1
+                    </td>
+                    <td>
+                        +28.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="37"
+                    data-raw_ortg="137.1"
+                    data-raw_drtg="123.5"
+                    data-raw_net="13.6"
+                    data-stabilized_net="26.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík, R. Bonham</td>
+                    <td>37</td>
+                    <td>137.1</td>
+                    <td>123.5</td>
+                    <td>
+                        +26.6
+                    </td>
+                    <td>
+                        +13.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="17"
+                    data-raw_ortg="141.4"
+                    data-raw_drtg="141.3"
+                    data-raw_net="0.1"
+                    data-stabilized_net="26.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>M. Nábělek, R. Moffatt, Z. Key</td>
+                    <td>17</td>
+                    <td>141.4</td>
+                    <td>141.3</td>
+                    <td>
+                        +26.3
+                    </td>
+                    <td>
+                        +0.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="49"
+                    data-raw_ortg="146.9"
+                    data-raw_drtg="117.0"
+                    data-raw_net="29.9"
+                    data-stabilized_net="26.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, R. Bonham, Z. Key</td>
+                    <td>49</td>
+                    <td>146.9</td>
+                    <td>117.0</td>
+                    <td>
+                        +26.2
+                    </td>
+                    <td>
+                        +29.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="39"
+                    data-raw_ortg="134.2"
+                    data-raw_drtg="108.6"
+                    data-raw_net="25.6"
+                    data-stabilized_net="25.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, K. Švrdlík, R. Moffatt</td>
+                    <td>39</td>
+                    <td>134.2</td>
+                    <td>108.6</td>
+                    <td>
+                        +25.4
+                    </td>
+                    <td>
+                        +25.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="39"
+                    data-raw_ortg="137.0"
+                    data-raw_drtg="117.8"
+                    data-raw_net="19.2"
+                    data-stabilized_net="24.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , R. Bonham</td>
+                    <td>39</td>
+                    <td>137.0</td>
+                    <td>117.8</td>
+                    <td>
+                        +24.3
+                    </td>
+                    <td>
+                        +19.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="52"
+                    data-raw_ortg="122.1"
+                    data-raw_drtg="109.7"
+                    data-raw_net="12.4"
+                    data-stabilized_net="23.4"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>K. Švrdlík, R. Bonham, R. Moffatt</td>
+                    <td>52</td>
+                    <td>122.1</td>
+                    <td>109.7</td>
+                    <td>
+                        +23.4
+                    </td>
+                    <td>
+                        +12.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="15"
+                    data-raw_ortg="118.5"
+                    data-raw_drtg="121.3"
+                    data-raw_net="-2.8"
+                    data-stabilized_net="23.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, R. Bonham, R. Moffatt</td>
+                    <td>15</td>
+                    <td>118.5</td>
+                    <td>121.3</td>
+                    <td>
+                        +23.4
+                    </td>
+                    <td>
+                        -2.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="44"
+                    data-raw_ortg="119.9"
+                    data-raw_drtg="108.1"
+                    data-raw_net="11.8"
+                    data-stabilized_net="23.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, L. Kovář</td>
+                    <td>44</td>
+                    <td>119.9</td>
+                    <td>108.1</td>
+                    <td>
+                        +23.3
+                    </td>
+                    <td>
+                        +11.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="47"
+                    data-raw_ortg="123.0"
+                    data-raw_drtg="107.6"
+                    data-raw_net="15.4"
+                    data-stabilized_net="23.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, Z. Key</td>
+                    <td>47</td>
+                    <td>123.0</td>
+                    <td>107.6</td>
+                    <td>
+                        +23.3
+                    </td>
+                    <td>
+                        +15.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="40"
+                    data-raw_ortg="124.3"
+                    data-raw_drtg="110.7"
+                    data-raw_net="13.6"
+                    data-stabilized_net="23.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, K. Švrdlík</td>
+                    <td>40</td>
+                    <td>124.3</td>
+                    <td>110.7</td>
+                    <td>
+                        +23.0
+                    </td>
+                    <td>
+                        +13.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="15"
+                    data-raw_ortg="139.4"
+                    data-raw_drtg="159.2"
+                    data-raw_net="-19.8"
+                    data-stabilized_net="22.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Evans Iii, J. Tůma, R. Bonham</td>
+                    <td>15</td>
+                    <td>139.4</td>
+                    <td>159.2</td>
+                    <td>
+                        +22.5
+                    </td>
+                    <td>
+                        -19.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="43"
+                    data-raw_ortg="119.6"
+                    data-raw_drtg="114.5"
+                    data-raw_net="5.1"
+                    data-stabilized_net="20.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , R. Moffatt</td>
+                    <td>43</td>
+                    <td>119.6</td>
+                    <td>114.5</td>
+                    <td>
+                        +20.4
+                    </td>
+                    <td>
+                        +5.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="43"
+                    data-raw_ortg="129.2"
+                    data-raw_drtg="121.9"
+                    data-raw_net="7.3"
+                    data-stabilized_net="19.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, R. Bonham, R. Moffatt</td>
+                    <td>43</td>
+                    <td>129.2</td>
+                    <td>121.9</td>
+                    <td>
+                        +19.1
+                    </td>
+                    <td>
+                        +7.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="123.8"
+                    data-raw_drtg="127.0"
+                    data-raw_net="-3.2"
+                    data-stabilized_net="19.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, R. Moffatt, Z. Key</td>
+                    <td>25</td>
+                    <td>123.8</td>
+                    <td>127.0</td>
+                    <td>
+                        +19.1
+                    </td>
+                    <td>
+                        -3.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="147.7"
+                    data-raw_drtg="177.3"
+                    data-raw_net="-29.6"
+                    data-stabilized_net="18.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>M. Nábělek, R. Bonham, Z. Key</td>
+                    <td>21</td>
+                    <td>147.7</td>
+                    <td>177.3</td>
+                    <td>
+                        +18.1
+                    </td>
+                    <td>
+                        -29.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="40"
+                    data-raw_ortg="108.2"
+                    data-raw_drtg="116.2"
+                    data-raw_net="-8.0"
+                    data-stabilized_net="18.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , J. Tůma</td>
+                    <td>40</td>
+                    <td>108.2</td>
+                    <td>116.2</td>
+                    <td>
+                        +18.0
+                    </td>
+                    <td>
+                        -8.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="44"
+                    data-raw_ortg="127.7"
+                    data-raw_drtg="127.5"
+                    data-raw_net="0.2"
+                    data-stabilized_net="17.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , Z. Key</td>
+                    <td>44</td>
+                    <td>127.7</td>
+                    <td>127.5</td>
+                    <td>
+                        +17.9
+                    </td>
+                    <td>
+                        +0.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="27"
+                    data-raw_ortg="117.4"
+                    data-raw_drtg="120.3"
+                    data-raw_net="-2.9"
+                    data-stabilized_net="17.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, K. Švrdlík, R. Bonham</td>
+                    <td>27</td>
+                    <td>117.4</td>
+                    <td>120.3</td>
+                    <td>
+                        +17.3
+                    </td>
+                    <td>
+                        -2.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="38"
+                    data-raw_ortg="102.2"
+                    data-raw_drtg="113.1"
+                    data-raw_net="-10.9"
+                    data-stabilized_net="15.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , K. Švrdlík</td>
+                    <td>38</td>
+                    <td>102.2</td>
+                    <td>113.1</td>
+                    <td>
+                        +15.1
+                    </td>
+                    <td>
+                        -10.9
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="4">
+        <p class="min-note">Minimum minut: 12</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="39"
+                    data-raw_ortg="169.9"
+                    data-raw_drtg="86.6"
+                    data-raw_net="83.3"
+                    data-stabilized_net="50.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, R. Moffatt, Z. Key</td>
+                    <td>39</td>
+                    <td>169.9</td>
+                    <td>86.6</td>
+                    <td>
+                        +50.2
+                    </td>
+                    <td>
+                        +83.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="33"
+                    data-raw_ortg="166.6"
+                    data-raw_drtg="85.5"
+                    data-raw_net="81.1"
+                    data-stabilized_net="48.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, L. Kovář, R. Bonham</td>
+                    <td>33</td>
+                    <td>166.6</td>
+                    <td>85.5</td>
+                    <td>
+                        +48.0
+                    </td>
+                    <td>
+                        +81.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="41"
+                    data-raw_ortg="170.4"
+                    data-raw_drtg="95.4"
+                    data-raw_net="75.0"
+                    data-stabilized_net="46.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, L. Kovář, R. Bonham, Z. Key</td>
+                    <td>41</td>
+                    <td>170.4</td>
+                    <td>95.4</td>
+                    <td>
+                        +46.8
+                    </td>
+                    <td>
+                        +75.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="54"
+                    data-raw_ortg="159.2"
+                    data-raw_drtg="98.6"
+                    data-raw_net="60.6"
+                    data-stabilized_net="45.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, L. Kovář, Z. Key</td>
+                    <td>54</td>
+                    <td>159.2</td>
+                    <td>98.6</td>
+                    <td>
+                        +45.3
+                    </td>
+                    <td>
+                        +60.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="27"
+                    data-raw_ortg="171.0"
+                    data-raw_drtg="93.3"
+                    data-raw_net="77.7"
+                    data-stabilized_net="44.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, R. Bonham, Z. Key</td>
+                    <td>27</td>
+                    <td>171.0</td>
+                    <td>93.3</td>
+                    <td>
+                        +44.4
+                    </td>
+                    <td>
+                        +77.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="27"
+                    data-raw_ortg="177.7"
+                    data-raw_drtg="101.8"
+                    data-raw_net="75.9"
+                    data-stabilized_net="44.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, L. Kovář, R. Moffatt, Z. Key</td>
+                    <td>27</td>
+                    <td>177.7</td>
+                    <td>101.8</td>
+                    <td>
+                        +44.4
+                    </td>
+                    <td>
+                        +75.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="41"
+                    data-raw_ortg="163.2"
+                    data-raw_drtg="103.7"
+                    data-raw_net="59.5"
+                    data-stabilized_net="43.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, L. Kovář, R. Moffatt</td>
+                    <td>41</td>
+                    <td>163.2</td>
+                    <td>103.7</td>
+                    <td>
+                        +43.8
+                    </td>
+                    <td>
+                        +59.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="166.3"
+                    data-raw_drtg="70.6"
+                    data-raw_net="95.7"
+                    data-stabilized_net="42.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, M. Nábělek, R. Moffatt</td>
+                    <td>12</td>
+                    <td>166.3</td>
+                    <td>70.6</td>
+                    <td>
+                        +42.9
+                    </td>
+                    <td>
+                        +95.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="172.7"
+                    data-raw_drtg="72.2"
+                    data-raw_net="100.5"
+                    data-stabilized_net="41.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, M. Nábělek, R. Moffatt</td>
+                    <td>12</td>
+                    <td>172.7</td>
+                    <td>72.2</td>
+                    <td>
+                        +41.2
+                    </td>
+                    <td>
+                        +100.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="171"
+                    data-raw_ortg="141.0"
+                    data-raw_drtg="99.9"
+                    data-raw_net="41.1"
+                    data-stabilized_net="38.7"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, R. Moffatt, Z. Key</td>
+                    <td>171</td>
+                    <td>141.0</td>
+                    <td>99.9</td>
+                    <td>
+                        +38.7
+                    </td>
+                    <td>
+                        +41.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="19"
+                    data-raw_ortg="128.2"
+                    data-raw_drtg="76.2"
+                    data-raw_net="52.0"
+                    data-stabilized_net="37.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, R. Bonham, R. Moffatt</td>
+                    <td>19</td>
+                    <td>128.2</td>
+                    <td>76.2</td>
+                    <td>
+                        +37.9
+                    </td>
+                    <td>
+                        +52.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="26"
+                    data-raw_ortg="158.4"
+                    data-raw_drtg="106.1"
+                    data-raw_net="52.3"
+                    data-stabilized_net="37.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, L. Kovář, R. Bonham</td>
+                    <td>26</td>
+                    <td>158.4</td>
+                    <td>106.1</td>
+                    <td>
+                        +37.1
+                    </td>
+                    <td>
+                        +52.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="186"
+                    data-raw_ortg="134.8"
+                    data-raw_drtg="96.7"
+                    data-raw_net="38.1"
+                    data-stabilized_net="36.7"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>186</td>
+                    <td>134.8</td>
+                    <td>96.7</td>
+                    <td>
+                        +36.7
+                    </td>
+                    <td>
+                        +38.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="188"
+                    data-raw_ortg="139.8"
+                    data-raw_drtg="101.6"
+                    data-raw_net="38.2"
+                    data-stabilized_net="36.5"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, R. Bonham, Z. Key</td>
+                    <td>188</td>
+                    <td>139.8</td>
+                    <td>101.6</td>
+                    <td>
+                        +36.5
+                    </td>
+                    <td>
+                        +38.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="147.5"
+                    data-raw_drtg="112.3"
+                    data-raw_net="35.2"
+                    data-stabilized_net="35.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, K. Švrdlík, L. Kovář</td>
+                    <td>23</td>
+                    <td>147.5</td>
+                    <td>112.3</td>
+                    <td>
+                        +35.2
+                    </td>
+                    <td>
+                        +35.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="150.5"
+                    data-raw_drtg="111.5"
+                    data-raw_net="39.0"
+                    data-stabilized_net="34.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík, L. Kovář, R. Bonham</td>
+                    <td>23</td>
+                    <td>150.5</td>
+                    <td>111.5</td>
+                    <td>
+                        +34.3
+                    </td>
+                    <td>
+                        +39.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="149.2"
+                    data-raw_drtg="94.9"
+                    data-raw_net="54.3"
+                    data-stabilized_net="33.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, L. Kovář, R. Bonham</td>
+                    <td>20</td>
+                    <td>149.2</td>
+                    <td>94.9</td>
+                    <td>
+                        +33.9
+                    </td>
+                    <td>
+                        +54.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="152.2"
+                    data-raw_drtg="98.9"
+                    data-raw_net="53.3"
+                    data-stabilized_net="33.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, L. Kovář, R. Bonham, Z. Key</td>
+                    <td>30</td>
+                    <td>152.2</td>
+                    <td>98.9</td>
+                    <td>
+                        +33.6
+                    </td>
+                    <td>
+                        +53.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="148.2"
+                    data-raw_drtg="94.3"
+                    data-raw_net="53.9"
+                    data-stabilized_net="33.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, R. Bonham, Z. Key</td>
+                    <td>23</td>
+                    <td>148.2</td>
+                    <td>94.3</td>
+                    <td>
+                        +33.4
+                    </td>
+                    <td>
+                        +53.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="146.8"
+                    data-raw_drtg="99.7"
+                    data-raw_net="47.1"
+                    data-stabilized_net="32.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , L. Kovář, R. Bonham</td>
+                    <td>25</td>
+                    <td>146.8</td>
+                    <td>99.7</td>
+                    <td>
+                        +32.8
+                    </td>
+                    <td>
+                        +47.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="157.9"
+                    data-raw_drtg="125.1"
+                    data-raw_net="32.8"
+                    data-stabilized_net="32.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, R. Bonham, R. Moffatt, Z. Key</td>
+                    <td>24</td>
+                    <td>157.9</td>
+                    <td>125.1</td>
+                    <td>
+                        +32.8
+                    </td>
+                    <td>
+                        +32.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="29"
+                    data-raw_ortg="149.4"
+                    data-raw_drtg="119.3"
+                    data-raw_net="30.1"
+                    data-stabilized_net="32.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, L. Kovář, R. Moffatt</td>
+                    <td>29</td>
+                    <td>149.4</td>
+                    <td>119.3</td>
+                    <td>
+                        +32.8
+                    </td>
+                    <td>
+                        +30.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="127.2"
+                    data-raw_drtg="92.6"
+                    data-raw_net="34.6"
+                    data-stabilized_net="32.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, R. Bonham, R. Moffatt</td>
+                    <td>24</td>
+                    <td>127.2</td>
+                    <td>92.6</td>
+                    <td>
+                        +32.7
+                    </td>
+                    <td>
+                        +34.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="31"
+                    data-raw_ortg="133.5"
+                    data-raw_drtg="105.0"
+                    data-raw_net="28.5"
+                    data-stabilized_net="32.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>31</td>
+                    <td>133.5</td>
+                    <td>105.0</td>
+                    <td>
+                        +32.5
+                    </td>
+                    <td>
+                        +28.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="35"
+                    data-raw_ortg="145.1"
+                    data-raw_drtg="119.0"
+                    data-raw_net="26.1"
+                    data-stabilized_net="32.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, K. Švrdlík, R. Moffatt</td>
+                    <td>35</td>
+                    <td>145.1</td>
+                    <td>119.0</td>
+                    <td>
+                        +32.3
+                    </td>
+                    <td>
+                        +26.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="165"
+                    data-raw_ortg="137.6"
+                    data-raw_drtg="105.5"
+                    data-raw_net="32.1"
+                    data-stabilized_net="31.9"
+                    data-confidence="High">
+                    <td></td>
+                    <td>L. Kovář, R. Bonham, R. Moffatt, Z. Key</td>
+                    <td>165</td>
+                    <td>137.6</td>
+                    <td>105.5</td>
+                    <td>
+                        +31.9
+                    </td>
+                    <td>
+                        +32.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="169"
+                    data-raw_ortg="133.7"
+                    data-raw_drtg="102.9"
+                    data-raw_net="30.8"
+                    data-stabilized_net="31.3"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Bryant , R. Bonham, R. Moffatt, Z. Key</td>
+                    <td>169</td>
+                    <td>133.7</td>
+                    <td>102.9</td>
+                    <td>
+                        +31.3
+                    </td>
+                    <td>
+                        +30.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="118.4"
+                    data-raw_drtg="79.4"
+                    data-raw_net="39.0"
+                    data-stabilized_net="30.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , L. Kovář, R. Moffatt</td>
+                    <td>12</td>
+                    <td>118.4</td>
+                    <td>79.4</td>
+                    <td>
+                        +30.9
+                    </td>
+                    <td>
+                        +39.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="18"
+                    data-raw_ortg="129.3"
+                    data-raw_drtg="85.3"
+                    data-raw_net="44.0"
+                    data-stabilized_net="30.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>18</td>
+                    <td>129.3</td>
+                    <td>85.3</td>
+                    <td>
+                        +30.5
+                    </td>
+                    <td>
+                        +44.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="152.4"
+                    data-raw_drtg="116.7"
+                    data-raw_net="35.7"
+                    data-stabilized_net="30.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, K. Švrdlík, R. Moffatt</td>
+                    <td>23</td>
+                    <td>152.4</td>
+                    <td>116.7</td>
+                    <td>
+                        +30.3
+                    </td>
+                    <td>
+                        +35.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="130.0"
+                    data-raw_drtg="76.4"
+                    data-raw_net="53.6"
+                    data-stabilized_net="30.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, K. Švrdlík, L. Kovář, R. Bonham</td>
+                    <td>13</td>
+                    <td>130.0</td>
+                    <td>76.4</td>
+                    <td>
+                        +30.1
+                    </td>
+                    <td>
+                        +53.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="34"
+                    data-raw_ortg="128.1"
+                    data-raw_drtg="103.8"
+                    data-raw_net="24.3"
+                    data-stabilized_net="29.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>K. Švrdlík, L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>34</td>
+                    <td>128.1</td>
+                    <td>103.8</td>
+                    <td>
+                        +29.4
+                    </td>
+                    <td>
+                        +24.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="18"
+                    data-raw_ortg="178.8"
+                    data-raw_drtg="157.3"
+                    data-raw_net="21.5"
+                    data-stabilized_net="29.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>L. Kovář, M. Nábělek, R. Bonham, Z. Key</td>
+                    <td>18</td>
+                    <td>178.8</td>
+                    <td>157.3</td>
+                    <td>
+                        +29.4
+                    </td>
+                    <td>
+                        +21.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="185.1"
+                    data-raw_drtg="154.7"
+                    data-raw_net="30.4"
+                    data-stabilized_net="28.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, R. Bonham, R. Moffatt</td>
+                    <td>13</td>
+                    <td>185.1</td>
+                    <td>154.7</td>
+                    <td>
+                        +28.9
+                    </td>
+                    <td>
+                        +30.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="14"
+                    data-raw_ortg="132.7"
+                    data-raw_drtg="112.2"
+                    data-raw_net="20.5"
+                    data-stabilized_net="27.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, R. Moffatt, Z. Key</td>
+                    <td>14</td>
+                    <td>132.7</td>
+                    <td>112.2</td>
+                    <td>
+                        +27.9
+                    </td>
+                    <td>
+                        +20.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="136.7"
+                    data-raw_drtg="134.6"
+                    data-raw_net="2.1"
+                    data-stabilized_net="27.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík, L. Kovář, R. Moffatt</td>
+                    <td>24</td>
+                    <td>136.7</td>
+                    <td>134.6</td>
+                    <td>
+                        +27.1
+                    </td>
+                    <td>
+                        +2.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="121.8"
+                    data-raw_drtg="102.6"
+                    data-raw_net="19.2"
+                    data-stabilized_net="26.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, L. Kovář, Z. Key</td>
+                    <td>28</td>
+                    <td>121.8</td>
+                    <td>102.6</td>
+                    <td>
+                        +26.9
+                    </td>
+                    <td>
+                        +19.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="108.5"
+                    data-raw_drtg="103.0"
+                    data-raw_net="5.5"
+                    data-stabilized_net="26.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, K. Švrdlík, L. Kovář</td>
+                    <td>12</td>
+                    <td>108.5</td>
+                    <td>103.0</td>
+                    <td>
+                        +26.4
+                    </td>
+                    <td>
+                        +5.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="166.5"
+                    data-raw_drtg="144.8"
+                    data-raw_net="21.7"
+                    data-stabilized_net="26.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , R. Bonham, Z. Key</td>
+                    <td>21</td>
+                    <td>166.5</td>
+                    <td>144.8</td>
+                    <td>
+                        +26.3
+                    </td>
+                    <td>
+                        +21.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="117.4"
+                    data-raw_drtg="115.5"
+                    data-raw_net="1.9"
+                    data-stabilized_net="26.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík, R. Bonham, R. Moffatt</td>
+                    <td>22</td>
+                    <td>117.4</td>
+                    <td>115.5</td>
+                    <td>
+                        +26.2
+                    </td>
+                    <td>
+                        +1.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="136.2"
+                    data-raw_drtg="120.6"
+                    data-raw_net="15.6"
+                    data-stabilized_net="26.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , L. Kovář, Z. Key</td>
+                    <td>24</td>
+                    <td>136.2</td>
+                    <td>120.6</td>
+                    <td>
+                        +26.0
+                    </td>
+                    <td>
+                        +15.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="107.4"
+                    data-raw_drtg="112.3"
+                    data-raw_net="-4.9"
+                    data-stabilized_net="25.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , J. Tůma, L. Kovář</td>
+                    <td>16</td>
+                    <td>107.4</td>
+                    <td>112.3</td>
+                    <td>
+                        +25.6
+                    </td>
+                    <td>
+                        -4.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="122.3"
+                    data-raw_drtg="111.2"
+                    data-raw_net="11.1"
+                    data-stabilized_net="24.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , R. Bonham, R. Moffatt</td>
+                    <td>20</td>
+                    <td>122.3</td>
+                    <td>111.2</td>
+                    <td>
+                        +24.9
+                    </td>
+                    <td>
+                        +11.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="19"
+                    data-raw_ortg="118.3"
+                    data-raw_drtg="126.0"
+                    data-raw_net="-7.7"
+                    data-stabilized_net="23.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , J. Tůma, R. Moffatt</td>
+                    <td>19</td>
+                    <td>118.3</td>
+                    <td>126.0</td>
+                    <td>
+                        +23.9
+                    </td>
+                    <td>
+                        -7.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="112.3"
+                    data-raw_drtg="118.2"
+                    data-raw_net="-5.9"
+                    data-stabilized_net="23.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , J. Tůma, Z. Key</td>
+                    <td>20</td>
+                    <td>112.3</td>
+                    <td>118.2</td>
+                    <td>
+                        +23.3
+                    </td>
+                    <td>
+                        -5.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="18"
+                    data-raw_ortg="135.1"
+                    data-raw_drtg="138.2"
+                    data-raw_net="-3.1"
+                    data-stabilized_net="21.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, R. Bonham, R. Moffatt, Z. Key</td>
+                    <td>18</td>
+                    <td>135.1</td>
+                    <td>138.2</td>
+                    <td>
+                        +21.2
+                    </td>
+                    <td>
+                        -3.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="98.7"
+                    data-raw_drtg="114.6"
+                    data-raw_net="-15.9"
+                    data-stabilized_net="20.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , J. Tůma, K. Švrdlík</td>
+                    <td>22</td>
+                    <td>98.7</td>
+                    <td>114.6</td>
+                    <td>
+                        +20.5
+                    </td>
+                    <td>
+                        -15.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="14"
+                    data-raw_ortg="110.4"
+                    data-raw_drtg="124.5"
+                    data-raw_net="-14.1"
+                    data-stabilized_net="20.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, K. Švrdlík, R. Bonham, R. Moffatt</td>
+                    <td>14</td>
+                    <td>110.4</td>
+                    <td>124.5</td>
+                    <td>
+                        +20.4
+                    </td>
+                    <td>
+                        -14.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="104.8"
+                    data-raw_drtg="123.3"
+                    data-raw_net="-18.5"
+                    data-stabilized_net="18.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , K. Švrdlík, R. Moffatt</td>
+                    <td>22</td>
+                    <td>104.8</td>
+                    <td>123.3</td>
+                    <td>
+                        +18.8
+                    </td>
+                    <td>
+                        -18.5
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="5">
+        <p class="min-note">Minimum minut: 10</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="187.5"
+                    data-raw_drtg="94.4"
+                    data-raw_net="93.1"
+                    data-stabilized_net="46.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, L. Kovář, R. Moffatt, Z. Key</td>
+                    <td>20</td>
+                    <td>187.5</td>
+                    <td>94.4</td>
+                    <td>
+                        +46.1
+                    </td>
+                    <td>
+                        +93.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="18"
+                    data-raw_ortg="181.9"
+                    data-raw_drtg="82.7"
+                    data-raw_net="99.2"
+                    data-stabilized_net="45.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, L. Kovář, R. Bonham, Z. Key</td>
+                    <td>18</td>
+                    <td>181.9</td>
+                    <td>82.7</td>
+                    <td>
+                        +45.5
+                    </td>
+                    <td>
+                        +99.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="10"
+                    data-raw_ortg="132.2"
+                    data-raw_drtg="70.6"
+                    data-raw_net="61.6"
+                    data-stabilized_net="37.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>10</td>
+                    <td>132.2</td>
+                    <td>70.6</td>
+                    <td>
+                        +37.5
+                    </td>
+                    <td>
+                        +61.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="141.2"
+                    data-raw_drtg="98.2"
+                    data-raw_net="43.0"
+                    data-stabilized_net="34.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , K. Švrdlík, L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>16</td>
+                    <td>141.2</td>
+                    <td>98.2</td>
+                    <td>
+                        +34.2
+                    </td>
+                    <td>
+                        +43.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="151"
+                    data-raw_ortg="135.0"
+                    data-raw_drtg="100.6"
+                    data-raw_net="34.4"
+                    data-stabilized_net="33.8"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Bryant , L. Kovář, R. Bonham, R. Moffatt, Z. Key</td>
+                    <td>151</td>
+                    <td>135.0</td>
+                    <td>100.6</td>
+                    <td>
+                        +33.8
+                    </td>
+                    <td>
+                        +34.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="14"
+                    data-raw_ortg="137.1"
+                    data-raw_drtg="77.0"
+                    data-raw_net="60.1"
+                    data-stabilized_net="33.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Tůma, L. Kovář, R. Bonham, Z. Key</td>
+                    <td>14</td>
+                    <td>137.1</td>
+                    <td>77.0</td>
+                    <td>
+                        +33.7
+                    </td>
+                    <td>
+                        +60.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="114.7"
+                    data-raw_drtg="104.6"
+                    data-raw_net="10.1"
+                    data-stabilized_net="30.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Tůma, K. Švrdlík, L. Kovář, R. Bonham, R. Moffatt</td>
+                    <td>12</td>
+                    <td>114.7</td>
+                    <td>104.6</td>
+                    <td>
+                        +30.2
+                    </td>
+                    <td>
+                        +10.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="10"
+                    data-raw_ortg="158.3"
+                    data-raw_drtg="174.9"
+                    data-raw_net="-16.6"
+                    data-stabilized_net="29.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Bryant , J. Tůma, K. Švrdlík, L. Kovář, R. Moffatt</td>
+                    <td>10</td>
+                    <td>158.3</td>
+                    <td>174.9</td>
+                    <td>
+                        +29.4
+                    </td>
+                    <td>
+                        -16.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="160.8"
+                    data-raw_drtg="129.2"
+                    data-raw_net="31.6"
+                    data-stabilized_net="29.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , L. Kovář, R. Bonham, Z. Key</td>
+                    <td>12</td>
+                    <td>160.8</td>
+                    <td>129.2</td>
+                    <td>
+                        +29.2
+                    </td>
+                    <td>
+                        +31.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="11"
+                    data-raw_ortg="113.8"
+                    data-raw_drtg="118.0"
+                    data-raw_net="-4.2"
+                    data-stabilized_net="27.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , J. Tůma, L. Kovář, Z. Key</td>
+                    <td>11</td>
+                    <td>113.8</td>
+                    <td>118.0</td>
+                    <td>
+                        +27.1
+                    </td>
+                    <td>
+                        -4.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="14"
+                    data-raw_ortg="118.2"
+                    data-raw_drtg="130.7"
+                    data-raw_net="-12.5"
+                    data-stabilized_net="24.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Lukeš, J. Bryant , J. Tůma, K. Švrdlík, R. Moffatt</td>
+                    <td>14</td>
+                    <td>118.2</td>
+                    <td>130.7</td>
+                    <td>
+                        +24.5
+                    </td>
+                    <td>
+                        -12.5
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+
+    <!-- ── Explanation (visible only on lineup tabs) ───────────────── -->
+    <div id="explain-box-wrap" style="display:none">
+    <div class="explain-box">
+        <h3>Co je Stabilizovaný Net Rating?</h3>
+        <p>
+            Surové statistiky lineupů jsou notoricky nespolehlivé – sestava s Net Ratingem +25 za 30 minut
+            mohla mít prostě štěstí. Stabilizovaný Net Rating kombinuje surová data s <em>priorem</em>
+            (postaveným na síle týmu a individuálním dopadu hráčů), aby poskytl spolehlivější odhad.
+            Čím více minut sestava odehraje dohromady, tím více věříme surovým číslům.
+        </p>
+
+        <h4>Vzorec</h4>
+        <div class="formula">Stab. Net = w × Surový Net + (1 − w) × Prior</div>
+        <div class="formula">váha w = minuty / (minuty + 85)</div>
+        <p style="margin-top:6px">
+            Při 85 minutách věříme surovým datům a prioru stejně (50/50).
+            Hodnota 85 je kalibrována pro délku NBL sezóny (NBA používá 300).
+        </p>
+
+        <h4>Prior</h4>
+        <p>„Očekávaný" rating sestavy před pozorováním dat, sestavený z:</p>
+        <ul>
+            <li>Celkového Net Ratingu týmu</li>
+            <li>On/Off Net Ratingu každého hráče v sestavě relativně k týmovému průměru</li>
+        </ul>
+        <p style="margin-top:6px">
+            Pokud pro některého hráče nejsou k dispozici on/off data (málo minut),
+            je použit pouze týmový Net Rating.
+        </p>
+
+        <h4>Proč stabilizovat?</h4>
+        <p>
+            Lineupová data mají extrémní rozptyl. Net Rating +30 za 20 minut je téměř jistě
+            štěstí, ne dovednost. Stabilizace přitahuje odlehlé hodnoty k realistickým
+            očekáváním a zároveň odměňuje skutečně silné výkony podložené dostatkem minut.
+        </p>
+
+        <h4>Úrovně spolehlivosti (Confidence)</h4>
+        <div class="conf-legend">
+            <span class="conf-badge conf-Low">Low</span> váha &lt; 35 % – dominuje prior
+            &ensp;
+            <span class="conf-badge conf-Medium">Medium</span> 35–55 %
+            &ensp;
+            <span class="conf-badge conf-High">High</span> 55–70 %
+            &ensp;
+            <span class="conf-badge conf-Very-High">Very High</span> &gt; 70 % – dominují data
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+// ── Header tooltips ───────────────────────────────────────────────────────────
+const thTipEl = document.createElement('div');
+thTipEl.style.cssText = 'position:fixed;pointer-events:none;background:#0f0f23;color:#ccc;border:1px solid #444;border-radius:4px;padding:5px 10px;font-size:0.75rem;white-space:normal;max-width:280px;line-height:1.4;z-index:500;display:none';
+document.body.appendChild(thTipEl);
+document.querySelectorAll('thead th[data-tip]').forEach(th => {
+    th.style.cursor = 'help';
+    th.addEventListener('mouseenter', () => {
+        thTipEl.textContent = th.dataset.tip;
+        thTipEl.style.display = 'block';
+        const r = th.getBoundingClientRect();
+        const tw = thTipEl.offsetWidth;
+        let left = r.left + r.width / 2 - tw / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+        thTipEl.style.left = left + 'px';
+        thTipEl.style.top  = (r.bottom + 4) + 'px';
+    });
+    th.addEventListener('mouseleave', () => { thTipEl.style.display = 'none'; });
+});
+
+// ── Tab switching (lineup size tabs) ─────────────────────────────────────────
+const explainWrap = document.getElementById('explain-box-wrap');
+document.querySelectorAll('.combo-tab[data-size]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const size = btn.dataset.size;
+        document.querySelectorAll('.combo-tab[data-size]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.combo-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelector(`.combo-panel[data-size="${size}"]`).classList.add('active');
+        if (explainWrap) explainWrap.style.display = size === 'players' ? 'none' : '';
+    });
+});
+
+// ── On/Off table: filter + cell coloring ──────────────────────────────────────
+(function () {
+    const table = document.getElementById('onoff-table');
+    if (!table) return;
+
+    function colorNet(cell, val) {
+        if (isNaN(val)) { cell.textContent = '–'; return; }
+        const sign = val > 0 ? '+' : '';
+        cell.textContent = sign + val.toFixed(1);
+        cell.style.color      = val > 0 ? '#4caf50' : val < 0 ? '#ef5350' : '#ccc';
+        cell.style.fontWeight = val !== 0 ? 'bold' : '';
+    }
+
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        colorNet(tr.querySelector('.on-net'),    parseFloat(tr.dataset.onNet));
+        if (tr.dataset.hasOff === 'true') {
+            colorNet(tr.querySelector('.off-net'),   parseFloat(tr.dataset.offNet));
+            colorNet(tr.querySelector('.delta-net'), parseFloat(tr.dataset.deltaNet));
+        }
+    });
+
+    document.querySelectorAll('#onoff-filters .combo-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const minPct = parseInt(btn.dataset.minPct) || 0;
+            document.querySelectorAll('#onoff-filters .combo-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const pct = parseInt(tr.dataset.onPct) || 0;
+                tr.style.display = pct >= minPct ? '' : 'none';
+            });
+        });
+    });
+})();
+
+// ── Sortable tables ───────────────────────────────────────────────────────────
+const CONF_CLASS = {
+    'Low': 'conf-Low', 'Medium': 'conf-Medium',
+    'High': 'conf-High', 'Very High': 'conf-Very-High',
+};
+
+function applyRowDecorations(tbody) {
+    tbody.querySelectorAll('tr').forEach((tr, i) => {
+        tr.cells[0].textContent = i + 1;
+
+        const stabNet  = parseFloat(tr.dataset.stabilized_net);
+        const rawNet   = parseFloat(tr.dataset.raw_net);
+        const stabCell = tr.cells[5];
+        const rawCell  = tr.cells[6];
+
+        // Stab. Net cell: colored value + confidence badge
+        const stabSign = stabNet > 0 ? '+' : '';
+        stabCell.innerHTML =
+            `<span style="color:${stabNet > 0 ? '#4caf50' : stabNet < 0 ? '#ef5350' : ''};font-weight:bold">${stabSign}${stabNet.toFixed(1)}</span>` +
+            `<span class="conf-badge ${CONF_CLASS[tr.dataset.confidence] || ''}" style="margin-left:6px">${tr.dataset.confidence}</span>`;
+
+        // Raw Net cell: colored value
+        const rawSign = rawNet > 0 ? '+' : '';
+        rawCell.style.color      = rawNet > 0 ? '#4caf50' : rawNet < 0 ? '#ef5350' : '';
+        rawCell.style.fontWeight = rawNet !== 0 ? 'bold' : '';
+        rawCell.textContent      = rawSign + rawNet.toFixed(1);
+    });
+}
+
+document.querySelectorAll('.combo-table:not(#onoff-table)').forEach(table => {
+    const tbody = table.querySelector('tbody');
+
+    applyRowDecorations(tbody);
+
+    let sortKey = 'stabilized_net';
+    let sortDir = 'desc';
+
+    table.querySelectorAll('thead th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const key = th.dataset.key;
+            if (sortKey === key) {
+                sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+            } else {
+                sortKey = key;
+                sortDir = key === 'raw_drtg' ? 'asc' : 'desc';
+            }
+
+            table.querySelectorAll('thead th.sortable').forEach(h =>
+                h.classList.remove('sort-asc', 'sort-desc'));
+            th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+
+            const rows = [...tbody.querySelectorAll('tr[data-minutes]')];
+            rows.sort((a, b) => {
+                const va = parseFloat(a.dataset[sortKey]) || 0;
+                const vb = parseFloat(b.dataset[sortKey]) || 0;
+                return sortDir === 'asc' ? va - vb : vb - va;
+            });
+            rows.forEach(r => tbody.appendChild(r));
+
+            applyRowDecorations(tbody);
+        });
+    });
+});
+</script>
+</body>
+</html>

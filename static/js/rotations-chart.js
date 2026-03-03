@@ -219,7 +219,7 @@
         .attr("dominant-baseline", "central")
         .attr("fill", "#888")
         .attr("font-size", "11px")
-        .text(formatMMSS(player.totalSeconds));
+        .text(player.isDNP || player.totalSeconds === 0 ? "DNP" : formatMMSS(player.totalSeconds));
 
       // Player name (right of chart) — link to player page
       const playerLink = svg.append("a");

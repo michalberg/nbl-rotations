@@ -1,0 +1,4192 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BK Olomoucko – Ratings sestav 2025-26 | NBL data</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <style>
+        .team-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .team-rtg-summary {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+        }
+        .rtg-stat { text-align: center; }
+        .rtg-stat .label { font-size: 0.72rem; color: #666; text-transform: uppercase; letter-spacing: 0.4px; }
+        .rtg-stat .value { font-size: 1.5rem; font-weight: bold; color: #fff; }
+        .rtg-stat .value.positive { color: #4caf50; }
+        .rtg-stat .value.negative { color: #ef5350; }
+
+        .combo-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+        .combo-tab {
+            background: #16213e;
+            border: 1px solid #333;
+            color: #888;
+            border-radius: 4px;
+            padding: 4px 14px;
+            cursor: pointer;
+            font-size: 0.82rem;
+        }
+        .combo-tab.active { background: #1e3a6e; color: #fff; border-color: #4a8fd4; }
+
+        .combo-panel { display: none; }
+        .combo-panel.active { display: block; }
+
+        .combo-table {
+            border-collapse: collapse;
+            width: auto;
+            font-size: 0.86rem;
+        }
+        .combo-table thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.70rem;
+            letter-spacing: 0.4px;
+            padding: 7px 12px;
+            text-align: right;
+            border-bottom: 1px solid #333;
+            white-space: nowrap;
+        }
+        .combo-table thead th:nth-child(2) { text-align: left; }
+        .combo-table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        .combo-table thead th.sortable:hover { color: #ccc; }
+        .combo-table thead th.sort-asc::after  { content: ' ↑'; color: #4a8fd4; }
+        .combo-table thead th.sort-desc::after { content: ' ↓'; color: #4a8fd4; }
+        .combo-table tbody tr { border-bottom: 1px solid #1e1e1e; transition: background 0.1s; }
+        .combo-table tbody tr:hover { background: #16213e; }
+        .combo-table tbody td { padding: 8px 12px; text-align: right; color: #ccc; }
+        .combo-table tbody td:first-child { color: #555; font-size: 0.78rem; }
+        .combo-table tbody td:nth-child(2) { text-align: left; color: #e0e0e0; }
+
+        .positive { color: #4caf50; font-weight: bold; }
+        .negative { color: #ef5350; font-weight: bold; }
+        .min-note { font-size: 0.78rem; color: #555; margin: 6px 0 12px; }
+
+        .raw-net { font-size: 0.78rem; color: #555; margin-left: 4px; }
+
+        .conf-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .conf-Low      { background: #2a2a2a; color: #666; }
+        .conf-Medium   { background: #3a3000; color: #f0c040; }
+        .conf-High     { background: #0d2a4a; color: #4a8fd4; }
+        .conf-Very-High { background: #0d2a1a; color: #4caf50; }
+
+        .explain-box {
+            margin-top: 40px;
+            border-top: 1px solid #222;
+            padding-top: 24px;
+            color: #666;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            max-width: 720px;
+        }
+        .explain-box h3 {
+            color: #999;
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin: 0 0 10px;
+        }
+        .explain-box h4 {
+            color: #777;
+            font-size: 0.82rem;
+            margin: 16px 0 4px;
+            font-weight: bold;
+        }
+        .explain-box .formula {
+            font-family: monospace;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #bbb;
+            margin: 6px 0;
+            font-size: 0.82rem;
+        }
+        .explain-box ul { margin: 4px 0 0 18px; padding: 0; }
+        .explain-box li { margin-bottom: 3px; }
+        .conf-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .conf-legend span { font-size: 0.72rem; }
+    </style>
+</head>
+<body>
+<nav class="site-nav">
+    <div class="site-nav-inner">
+        <a href="../../../index.html" class="nav-brand">NBL data</a>
+        <div class="nav-links">
+            <a href="../../../index.html" class="nav-link">Zápasy</a>
+            <a href="../../../player/index.html" class="nav-link">Hráči</a>
+            <a href="../../../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
+            <a href="../../../leaderboard/2025-26/players.html" class="nav-link">TOP hráči</a>
+            <a href="../../../stats/2025-26/teams.html" class="nav-link">Statistiky týmů</a>
+            <a href="../../../leaderboard/2025-26/teams.html" class="nav-link">TOP týmy</a>
+            <a href="../../../stats/2025-26/top_games.html" class="nav-link">TOP zápasy</a>
+            <a href="../../../stats/2025-26/milestones.html" class="nav-link">Milníky</a>
+            <a href="../../../stats/2025-26/ratings.html" class="nav-link active">Ratings</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <p style="margin-bottom:4px">
+        <a href="../ratings.html" style="color:#666;font-size:0.85rem;text-decoration:none">&larr; Všechny týmy</a>
+    </p>
+    <div class="team-header">
+        <h1>BK Olomoucko</h1>
+        <span style="color:#666;font-size:0.88rem">2025-26</span>
+    </div>
+
+    <div class="team-rtg-summary">
+        <div class="rtg-stat">
+            <div class="label">ORTG</div>
+            <div class="value">111.7</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">DRTG</div>
+            <div class="value">128.1</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Net RTG</div>
+            <div class="value negative">
+                -16.4
+            </div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Zápasy</div>
+            <div class="value" style="font-size:1.1rem;color:#ccc">26</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Minut</div>
+            <div class="value" style="font-size:1.1rem;color:#ccc">1045</div>
+        </div>
+    </div>
+
+    <div class="combo-tabs">
+        
+        <button class="combo-tab active" data-size="players">Hráči</button>
+        
+        
+        <button class="combo-tab" data-size="2">
+            Duo
+        </button>
+        
+        <button class="combo-tab" data-size="3">
+            Trio
+        </button>
+        
+        <button class="combo-tab" data-size="4">
+            Čtveřice
+        </button>
+        
+        <button class="combo-tab" data-size="5">
+            Pětka
+        </button>
+        
+    </div>
+
+    <!-- ── Player On/Off panel ───────────────────────────────────────── -->
+    
+    <div class="combo-panel active" data-size="players">
+        <div id="onoff-filters" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+            <button class="combo-tab active" data-min-pct="0">Všichni</button>
+            <button class="combo-tab" data-min-pct="10">≥ 10 % minut</button>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="combo-table" id="onoff-table" style="width:auto">
+            <thead>
+                <tr>
+                    <th style="text-align:left">Hráč</th>
+                    <th data-tip="Minuty s hráčem na hřišti">ON min</th>
+                    <th data-tip="Offensive Rating s hráčem na hřišti">ORTG</th>
+                    <th data-tip="Defensive Rating s hráčem na hřišti">DRTG</th>
+                    <th data-tip="Net Rating s hráčem na hřišti">Net</th>
+                    <th data-tip="Minuty bez hráče">OFF min</th>
+                    <th data-tip="Offensive Rating bez hráče">ORTG</th>
+                    <th data-tip="Defensive Rating bez hráče">DRTG</th>
+                    <th data-tip="Net Rating bez hráče">Net</th>
+                    <th data-tip="Rozdíl Net Ratingu – jak tým hraje lépe/hůře s hráčem na hřišti">Δ Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-on-pct="42"
+                    data-on-net="3.6"
+                    data-off-net="-39.6"
+                    data-delta-net="43.2"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-kyler-filewich.html" style="color:#4a8fd4;text-decoration:none">K. Filewich</a>
+                        
+                    </td>
+                    <td>439</td>
+                    <td>114.1</td>
+                    <td>110.5</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>129</td>
+                    <td>100.3</td>
+                    <td>139.9</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="32"
+                    data-on-net="11.5"
+                    data-off-net="-18.8"
+                    data-delta-net="30.3"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-ondrej-siska.html" style="color:#4a8fd4;text-decoration:none">O. Šiška</a>
+                        
+                    </td>
+                    <td>335</td>
+                    <td>122.8</td>
+                    <td>111.3</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>210</td>
+                    <td>99.6</td>
+                    <td>118.4</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="36"
+                    data-on-net="-3.3"
+                    data-off-net="-24.5"
+                    data-delta-net="21.2"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-jonathan-leonard-andre.html" style="color:#4a8fd4;text-decoration:none">J. Andre</a>
+                        
+                    </td>
+                    <td>376</td>
+                    <td>119.0</td>
+                    <td>122.3</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>117</td>
+                    <td>87.5</td>
+                    <td>112.0</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="29"
+                    data-on-net="-7.4"
+                    data-off-net="-15.4"
+                    data-delta-net="8.0"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-jaren-jamir-holmes.html" style="color:#4a8fd4;text-decoration:none">J. Holmes</a>
+                        
+                    </td>
+                    <td>308</td>
+                    <td>106.9</td>
+                    <td>114.3</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>59</td>
+                    <td>121.0</td>
+                    <td>136.4</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="34"
+                    data-on-net="-2.7"
+                    data-off-net="-4.7"
+                    data-delta-net="2.0"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-kobe-elvis.html" style="color:#4a8fd4;text-decoration:none">K. Elvis</a>
+                        
+                    </td>
+                    <td>352</td>
+                    <td>115.9</td>
+                    <td>118.6</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>98</td>
+                    <td>107.3</td>
+                    <td>112.0</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="34"
+                    data-on-net="-6.0"
+                    data-off-net="-4.7"
+                    data-delta-net="-1.3"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-marek-ayers-nelson.html" style="color:#4a8fd4;text-decoration:none">M. Nelson</a>
+                        
+                    </td>
+                    <td>351</td>
+                    <td>107.1</td>
+                    <td>113.1</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>195</td>
+                    <td>117.5</td>
+                    <td>122.2</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="24"
+                    data-on-net="-10.5"
+                    data-off-net="-2.0"
+                    data-delta-net="-8.5"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-adam-goga.html" style="color:#4a8fd4;text-decoration:none">A. Goga</a>
+                        
+                    </td>
+                    <td>249</td>
+                    <td>111.1</td>
+                    <td>121.6</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>319</td>
+                    <td>111.1</td>
+                    <td>113.1</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="4"
+                    data-on-net="-22.1"
+                    data-off-net="-11.8"
+                    data-delta-net="-10.3"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-jiri-svojanovsky.html" style="color:#4a8fd4;text-decoration:none">J. Svojanovský</a>
+                        
+                    </td>
+                    <td>39</td>
+                    <td>87.7</td>
+                    <td>109.8</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>314</td>
+                    <td>107.1</td>
+                    <td>118.9</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="4"
+                    data-on-net="-26.6"
+                    data-off-net="-14.4"
+                    data-delta-net="-12.2"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-jordan-oupoh.html" style="color:#4a8fd4;text-decoration:none">J. Oupoh</a>
+                        
+                    </td>
+                    <td>47</td>
+                    <td>87.1</td>
+                    <td>113.7</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>331</td>
+                    <td>108.7</td>
+                    <td>123.1</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="25"
+                    data-on-net="-12.0"
+                    data-off-net="0.9"
+                    data-delta-net="-12.9"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-dominik-zak.html" style="color:#4a8fd4;text-decoration:none">D. Žák</a>
+                        
+                    </td>
+                    <td>266</td>
+                    <td>105.3</td>
+                    <td>117.3</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>280</td>
+                    <td>116.2</td>
+                    <td>115.3</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="4"
+                    data-on-net="-69.9"
+                    data-off-net="10.1"
+                    data-delta-net="-80.0"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-miroslav-kvapil.html" style="color:#4a8fd4;text-decoration:none">M. Kvapil</a>
+                        
+                    </td>
+                    <td>47</td>
+                    <td>89.2</td>
+                    <td>159.1</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>247</td>
+                    <td>118.0</td>
+                    <td>107.9</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="1"
+                    data-on-net="-123.7"
+                    data-off-net="-23.3"
+                    data-delta-net="-100.4"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-marek-pulpan.html" style="color:#4a8fd4;text-decoration:none">M. Půlpán</a>
+                        
+                    </td>
+                    <td>15</td>
+                    <td>26.9</td>
+                    <td>150.6</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>111</td>
+                    <td>105.0</td>
+                    <td>128.3</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="2"
+                    data-on-net="-127.2"
+                    data-off-net="-20.1"
+                    data-delta-net="-107.1"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/bk-olomoucko-simon-cermak.html" style="color:#4a8fd4;text-decoration:none">Š. Čermák</a>
+                        
+                    </td>
+                    <td>16</td>
+                    <td>49.6</td>
+                    <td>176.8</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>176</td>
+                    <td>103.0</td>
+                    <td>123.1</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+
+    
+    <div class="combo-panel" data-size="2">
+        <p class="min-note">Minimum minut: 20</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="256"
+                    data-raw_ortg="126.4"
+                    data-raw_drtg="104.2"
+                    data-raw_net="22.2"
+                    data-stabilized_net="22.1"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>K. Filewich, O. Šiška</td>
+                    <td>256</td>
+                    <td>126.4</td>
+                    <td>104.2</td>
+                    <td>
+                        +22.1
+                    </td>
+                    <td>
+                        +22.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="197"
+                    data-raw_ortg="126.6"
+                    data-raw_drtg="109.4"
+                    data-raw_net="17.2"
+                    data-stabilized_net="17.6"
+                    data-confidence="High">
+                    <td></td>
+                    <td>K. Elvis, O. Šiška</td>
+                    <td>197</td>
+                    <td>126.6</td>
+                    <td>109.4</td>
+                    <td>
+                        +17.6
+                    </td>
+                    <td>
+                        +17.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="196"
+                    data-raw_ortg="122.5"
+                    data-raw_drtg="105.1"
+                    data-raw_net="17.4"
+                    data-stabilized_net="17.2"
+                    data-confidence="High">
+                    <td></td>
+                    <td>M. Nelson, O. Šiška</td>
+                    <td>196</td>
+                    <td>122.5</td>
+                    <td>105.1</td>
+                    <td>
+                        +17.2
+                    </td>
+                    <td>
+                        +17.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="211"
+                    data-raw_ortg="131.3"
+                    data-raw_drtg="115.4"
+                    data-raw_net="15.9"
+                    data-stabilized_net="16.6"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Andre, O. Šiška</td>
+                    <td>211</td>
+                    <td>131.3</td>
+                    <td>115.4</td>
+                    <td>
+                        +16.6
+                    </td>
+                    <td>
+                        +15.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="97"
+                    data-raw_ortg="131.4"
+                    data-raw_drtg="121.6"
+                    data-raw_net="9.8"
+                    data-stabilized_net="12.0"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, O. Šiška</td>
+                    <td>97</td>
+                    <td>131.4</td>
+                    <td>121.6</td>
+                    <td>
+                        +12.0
+                    </td>
+                    <td>
+                        +9.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="300"
+                    data-raw_ortg="119.5"
+                    data-raw_drtg="110.1"
+                    data-raw_net="9.4"
+                    data-stabilized_net="10.5"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>K. Elvis, K. Filewich</td>
+                    <td>300</td>
+                    <td>119.5</td>
+                    <td>110.1</td>
+                    <td>
+                        +10.5
+                    </td>
+                    <td>
+                        +9.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="159"
+                    data-raw_ortg="115.1"
+                    data-raw_drtg="109.7"
+                    data-raw_net="5.4"
+                    data-stabilized_net="9.1"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Holmes, O. Šiška</td>
+                    <td>159</td>
+                    <td>115.1</td>
+                    <td>109.7</td>
+                    <td>
+                        +9.1
+                    </td>
+                    <td>
+                        +5.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="271"
+                    data-raw_ortg="110.6"
+                    data-raw_drtg="106.5"
+                    data-raw_net="4.1"
+                    data-stabilized_net="6.2"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>K. Filewich, M. Nelson</td>
+                    <td>271</td>
+                    <td>110.6</td>
+                    <td>106.5</td>
+                    <td>
+                        +6.2
+                    </td>
+                    <td>
+                        +4.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="295"
+                    data-raw_ortg="120.2"
+                    data-raw_drtg="119.2"
+                    data-raw_net="1.0"
+                    data-stabilized_net="4.0"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Andre, K. Filewich</td>
+                    <td>295</td>
+                    <td>120.2</td>
+                    <td>119.2</td>
+                    <td>
+                        +4.0
+                    </td>
+                    <td>
+                        +1.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="239"
+                    data-raw_ortg="106.0"
+                    data-raw_drtg="106.2"
+                    data-raw_net="-0.2"
+                    data-stabilized_net="3.1"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Holmes, K. Filewich</td>
+                    <td>239</td>
+                    <td>106.0</td>
+                    <td>106.2</td>
+                    <td>
+                        +3.1
+                    </td>
+                    <td>
+                        -0.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="119.0"
+                    data-raw_drtg="88.9"
+                    data-raw_net="30.1"
+                    data-stabilized_net="2.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Oupoh</td>
+                    <td>23</td>
+                    <td>119.0</td>
+                    <td>88.9</td>
+                    <td>
+                        +2.9
+                    </td>
+                    <td>
+                        +30.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="156"
+                    data-raw_ortg="113.0"
+                    data-raw_drtg="117.4"
+                    data-raw_net="-4.4"
+                    data-stabilized_net="2.0"
+                    data-confidence="High">
+                    <td></td>
+                    <td>D. Žák, O. Šiška</td>
+                    <td>156</td>
+                    <td>113.0</td>
+                    <td>117.4</td>
+                    <td>
+                        +2.0
+                    </td>
+                    <td>
+                        -4.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="138"
+                    data-raw_ortg="110.1"
+                    data-raw_drtg="112.2"
+                    data-raw_net="-2.1"
+                    data-stabilized_net="1.3"
+                    data-confidence="High">
+                    <td></td>
+                    <td>D. Žák, K. Elvis</td>
+                    <td>138</td>
+                    <td>110.1</td>
+                    <td>112.2</td>
+                    <td>
+                        +1.3
+                    </td>
+                    <td>
+                        -2.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="162"
+                    data-raw_ortg="105.2"
+                    data-raw_drtg="108.4"
+                    data-raw_net="-3.2"
+                    data-stabilized_net="1.3"
+                    data-confidence="High">
+                    <td></td>
+                    <td>D. Žák, K. Filewich</td>
+                    <td>162</td>
+                    <td>105.2</td>
+                    <td>108.4</td>
+                    <td>
+                        +1.3
+                    </td>
+                    <td>
+                        -3.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="88.2"
+                    data-raw_drtg="78.8"
+                    data-raw_net="9.4"
+                    data-stabilized_net="1.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Oupoh, K. Elvis</td>
+                    <td>20</td>
+                    <td>88.2</td>
+                    <td>78.8</td>
+                    <td>
+                        +1.3
+                    </td>
+                    <td>
+                        +9.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="104.1"
+                    data-raw_drtg="91.3"
+                    data-raw_net="12.8"
+                    data-stabilized_net="1.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Svojanovský</td>
+                    <td>25</td>
+                    <td>104.1</td>
+                    <td>91.3</td>
+                    <td>
+                        +1.2
+                    </td>
+                    <td>
+                        +12.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="97"
+                    data-raw_ortg="113.7"
+                    data-raw_drtg="116.1"
+                    data-raw_net="-2.4"
+                    data-stabilized_net="0.1"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, D. Žák</td>
+                    <td>97</td>
+                    <td>113.7</td>
+                    <td>116.1</td>
+                    <td>
+                        +0.1
+                    </td>
+                    <td>
+                        -2.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="215"
+                    data-raw_ortg="126.4"
+                    data-raw_drtg="131.0"
+                    data-raw_net="-4.6"
+                    data-stabilized_net="-0.2"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Andre, K. Elvis</td>
+                    <td>215</td>
+                    <td>126.4</td>
+                    <td>131.0</td>
+                    <td>
+                        -0.2
+                    </td>
+                    <td>
+                        -4.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="26"
+                    data-raw_ortg="92.8"
+                    data-raw_drtg="103.5"
+                    data-raw_net="-10.7"
+                    data-stabilized_net="-0.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Oupoh, K. Filewich</td>
+                    <td>26</td>
+                    <td>92.8</td>
+                    <td>103.5</td>
+                    <td>
+                        -0.5
+                    </td>
+                    <td>
+                        -10.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="220"
+                    data-raw_ortg="112.2"
+                    data-raw_drtg="117.4"
+                    data-raw_net="-5.2"
+                    data-stabilized_net="-1.3"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>J. Andre, J. Holmes</td>
+                    <td>220</td>
+                    <td>112.2</td>
+                    <td>117.4</td>
+                    <td>
+                        -1.3
+                    </td>
+                    <td>
+                        -5.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="161"
+                    data-raw_ortg="109.3"
+                    data-raw_drtg="116.4"
+                    data-raw_net="-7.1"
+                    data-stabilized_net="-1.5"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis</td>
+                    <td>161</td>
+                    <td>109.3</td>
+                    <td>116.4</td>
+                    <td>
+                        -1.5
+                    </td>
+                    <td>
+                        -7.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="180"
+                    data-raw_ortg="112.5"
+                    data-raw_drtg="120.0"
+                    data-raw_net="-7.5"
+                    data-stabilized_net="-1.7"
+                    data-confidence="High">
+                    <td></td>
+                    <td>A. Goga, K. Filewich</td>
+                    <td>180</td>
+                    <td>112.5</td>
+                    <td>120.0</td>
+                    <td>
+                        -1.7
+                    </td>
+                    <td>
+                        -7.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="213"
+                    data-raw_ortg="110.9"
+                    data-raw_drtg="117.7"
+                    data-raw_net="-6.8"
+                    data-stabilized_net="-2.1"
+                    data-confidence="Very High">
+                    <td></td>
+                    <td>K. Elvis, M. Nelson</td>
+                    <td>213</td>
+                    <td>110.9</td>
+                    <td>117.7</td>
+                    <td>
+                        -2.1
+                    </td>
+                    <td>
+                        -6.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="170"
+                    data-raw_ortg="103.7"
+                    data-raw_drtg="112.2"
+                    data-raw_net="-8.5"
+                    data-stabilized_net="-3.2"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Holmes, M. Nelson</td>
+                    <td>170</td>
+                    <td>103.7</td>
+                    <td>112.2</td>
+                    <td>
+                        -3.2
+                    </td>
+                    <td>
+                        -8.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="154"
+                    data-raw_ortg="114.1"
+                    data-raw_drtg="123.1"
+                    data-raw_net="-9.0"
+                    data-stabilized_net="-3.5"
+                    data-confidence="High">
+                    <td></td>
+                    <td>D. Žák, J. Andre</td>
+                    <td>154</td>
+                    <td>114.1</td>
+                    <td>123.1</td>
+                    <td>
+                        -3.5
+                    </td>
+                    <td>
+                        -9.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="198"
+                    data-raw_ortg="111.2"
+                    data-raw_drtg="122.3"
+                    data-raw_net="-11.1"
+                    data-stabilized_net="-4.9"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, M. Nelson</td>
+                    <td>198</td>
+                    <td>111.2</td>
+                    <td>122.3</td>
+                    <td>
+                        -4.9
+                    </td>
+                    <td>
+                        -11.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="138"
+                    data-raw_ortg="100.6"
+                    data-raw_drtg="112.4"
+                    data-raw_net="-11.8"
+                    data-stabilized_net="-5.1"
+                    data-confidence="High">
+                    <td></td>
+                    <td>A. Goga, M. Nelson</td>
+                    <td>138</td>
+                    <td>100.6</td>
+                    <td>112.4</td>
+                    <td>
+                        -5.1
+                    </td>
+                    <td>
+                        -11.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="147"
+                    data-raw_ortg="119.5"
+                    data-raw_drtg="133.9"
+                    data-raw_net="-14.4"
+                    data-stabilized_net="-6.4"
+                    data-confidence="High">
+                    <td></td>
+                    <td>A. Goga, J. Andre</td>
+                    <td>147</td>
+                    <td>119.5</td>
+                    <td>133.9</td>
+                    <td>
+                        -6.4
+                    </td>
+                    <td>
+                        -14.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="119"
+                    data-raw_ortg="100.3"
+                    data-raw_drtg="116.0"
+                    data-raw_net="-15.7"
+                    data-stabilized_net="-7.0"
+                    data-confidence="High">
+                    <td></td>
+                    <td>A. Goga, J. Holmes</td>
+                    <td>119</td>
+                    <td>100.3</td>
+                    <td>116.0</td>
+                    <td>
+                        -7.0
+                    </td>
+                    <td>
+                        -15.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="120"
+                    data-raw_ortg="97.8"
+                    data-raw_drtg="116.1"
+                    data-raw_net="-18.3"
+                    data-stabilized_net="-8.9"
+                    data-confidence="High">
+                    <td></td>
+                    <td>D. Žák, J. Holmes</td>
+                    <td>120</td>
+                    <td>97.8</td>
+                    <td>116.1</td>
+                    <td>
+                        -8.9
+                    </td>
+                    <td>
+                        -18.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="153"
+                    data-raw_ortg="96.0"
+                    data-raw_drtg="117.1"
+                    data-raw_net="-21.1"
+                    data-stabilized_net="-11.7"
+                    data-confidence="High">
+                    <td></td>
+                    <td>D. Žák, M. Nelson</td>
+                    <td>153</td>
+                    <td>96.0</td>
+                    <td>117.1</td>
+                    <td>
+                        -11.7
+                    </td>
+                    <td>
+                        -21.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="89.6"
+                    data-raw_drtg="124.9"
+                    data-raw_net="-35.3"
+                    data-stabilized_net="-11.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Oupoh</td>
+                    <td>24</td>
+                    <td>89.6</td>
+                    <td>124.9</td>
+                    <td>
+                        -11.8
+                    </td>
+                    <td>
+                        -35.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="126"
+                    data-raw_ortg="112.1"
+                    data-raw_drtg="138.4"
+                    data-raw_net="-26.3"
+                    data-stabilized_net="-12.7"
+                    data-confidence="High">
+                    <td></td>
+                    <td>A. Goga, K. Elvis</td>
+                    <td>126</td>
+                    <td>112.1</td>
+                    <td>138.4</td>
+                    <td>
+                        -12.7
+                    </td>
+                    <td>
+                        -26.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="108.3"
+                    data-raw_drtg="124.4"
+                    data-raw_net="-16.1"
+                    data-stabilized_net="-15.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>M. Kvapil, O. Šiška</td>
+                    <td>28</td>
+                    <td>108.3</td>
+                    <td>124.4</td>
+                    <td>
+                        -15.4
+                    </td>
+                    <td>
+                        -16.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="32"
+                    data-raw_ortg="100.8"
+                    data-raw_drtg="134.2"
+                    data-raw_net="-33.4"
+                    data-stabilized_net="-28.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, M. Kvapil</td>
+                    <td>32</td>
+                    <td>100.8</td>
+                    <td>134.2</td>
+                    <td>
+                        -28.1
+                    </td>
+                    <td>
+                        -33.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="113.2"
+                    data-raw_drtg="165.7"
+                    data-raw_net="-52.5"
+                    data-stabilized_net="-28.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, M. Kvapil</td>
+                    <td>22</td>
+                    <td>113.2</td>
+                    <td>165.7</td>
+                    <td>
+                        -28.7
+                    </td>
+                    <td>
+                        -52.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="107.2"
+                    data-raw_drtg="141.8"
+                    data-raw_net="-34.6"
+                    data-stabilized_net="-28.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, M. Kvapil</td>
+                    <td>30</td>
+                    <td>107.2</td>
+                    <td>141.8</td>
+                    <td>
+                        -28.9
+                    </td>
+                    <td>
+                        -34.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="94.1"
+                    data-raw_drtg="258.1"
+                    data-raw_net="-164.0"
+                    data-stabilized_net="-50.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>K. Elvis, M. Kvapil</td>
+                    <td>21</td>
+                    <td>94.1</td>
+                    <td>258.1</td>
+                    <td>
+                        -50.4
+                    </td>
+                    <td>
+                        -164.0
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="3">
+        <p class="min-note">Minimum minut: 15</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="171"
+                    data-raw_ortg="131.5"
+                    data-raw_drtg="103.2"
+                    data-raw_net="28.3"
+                    data-stabilized_net="24.9"
+                    data-confidence="High">
+                    <td></td>
+                    <td>K. Elvis, K. Filewich, O. Šiška</td>
+                    <td>171</td>
+                    <td>131.5</td>
+                    <td>103.2</td>
+                    <td>
+                        +24.9
+                    </td>
+                    <td>
+                        +28.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="150"
+                    data-raw_ortg="127.2"
+                    data-raw_drtg="99.2"
+                    data-raw_net="28.0"
+                    data-stabilized_net="24.1"
+                    data-confidence="High">
+                    <td></td>
+                    <td>K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>150</td>
+                    <td>127.2</td>
+                    <td>99.2</td>
+                    <td>
+                        +24.1
+                    </td>
+                    <td>
+                        +28.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="163"
+                    data-raw_ortg="134.6"
+                    data-raw_drtg="111.9"
+                    data-raw_net="22.7"
+                    data-stabilized_net="21.1"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, K. Filewich, O. Šiška</td>
+                    <td>163</td>
+                    <td>134.6</td>
+                    <td>111.9</td>
+                    <td>
+                        +21.1
+                    </td>
+                    <td>
+                        +22.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="113"
+                    data-raw_ortg="137.5"
+                    data-raw_drtg="115.9"
+                    data-raw_net="21.6"
+                    data-stabilized_net="19.2"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, K. Elvis, O. Šiška</td>
+                    <td>113</td>
+                    <td>137.5</td>
+                    <td>115.9</td>
+                    <td>
+                        +19.2
+                    </td>
+                    <td>
+                        +21.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="61"
+                    data-raw_ortg="136.6"
+                    data-raw_drtg="114.3"
+                    data-raw_net="22.3"
+                    data-stabilized_net="18.4"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, K. Filewich, O. Šiška</td>
+                    <td>61</td>
+                    <td>136.6</td>
+                    <td>114.3</td>
+                    <td>
+                        +18.4
+                    </td>
+                    <td>
+                        +22.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="122"
+                    data-raw_ortg="113.6"
+                    data-raw_drtg="94.4"
+                    data-raw_net="19.2"
+                    data-stabilized_net="18.2"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Holmes, K. Filewich, O. Šiška</td>
+                    <td>122</td>
+                    <td>113.6</td>
+                    <td>94.4</td>
+                    <td>
+                        +18.2
+                    </td>
+                    <td>
+                        +19.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="45"
+                    data-raw_ortg="127.6"
+                    data-raw_drtg="100.2"
+                    data-raw_net="27.4"
+                    data-stabilized_net="17.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, M. Nelson, O. Šiška</td>
+                    <td>45</td>
+                    <td>127.6</td>
+                    <td>100.2</td>
+                    <td>
+                        +17.6
+                    </td>
+                    <td>
+                        +27.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="117"
+                    data-raw_ortg="124.2"
+                    data-raw_drtg="104.8"
+                    data-raw_net="19.4"
+                    data-stabilized_net="17.5"
+                    data-confidence="High">
+                    <td></td>
+                    <td>K. Elvis, M. Nelson, O. Šiška</td>
+                    <td>117</td>
+                    <td>124.2</td>
+                    <td>104.8</td>
+                    <td>
+                        +17.5
+                    </td>
+                    <td>
+                        +19.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="94"
+                    data-raw_ortg="133.8"
+                    data-raw_drtg="114.8"
+                    data-raw_net="19.0"
+                    data-stabilized_net="17.0"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, M. Nelson, O. Šiška</td>
+                    <td>94</td>
+                    <td>133.8</td>
+                    <td>114.8</td>
+                    <td>
+                        +17.0
+                    </td>
+                    <td>
+                        +19.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="69"
+                    data-raw_ortg="117.0"
+                    data-raw_drtg="98.1"
+                    data-raw_net="18.9"
+                    data-stabilized_net="15.6"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, K. Elvis, O. Šiška</td>
+                    <td>69</td>
+                    <td>117.0</td>
+                    <td>98.1</td>
+                    <td>
+                        +15.6
+                    </td>
+                    <td>
+                        +18.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="97"
+                    data-raw_ortg="113.2"
+                    data-raw_drtg="94.6"
+                    data-raw_net="18.6"
+                    data-stabilized_net="14.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, K. Elvis, K. Filewich</td>
+                    <td>97</td>
+                    <td>113.2</td>
+                    <td>94.6</td>
+                    <td>
+                        +14.8
+                    </td>
+                    <td>
+                        +18.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="48"
+                    data-raw_ortg="138.1"
+                    data-raw_drtg="123.3"
+                    data-raw_net="14.8"
+                    data-stabilized_net="13.9"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Andre, O. Šiška</td>
+                    <td>48</td>
+                    <td>138.1</td>
+                    <td>123.3</td>
+                    <td>
+                        +13.9
+                    </td>
+                    <td>
+                        +14.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="104"
+                    data-raw_ortg="126.7"
+                    data-raw_drtg="113.8"
+                    data-raw_net="12.9"
+                    data-stabilized_net="13.6"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, O. Šiška</td>
+                    <td>104</td>
+                    <td>126.7</td>
+                    <td>113.8</td>
+                    <td>
+                        +13.6
+                    </td>
+                    <td>
+                        +12.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="71"
+                    data-raw_ortg="117.4"
+                    data-raw_drtg="105.8"
+                    data-raw_net="11.6"
+                    data-stabilized_net="13.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis, O. Šiška</td>
+                    <td>71</td>
+                    <td>117.4</td>
+                    <td>105.8</td>
+                    <td>
+                        +13.2
+                    </td>
+                    <td>
+                        +11.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="75"
+                    data-raw_ortg="115.5"
+                    data-raw_drtg="104.9"
+                    data-raw_net="10.6"
+                    data-stabilized_net="12.1"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Holmes, M. Nelson, O. Šiška</td>
+                    <td>75</td>
+                    <td>115.5</td>
+                    <td>104.9</td>
+                    <td>
+                        +12.1
+                    </td>
+                    <td>
+                        +10.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="92"
+                    data-raw_ortg="115.2"
+                    data-raw_drtg="107.1"
+                    data-raw_net="8.1"
+                    data-stabilized_net="11.5"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, K. Filewich, O. Šiška</td>
+                    <td>92</td>
+                    <td>115.2</td>
+                    <td>107.1</td>
+                    <td>
+                        +11.5
+                    </td>
+                    <td>
+                        +8.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="175"
+                    data-raw_ortg="116.3"
+                    data-raw_drtg="107.8"
+                    data-raw_net="8.5"
+                    data-stabilized_net="9.8"
+                    data-confidence="High">
+                    <td></td>
+                    <td>K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>175</td>
+                    <td>116.3</td>
+                    <td>107.8</td>
+                    <td>
+                        +9.8
+                    </td>
+                    <td>
+                        +8.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="188"
+                    data-raw_ortg="130.9"
+                    data-raw_drtg="123.2"
+                    data-raw_net="7.7"
+                    data-stabilized_net="9.4"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, K. Elvis, K. Filewich</td>
+                    <td>188</td>
+                    <td>130.9</td>
+                    <td>123.2</td>
+                    <td>
+                        +9.4
+                    </td>
+                    <td>
+                        +7.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="45"
+                    data-raw_ortg="140.1"
+                    data-raw_drtg="128.0"
+                    data-raw_net="12.1"
+                    data-stabilized_net="7.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Andre</td>
+                    <td>45</td>
+                    <td>140.1</td>
+                    <td>128.0</td>
+                    <td>
+                        +7.8
+                    </td>
+                    <td>
+                        +12.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="29"
+                    data-raw_ortg="141.9"
+                    data-raw_drtg="154.1"
+                    data-raw_net="-12.2"
+                    data-stabilized_net="7.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, K. Elvis, O. Šiška</td>
+                    <td>29</td>
+                    <td>141.9</td>
+                    <td>154.1</td>
+                    <td>
+                        +7.0
+                    </td>
+                    <td>
+                        -12.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="136"
+                    data-raw_ortg="111.0"
+                    data-raw_drtg="107.6"
+                    data-raw_net="3.4"
+                    data-stabilized_net="6.7"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis, K. Filewich</td>
+                    <td>136</td>
+                    <td>111.0</td>
+                    <td>107.6</td>
+                    <td>
+                        +6.7
+                    </td>
+                    <td>
+                        +3.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="41"
+                    data-raw_ortg="134.6"
+                    data-raw_drtg="137.0"
+                    data-raw_net="-2.4"
+                    data-stabilized_net="6.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, O. Šiška</td>
+                    <td>41</td>
+                    <td>134.6</td>
+                    <td>137.0</td>
+                    <td>
+                        +6.2
+                    </td>
+                    <td>
+                        -2.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="84"
+                    data-raw_ortg="119.5"
+                    data-raw_drtg="120.8"
+                    data-raw_net="-1.3"
+                    data-stabilized_net="5.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Andre, O. Šiška</td>
+                    <td>84</td>
+                    <td>119.5</td>
+                    <td>120.8</td>
+                    <td>
+                        +5.8
+                    </td>
+                    <td>
+                        -1.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="45"
+                    data-raw_ortg="115.8"
+                    data-raw_drtg="114.3"
+                    data-raw_net="1.5"
+                    data-stabilized_net="5.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, K. Filewich</td>
+                    <td>45</td>
+                    <td>115.8</td>
+                    <td>114.3</td>
+                    <td>
+                        +5.6
+                    </td>
+                    <td>
+                        +1.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="86.1"
+                    data-raw_drtg="80.7"
+                    data-raw_net="5.4"
+                    data-stabilized_net="5.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Oupoh, K. Elvis, K. Filewich</td>
+                    <td>16</td>
+                    <td>86.1</td>
+                    <td>80.7</td>
+                    <td>
+                        +5.5
+                    </td>
+                    <td>
+                        +5.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="126"
+                    data-raw_ortg="103.0"
+                    data-raw_drtg="102.0"
+                    data-raw_net="1.0"
+                    data-stabilized_net="4.9"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Holmes, K. Filewich, M. Nelson</td>
+                    <td>126</td>
+                    <td>103.0</td>
+                    <td>102.0</td>
+                    <td>
+                        +4.9
+                    </td>
+                    <td>
+                        +1.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="83"
+                    data-raw_ortg="111.3"
+                    data-raw_drtg="114.7"
+                    data-raw_net="-3.4"
+                    data-stabilized_net="4.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, M. Nelson, O. Šiška</td>
+                    <td>83</td>
+                    <td>111.3</td>
+                    <td>114.7</td>
+                    <td>
+                        +4.3
+                    </td>
+                    <td>
+                        -3.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="34"
+                    data-raw_ortg="103.0"
+                    data-raw_drtg="118.0"
+                    data-raw_net="-15.0"
+                    data-stabilized_net="4.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, O. Šiška</td>
+                    <td>34</td>
+                    <td>103.0</td>
+                    <td>118.0</td>
+                    <td>
+                        +4.3
+                    </td>
+                    <td>
+                        -15.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="85"
+                    data-raw_ortg="113.5"
+                    data-raw_drtg="115.8"
+                    data-raw_net="-2.3"
+                    data-stabilized_net="3.9"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Filewich</td>
+                    <td>85</td>
+                    <td>113.5</td>
+                    <td>115.8</td>
+                    <td>
+                        +3.9
+                    </td>
+                    <td>
+                        -2.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="41"
+                    data-raw_ortg="106.1"
+                    data-raw_drtg="110.3"
+                    data-raw_net="-4.2"
+                    data-stabilized_net="3.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, K. Elvis</td>
+                    <td>41</td>
+                    <td>106.1</td>
+                    <td>110.3</td>
+                    <td>
+                        +3.2
+                    </td>
+                    <td>
+                        -4.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="148"
+                    data-raw_ortg="115.1"
+                    data-raw_drtg="117.6"
+                    data-raw_net="-2.5"
+                    data-stabilized_net="2.9"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, K. Filewich, M. Nelson</td>
+                    <td>148</td>
+                    <td>115.1</td>
+                    <td>117.6</td>
+                    <td>
+                        +2.9
+                    </td>
+                    <td>
+                        -2.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="103"
+                    data-raw_ortg="106.1"
+                    data-raw_drtg="111.1"
+                    data-raw_net="-5.0"
+                    data-stabilized_net="1.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, K. Filewich, M. Nelson</td>
+                    <td>103</td>
+                    <td>106.1</td>
+                    <td>111.1</td>
+                    <td>
+                        +1.7
+                    </td>
+                    <td>
+                        -5.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="43"
+                    data-raw_ortg="109.3"
+                    data-raw_drtg="115.7"
+                    data-raw_net="-6.4"
+                    data-stabilized_net="1.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, K. Elvis</td>
+                    <td>43</td>
+                    <td>109.3</td>
+                    <td>115.7</td>
+                    <td>
+                        +1.6
+                    </td>
+                    <td>
+                        -6.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="101"
+                    data-raw_ortg="114.5"
+                    data-raw_drtg="120.1"
+                    data-raw_net="-5.6"
+                    data-stabilized_net="1.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Elvis</td>
+                    <td>101</td>
+                    <td>114.5</td>
+                    <td>120.1</td>
+                    <td>
+                        +1.3
+                    </td>
+                    <td>
+                        -5.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="59"
+                    data-raw_ortg="126.1"
+                    data-raw_drtg="134.5"
+                    data-raw_net="-8.4"
+                    data-stabilized_net="1.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Elvis</td>
+                    <td>59</td>
+                    <td>126.1</td>
+                    <td>134.5</td>
+                    <td>
+                        +1.3
+                    </td>
+                    <td>
+                        -8.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="56"
+                    data-raw_ortg="98.8"
+                    data-raw_drtg="105.1"
+                    data-raw_net="-6.3"
+                    data-stabilized_net="1.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, M. Nelson</td>
+                    <td>56</td>
+                    <td>98.8</td>
+                    <td>105.1</td>
+                    <td>
+                        +1.2
+                    </td>
+                    <td>
+                        -6.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="87.1"
+                    data-raw_drtg="94.8"
+                    data-raw_net="-7.7"
+                    data-stabilized_net="1.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Holmes</td>
+                    <td>30</td>
+                    <td>87.1</td>
+                    <td>94.8</td>
+                    <td>
+                        +1.0
+                    </td>
+                    <td>
+                        -7.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="170"
+                    data-raw_ortg="107.7"
+                    data-raw_drtg="113.4"
+                    data-raw_net="-5.7"
+                    data-stabilized_net="0.1"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Filewich</td>
+                    <td>170</td>
+                    <td>107.7</td>
+                    <td>113.4</td>
+                    <td>
+                        +0.1
+                    </td>
+                    <td>
+                        -5.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="86"
+                    data-raw_ortg="90.5"
+                    data-raw_drtg="101.8"
+                    data-raw_net="-11.3"
+                    data-stabilized_net="-1.1"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, K. Filewich, M. Nelson</td>
+                    <td>86</td>
+                    <td>90.5</td>
+                    <td>101.8</td>
+                    <td>
+                        -1.1
+                    </td>
+                    <td>
+                        -11.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="65"
+                    data-raw_ortg="89.6"
+                    data-raw_drtg="105.1"
+                    data-raw_net="-15.5"
+                    data-stabilized_net="-1.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, K. Filewich</td>
+                    <td>65</td>
+                    <td>89.6</td>
+                    <td>105.1</td>
+                    <td>
+                        -1.7
+                    </td>
+                    <td>
+                        -15.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="102"
+                    data-raw_ortg="106.9"
+                    data-raw_drtg="117.2"
+                    data-raw_net="-10.3"
+                    data-stabilized_net="-1.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, M. Nelson</td>
+                    <td>102</td>
+                    <td>106.9</td>
+                    <td>117.2</td>
+                    <td>
+                        -1.8
+                    </td>
+                    <td>
+                        -10.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="46"
+                    data-raw_ortg="95.7"
+                    data-raw_drtg="112.1"
+                    data-raw_net="-16.4"
+                    data-stabilized_net="-2.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, D. Žák, M. Nelson</td>
+                    <td>46</td>
+                    <td>95.7</td>
+                    <td>112.1</td>
+                    <td>
+                        -2.8
+                    </td>
+                    <td>
+                        -16.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="82"
+                    data-raw_ortg="108.0"
+                    data-raw_drtg="120.5"
+                    data-raw_net="-12.5"
+                    data-stabilized_net="-2.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes</td>
+                    <td>82</td>
+                    <td>108.0</td>
+                    <td>120.5</td>
+                    <td>
+                        -2.8
+                    </td>
+                    <td>
+                        -12.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="17"
+                    data-raw_ortg="132.2"
+                    data-raw_drtg="101.7"
+                    data-raw_net="30.5"
+                    data-stabilized_net="-2.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, M. Kvapil, O. Šiška</td>
+                    <td>17</td>
+                    <td>132.2</td>
+                    <td>101.7</td>
+                    <td>
+                        -2.8
+                    </td>
+                    <td>
+                        +30.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="75"
+                    data-raw_ortg="104.2"
+                    data-raw_drtg="121.1"
+                    data-raw_net="-16.9"
+                    data-stabilized_net="-3.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis, M. Nelson</td>
+                    <td>75</td>
+                    <td>104.2</td>
+                    <td>121.1</td>
+                    <td>
+                        -3.3
+                    </td>
+                    <td>
+                        -16.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="89"
+                    data-raw_ortg="98.5"
+                    data-raw_drtg="114.2"
+                    data-raw_net="-15.7"
+                    data-stabilized_net="-3.4"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, K. Filewich</td>
+                    <td>89</td>
+                    <td>98.5</td>
+                    <td>114.2</td>
+                    <td>
+                        -3.4
+                    </td>
+                    <td>
+                        -15.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="106"
+                    data-raw_ortg="114.7"
+                    data-raw_drtg="130.5"
+                    data-raw_net="-15.8"
+                    data-stabilized_net="-3.9"
+                    data-confidence="High">
+                    <td></td>
+                    <td>A. Goga, K. Elvis, K. Filewich</td>
+                    <td>106</td>
+                    <td>114.7</td>
+                    <td>130.5</td>
+                    <td>
+                        -3.9
+                    </td>
+                    <td>
+                        -15.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="82"
+                    data-raw_ortg="98.7"
+                    data-raw_drtg="117.4"
+                    data-raw_net="-18.7"
+                    data-stabilized_net="-5.5"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, K. Elvis, M. Nelson</td>
+                    <td>82</td>
+                    <td>98.7</td>
+                    <td>117.4</td>
+                    <td>
+                        -5.5
+                    </td>
+                    <td>
+                        -18.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="78"
+                    data-raw_ortg="104.6"
+                    data-raw_drtg="124.4"
+                    data-raw_net="-19.8"
+                    data-stabilized_net="-5.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes</td>
+                    <td>78</td>
+                    <td>104.6</td>
+                    <td>124.4</td>
+                    <td>
+                        -5.8
+                    </td>
+                    <td>
+                        -19.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="106"
+                    data-raw_ortg="119.4"
+                    data-raw_drtg="139.4"
+                    data-raw_net="-20.0"
+                    data-stabilized_net="-6.3"
+                    data-confidence="High">
+                    <td></td>
+                    <td>A. Goga, J. Andre, K. Filewich</td>
+                    <td>106</td>
+                    <td>119.4</td>
+                    <td>139.4</td>
+                    <td>
+                        -6.3
+                    </td>
+                    <td>
+                        -20.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="102"
+                    data-raw_ortg="119.1"
+                    data-raw_drtg="139.0"
+                    data-raw_net="-19.9"
+                    data-stabilized_net="-6.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, K. Elvis, M. Nelson</td>
+                    <td>102</td>
+                    <td>119.1</td>
+                    <td>139.0</td>
+                    <td>
+                        -6.3
+                    </td>
+                    <td>
+                        -19.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="63"
+                    data-raw_ortg="95.7"
+                    data-raw_drtg="121.4"
+                    data-raw_net="-25.7"
+                    data-stabilized_net="-6.6"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Andre, M. Nelson</td>
+                    <td>63</td>
+                    <td>95.7</td>
+                    <td>121.4</td>
+                    <td>
+                        -6.6
+                    </td>
+                    <td>
+                        -25.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="53"
+                    data-raw_ortg="98.9"
+                    data-raw_drtg="135.7"
+                    data-raw_net="-36.8"
+                    data-stabilized_net="-7.1"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, O. Šiška</td>
+                    <td>53</td>
+                    <td>98.9</td>
+                    <td>135.7</td>
+                    <td>
+                        -7.1
+                    </td>
+                    <td>
+                        -36.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="60"
+                    data-raw_ortg="98.4"
+                    data-raw_drtg="129.4"
+                    data-raw_net="-31.0"
+                    data-stabilized_net="-8.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, K. Elvis, M. Nelson</td>
+                    <td>60</td>
+                    <td>98.4</td>
+                    <td>129.4</td>
+                    <td>
+                        -8.3
+                    </td>
+                    <td>
+                        -31.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="66"
+                    data-raw_ortg="96.6"
+                    data-raw_drtg="124.8"
+                    data-raw_net="-28.2"
+                    data-stabilized_net="-9.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, M. Nelson</td>
+                    <td>66</td>
+                    <td>96.6</td>
+                    <td>124.8</td>
+                    <td>
+                        -9.2
+                    </td>
+                    <td>
+                        -28.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="20"
+                    data-raw_ortg="103.2"
+                    data-raw_drtg="114.6"
+                    data-raw_net="-11.4"
+                    data-stabilized_net="-9.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, M. Kvapil, O. Šiška</td>
+                    <td>20</td>
+                    <td>103.2</td>
+                    <td>114.6</td>
+                    <td>
+                        -9.4
+                    </td>
+                    <td>
+                        -11.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="47"
+                    data-raw_ortg="95.8"
+                    data-raw_drtg="138.5"
+                    data-raw_net="-42.7"
+                    data-stabilized_net="-10.6"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, K. Elvis</td>
+                    <td>47</td>
+                    <td>95.8</td>
+                    <td>138.5</td>
+                    <td>
+                        -10.6
+                    </td>
+                    <td>
+                        -42.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="69"
+                    data-raw_ortg="93.1"
+                    data-raw_drtg="126.2"
+                    data-raw_net="-33.1"
+                    data-stabilized_net="-11.0"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, J. Andre, M. Nelson</td>
+                    <td>69</td>
+                    <td>93.1</td>
+                    <td>126.2</td>
+                    <td>
+                        -11.0
+                    </td>
+                    <td>
+                        -33.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="124.7"
+                    data-raw_drtg="131.7"
+                    data-raw_net="-7.0"
+                    data-stabilized_net="-12.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, M. Kvapil</td>
+                    <td>16</td>
+                    <td>124.7</td>
+                    <td>131.7</td>
+                    <td>
+                        -12.7
+                    </td>
+                    <td>
+                        -7.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="113.6"
+                    data-raw_drtg="124.4"
+                    data-raw_net="-10.8"
+                    data-stabilized_net="-15.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, M. Kvapil</td>
+                    <td>23</td>
+                    <td>113.6</td>
+                    <td>124.4</td>
+                    <td>
+                        -15.4
+                    </td>
+                    <td>
+                        -10.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="65"
+                    data-raw_ortg="125.5"
+                    data-raw_drtg="175.6"
+                    data-raw_net="-50.1"
+                    data-stabilized_net="-16.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Andre, K. Elvis</td>
+                    <td>65</td>
+                    <td>125.5</td>
+                    <td>175.6</td>
+                    <td>
+                        -16.8
+                    </td>
+                    <td>
+                        -50.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="15"
+                    data-raw_ortg="129.6"
+                    data-raw_drtg="173.6"
+                    data-raw_net="-44.0"
+                    data-stabilized_net="-18.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, M. Kvapil</td>
+                    <td>15</td>
+                    <td>129.6</td>
+                    <td>173.6</td>
+                    <td>
+                        -18.8
+                    </td>
+                    <td>
+                        -44.0
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="4">
+        <p class="min-note">Minimum minut: 12</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="70"
+                    data-raw_ortg="142.9"
+                    data-raw_drtg="108.6"
+                    data-raw_net="34.3"
+                    data-stabilized_net="24.0"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>70</td>
+                    <td>142.9</td>
+                    <td>108.6</td>
+                    <td>
+                        +24.0
+                    </td>
+                    <td>
+                        +34.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="99"
+                    data-raw_ortg="130.0"
+                    data-raw_drtg="100.5"
+                    data-raw_net="29.5"
+                    data-stabilized_net="23.1"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>K. Elvis, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>99</td>
+                    <td>130.0</td>
+                    <td>100.5</td>
+                    <td>
+                        +23.1
+                    </td>
+                    <td>
+                        +29.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="106"
+                    data-raw_ortg="141.5"
+                    data-raw_drtg="113.2"
+                    data-raw_net="28.3"
+                    data-stabilized_net="23.0"
+                    data-confidence="High">
+                    <td></td>
+                    <td>J. Andre, K. Elvis, K. Filewich, O. Šiška</td>
+                    <td>106</td>
+                    <td>141.5</td>
+                    <td>113.2</td>
+                    <td>
+                        +23.0
+                    </td>
+                    <td>
+                        +28.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="51"
+                    data-raw_ortg="121.1"
+                    data-raw_drtg="89.3"
+                    data-raw_net="31.8"
+                    data-stabilized_net="20.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, K. Elvis, K. Filewich, O. Šiška</td>
+                    <td>51</td>
+                    <td>121.1</td>
+                    <td>89.3</td>
+                    <td>
+                        +20.8
+                    </td>
+                    <td>
+                        +31.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="140.5"
+                    data-raw_drtg="99.5"
+                    data-raw_net="41.0"
+                    data-stabilized_net="20.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>30</td>
+                    <td>140.5</td>
+                    <td>99.5</td>
+                    <td>
+                        +20.8
+                    </td>
+                    <td>
+                        +41.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="63"
+                    data-raw_ortg="119.7"
+                    data-raw_drtg="91.4"
+                    data-raw_net="28.3"
+                    data-stabilized_net="20.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis, K. Filewich, O. Šiška</td>
+                    <td>63</td>
+                    <td>119.7</td>
+                    <td>91.4</td>
+                    <td>
+                        +20.8
+                    </td>
+                    <td>
+                        +28.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="53"
+                    data-raw_ortg="115.6"
+                    data-raw_drtg="84.6"
+                    data-raw_net="31.0"
+                    data-stabilized_net="20.8"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Holmes, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>53</td>
+                    <td>115.6</td>
+                    <td>84.6</td>
+                    <td>
+                        +20.8
+                    </td>
+                    <td>
+                        +31.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="38"
+                    data-raw_ortg="130.3"
+                    data-raw_drtg="99.7"
+                    data-raw_net="30.6"
+                    data-stabilized_net="18.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Elvis, O. Šiška</td>
+                    <td>38</td>
+                    <td>130.3</td>
+                    <td>99.7</td>
+                    <td>
+                        +18.9
+                    </td>
+                    <td>
+                        +30.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="77"
+                    data-raw_ortg="121.5"
+                    data-raw_drtg="101.8"
+                    data-raw_net="19.7"
+                    data-stabilized_net="17.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Filewich, O. Šiška</td>
+                    <td>77</td>
+                    <td>121.5</td>
+                    <td>101.8</td>
+                    <td>
+                        +17.3
+                    </td>
+                    <td>
+                        +19.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="37"
+                    data-raw_ortg="138.4"
+                    data-raw_drtg="107.8"
+                    data-raw_net="30.6"
+                    data-stabilized_net="16.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Elvis, K. Filewich</td>
+                    <td>37</td>
+                    <td>138.4</td>
+                    <td>107.8</td>
+                    <td>
+                        +16.6
+                    </td>
+                    <td>
+                        +30.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="144.0"
+                    data-raw_drtg="119.1"
+                    data-raw_net="24.9"
+                    data-stabilized_net="16.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, M. Nelson, O. Šiška</td>
+                    <td>30</td>
+                    <td>144.0</td>
+                    <td>119.1</td>
+                    <td>
+                        +16.0
+                    </td>
+                    <td>
+                        +24.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="27"
+                    data-raw_ortg="145.5"
+                    data-raw_drtg="128.8"
+                    data-raw_net="16.7"
+                    data-stabilized_net="15.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, K. Filewich, O. Šiška</td>
+                    <td>27</td>
+                    <td>145.5</td>
+                    <td>128.8</td>
+                    <td>
+                        +15.0
+                    </td>
+                    <td>
+                        +16.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="48"
+                    data-raw_ortg="137.4"
+                    data-raw_drtg="123.0"
+                    data-raw_net="14.4"
+                    data-stabilized_net="14.1"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, K. Elvis, M. Nelson, O. Šiška</td>
+                    <td>48</td>
+                    <td>137.4</td>
+                    <td>123.0</td>
+                    <td>
+                        +14.1
+                    </td>
+                    <td>
+                        +14.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="125.9"
+                    data-raw_drtg="107.0"
+                    data-raw_net="18.9"
+                    data-stabilized_net="13.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Elvis, O. Šiška</td>
+                    <td>22</td>
+                    <td>125.9</td>
+                    <td>107.0</td>
+                    <td>
+                        +13.8
+                    </td>
+                    <td>
+                        +18.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="196.0"
+                    data-raw_drtg="146.3"
+                    data-raw_net="49.7"
+                    data-stabilized_net="13.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Andre, K. Filewich</td>
+                    <td>12</td>
+                    <td>196.0</td>
+                    <td>146.3</td>
+                    <td>
+                        +13.7
+                    </td>
+                    <td>
+                        +49.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="158.5"
+                    data-raw_drtg="148.8"
+                    data-raw_net="9.7"
+                    data-stabilized_net="13.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, K. Elvis, K. Filewich, O. Šiška</td>
+                    <td>21</td>
+                    <td>158.5</td>
+                    <td>148.8</td>
+                    <td>
+                        +13.6
+                    </td>
+                    <td>
+                        +9.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="40"
+                    data-raw_ortg="113.2"
+                    data-raw_drtg="97.4"
+                    data-raw_net="15.8"
+                    data-stabilized_net="13.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, K. Elvis, M. Nelson, O. Šiška</td>
+                    <td>40</td>
+                    <td>113.2</td>
+                    <td>97.4</td>
+                    <td>
+                        +13.1
+                    </td>
+                    <td>
+                        +15.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="101.9"
+                    data-raw_drtg="75.1"
+                    data-raw_net="26.8"
+                    data-stabilized_net="13.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, M. Nelson, O. Šiška</td>
+                    <td>13</td>
+                    <td>101.9</td>
+                    <td>75.1</td>
+                    <td>
+                        +13.1
+                    </td>
+                    <td>
+                        +26.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="152.8"
+                    data-raw_drtg="136.1"
+                    data-raw_net="16.7"
+                    data-stabilized_net="13.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, K. Filewich, O. Šiška</td>
+                    <td>16</td>
+                    <td>152.8</td>
+                    <td>136.1</td>
+                    <td>
+                        +13.0
+                    </td>
+                    <td>
+                        +16.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="43"
+                    data-raw_ortg="106.9"
+                    data-raw_drtg="99.0"
+                    data-raw_net="7.9"
+                    data-stabilized_net="11.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>43</td>
+                    <td>106.9</td>
+                    <td>99.0</td>
+                    <td>
+                        +11.6
+                    </td>
+                    <td>
+                        +7.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="94.2"
+                    data-raw_drtg="89.0"
+                    data-raw_net="5.2"
+                    data-stabilized_net="11.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, K. Filewich, O. Šiška</td>
+                    <td>24</td>
+                    <td>94.2</td>
+                    <td>89.0</td>
+                    <td>
+                        +11.6
+                    </td>
+                    <td>
+                        +5.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="45"
+                    data-raw_ortg="123.5"
+                    data-raw_drtg="116.8"
+                    data-raw_net="6.7"
+                    data-stabilized_net="11.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Filewich, O. Šiška</td>
+                    <td>45</td>
+                    <td>123.5</td>
+                    <td>116.8</td>
+                    <td>
+                        +11.5
+                    </td>
+                    <td>
+                        +6.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="19"
+                    data-raw_ortg="141.9"
+                    data-raw_drtg="127.4"
+                    data-raw_net="14.5"
+                    data-stabilized_net="11.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Andre, O. Šiška</td>
+                    <td>19</td>
+                    <td>141.9</td>
+                    <td>127.4</td>
+                    <td>
+                        +11.2
+                    </td>
+                    <td>
+                        +14.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="107.0"
+                    data-raw_drtg="92.0"
+                    data-raw_net="15.0"
+                    data-stabilized_net="10.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, K. Elvis, K. Filewich</td>
+                    <td>23</td>
+                    <td>107.0</td>
+                    <td>92.0</td>
+                    <td>
+                        +10.7
+                    </td>
+                    <td>
+                        +15.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="49"
+                    data-raw_ortg="101.1"
+                    data-raw_drtg="89.4"
+                    data-raw_net="11.7"
+                    data-stabilized_net="10.5"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>D. Žák, K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>49</td>
+                    <td>101.1</td>
+                    <td>89.4</td>
+                    <td>
+                        +10.5
+                    </td>
+                    <td>
+                        +11.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="27"
+                    data-raw_ortg="104.5"
+                    data-raw_drtg="103.0"
+                    data-raw_net="1.5"
+                    data-stabilized_net="10.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis, M. Nelson, O. Šiška</td>
+                    <td>27</td>
+                    <td>104.5</td>
+                    <td>103.0</td>
+                    <td>
+                        +10.2
+                    </td>
+                    <td>
+                        +1.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="142.8"
+                    data-raw_drtg="141.3"
+                    data-raw_net="1.5"
+                    data-stabilized_net="8.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, M. Nelson, O. Šiška</td>
+                    <td>16</td>
+                    <td>142.8</td>
+                    <td>141.3</td>
+                    <td>
+                        +8.5
+                    </td>
+                    <td>
+                        +1.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="17"
+                    data-raw_ortg="124.0"
+                    data-raw_drtg="114.7"
+                    data-raw_net="9.3"
+                    data-stabilized_net="8.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, K. Elvis</td>
+                    <td>17</td>
+                    <td>124.0</td>
+                    <td>114.7</td>
+                    <td>
+                        +8.1
+                    </td>
+                    <td>
+                        +9.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="80"
+                    data-raw_ortg="133.7"
+                    data-raw_drtg="131.1"
+                    data-raw_net="2.6"
+                    data-stabilized_net="7.4"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>80</td>
+                    <td>133.7</td>
+                    <td>131.1</td>
+                    <td>
+                        +7.4
+                    </td>
+                    <td>
+                        +2.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="102.9"
+                    data-raw_drtg="99.7"
+                    data-raw_net="3.2"
+                    data-stabilized_net="7.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, K. Elvis, K. Filewich</td>
+                    <td>30</td>
+                    <td>102.9</td>
+                    <td>99.7</td>
+                    <td>
+                        +7.3
+                    </td>
+                    <td>
+                        +3.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="87"
+                    data-raw_ortg="115.5"
+                    data-raw_drtg="112.6"
+                    data-raw_net="2.9"
+                    data-stabilized_net="7.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Elvis, K. Filewich</td>
+                    <td>87</td>
+                    <td>115.5</td>
+                    <td>112.6</td>
+                    <td>
+                        +7.2
+                    </td>
+                    <td>
+                        +2.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="42"
+                    data-raw_ortg="103.9"
+                    data-raw_drtg="101.6"
+                    data-raw_net="2.3"
+                    data-stabilized_net="6.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, K. Filewich, M. Nelson</td>
+                    <td>42</td>
+                    <td>103.9</td>
+                    <td>101.6</td>
+                    <td>
+                        +6.8
+                    </td>
+                    <td>
+                        +2.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="121.8"
+                    data-raw_drtg="109.4"
+                    data-raw_net="12.4"
+                    data-stabilized_net="6.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Andre, J. Holmes</td>
+                    <td>13</td>
+                    <td>121.8</td>
+                    <td>109.4</td>
+                    <td>
+                        +6.7
+                    </td>
+                    <td>
+                        +12.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="58"
+                    data-raw_ortg="105.6"
+                    data-raw_drtg="106.2"
+                    data-raw_net="-0.6"
+                    data-stabilized_net="6.3"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>58</td>
+                    <td>105.6</td>
+                    <td>106.2</td>
+                    <td>
+                        +6.3
+                    </td>
+                    <td>
+                        -0.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="87.7"
+                    data-raw_drtg="106.0"
+                    data-raw_net="-18.3"
+                    data-stabilized_net="5.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, K. Filewich, O. Šiška</td>
+                    <td>25</td>
+                    <td>87.7</td>
+                    <td>106.0</td>
+                    <td>
+                        +5.9
+                    </td>
+                    <td>
+                        -18.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="112.6"
+                    data-raw_drtg="140.7"
+                    data-raw_net="-28.1"
+                    data-stabilized_net="5.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes, O. Šiška</td>
+                    <td>16</td>
+                    <td>112.6</td>
+                    <td>140.7</td>
+                    <td>
+                        +5.4
+                    </td>
+                    <td>
+                        -28.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="26"
+                    data-raw_ortg="112.8"
+                    data-raw_drtg="128.0"
+                    data-raw_net="-15.2"
+                    data-stabilized_net="5.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, M. Nelson, O. Šiška</td>
+                    <td>26</td>
+                    <td>112.8</td>
+                    <td>128.0</td>
+                    <td>
+                        +5.3
+                    </td>
+                    <td>
+                        -15.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="14"
+                    data-raw_ortg="90.0"
+                    data-raw_drtg="100.9"
+                    data-raw_net="-10.9"
+                    data-stabilized_net="3.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Andre, M. Nelson</td>
+                    <td>14</td>
+                    <td>90.0</td>
+                    <td>100.9</td>
+                    <td>
+                        +3.8
+                    </td>
+                    <td>
+                        -10.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="97.9"
+                    data-raw_drtg="105.6"
+                    data-raw_net="-7.7"
+                    data-stabilized_net="3.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes, M. Nelson</td>
+                    <td>30</td>
+                    <td>97.9</td>
+                    <td>105.6</td>
+                    <td>
+                        +3.4
+                    </td>
+                    <td>
+                        -7.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="36"
+                    data-raw_ortg="116.8"
+                    data-raw_drtg="137.7"
+                    data-raw_net="-20.9"
+                    data-stabilized_net="1.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, O. Šiška</td>
+                    <td>36</td>
+                    <td>116.8</td>
+                    <td>137.7</td>
+                    <td>
+                        +1.7
+                    </td>
+                    <td>
+                        -20.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="94.3"
+                    data-raw_drtg="117.4"
+                    data-raw_net="-23.1"
+                    data-stabilized_net="1.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, K. Filewich, M. Nelson</td>
+                    <td>22</td>
+                    <td>94.3</td>
+                    <td>117.4</td>
+                    <td>
+                        +1.5
+                    </td>
+                    <td>
+                        -23.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="50"
+                    data-raw_ortg="102.6"
+                    data-raw_drtg="116.8"
+                    data-raw_net="-14.2"
+                    data-stabilized_net="1.2"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>50</td>
+                    <td>102.6</td>
+                    <td>116.8</td>
+                    <td>
+                        +1.2
+                    </td>
+                    <td>
+                        -14.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="69"
+                    data-raw_ortg="100.4"
+                    data-raw_drtg="111.8"
+                    data-raw_net="-11.4"
+                    data-stabilized_net="0.9"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Filewich, M. Nelson</td>
+                    <td>69</td>
+                    <td>100.4</td>
+                    <td>111.8</td>
+                    <td>
+                        +0.9
+                    </td>
+                    <td>
+                        -11.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="28"
+                    data-raw_ortg="76.4"
+                    data-raw_drtg="105.1"
+                    data-raw_net="-28.7"
+                    data-stabilized_net="-0.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, K. Filewich, M. Nelson</td>
+                    <td>28</td>
+                    <td>76.4</td>
+                    <td>105.1</td>
+                    <td>
+                        -0.6
+                    </td>
+                    <td>
+                        -28.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="108.5"
+                    data-raw_drtg="147.4"
+                    data-raw_net="-38.9"
+                    data-stabilized_net="-0.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, M. Nelson, O. Šiška</td>
+                    <td>25</td>
+                    <td>108.5</td>
+                    <td>147.4</td>
+                    <td>
+                        -0.7
+                    </td>
+                    <td>
+                        -38.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="26"
+                    data-raw_ortg="65.3"
+                    data-raw_drtg="100.6"
+                    data-raw_net="-35.3"
+                    data-stabilized_net="-0.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Filewich, M. Nelson</td>
+                    <td>26</td>
+                    <td>65.3</td>
+                    <td>100.6</td>
+                    <td>
+                        -0.8
+                    </td>
+                    <td>
+                        -35.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="45"
+                    data-raw_ortg="105.0"
+                    data-raw_drtg="127.2"
+                    data-raw_net="-22.2"
+                    data-stabilized_net="-1.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, K. Filewich, M. Nelson</td>
+                    <td>45</td>
+                    <td>105.0</td>
+                    <td>127.2</td>
+                    <td>
+                        -1.1
+                    </td>
+                    <td>
+                        -22.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="30"
+                    data-raw_ortg="99.6"
+                    data-raw_drtg="131.0"
+                    data-raw_net="-31.4"
+                    data-stabilized_net="-1.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Elvis, M. Nelson</td>
+                    <td>30</td>
+                    <td>99.6</td>
+                    <td>131.0</td>
+                    <td>
+                        -1.4
+                    </td>
+                    <td>
+                        -31.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="110.9"
+                    data-raw_drtg="145.0"
+                    data-raw_net="-34.1"
+                    data-stabilized_net="-1.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Holmes, K. Elvis, M. Nelson</td>
+                    <td>22</td>
+                    <td>110.9</td>
+                    <td>145.0</td>
+                    <td>
+                        -1.4
+                    </td>
+                    <td>
+                        -34.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="152.8"
+                    data-raw_drtg="209.5"
+                    data-raw_net="-56.7"
+                    data-stabilized_net="-1.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Andre, K. Elvis</td>
+                    <td>13</td>
+                    <td>152.8</td>
+                    <td>209.5</td>
+                    <td>
+                        -1.5
+                    </td>
+                    <td>
+                        -56.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="19"
+                    data-raw_ortg="81.2"
+                    data-raw_drtg="118.8"
+                    data-raw_net="-37.6"
+                    data-stabilized_net="-1.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, K. Elvis, M. Nelson</td>
+                    <td>19</td>
+                    <td>81.2</td>
+                    <td>118.8</td>
+                    <td>
+                        -1.7
+                    </td>
+                    <td>
+                        -37.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="42"
+                    data-raw_ortg="105.6"
+                    data-raw_drtg="124.9"
+                    data-raw_net="-19.3"
+                    data-stabilized_net="-1.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, M. Nelson</td>
+                    <td>42</td>
+                    <td>105.6</td>
+                    <td>124.9</td>
+                    <td>
+                        -1.8
+                    </td>
+                    <td>
+                        -19.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="42"
+                    data-raw_ortg="91.0"
+                    data-raw_drtg="115.6"
+                    data-raw_net="-24.6"
+                    data-stabilized_net="-1.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, K. Filewich</td>
+                    <td>42</td>
+                    <td>91.0</td>
+                    <td>115.6</td>
+                    <td>
+                        -1.9
+                    </td>
+                    <td>
+                        -24.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="127.5"
+                    data-raw_drtg="105.2"
+                    data-raw_net="22.3"
+                    data-stabilized_net="-2.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, M. Kvapil, O. Šiška</td>
+                    <td>13</td>
+                    <td>127.5</td>
+                    <td>105.2</td>
+                    <td>
+                        -2.4
+                    </td>
+                    <td>
+                        +22.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="40"
+                    data-raw_ortg="98.3"
+                    data-raw_drtg="137.3"
+                    data-raw_net="-39.0"
+                    data-stabilized_net="-5.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, K. Elvis, K. Filewich</td>
+                    <td>40</td>
+                    <td>98.3</td>
+                    <td>137.3</td>
+                    <td>
+                        -5.7
+                    </td>
+                    <td>
+                        -39.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="60"
+                    data-raw_ortg="96.7"
+                    data-raw_drtg="129.1"
+                    data-raw_net="-32.4"
+                    data-stabilized_net="-7.7"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes, K. Filewich</td>
+                    <td>60</td>
+                    <td>96.7</td>
+                    <td>129.1</td>
+                    <td>
+                        -7.7
+                    </td>
+                    <td>
+                        -32.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="27"
+                    data-raw_ortg="97.0"
+                    data-raw_drtg="155.0"
+                    data-raw_net="-58.0"
+                    data-stabilized_net="-7.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes, K. Elvis</td>
+                    <td>27</td>
+                    <td>97.0</td>
+                    <td>155.0</td>
+                    <td>
+                        -7.8
+                    </td>
+                    <td>
+                        -58.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="56"
+                    data-raw_ortg="133.0"
+                    data-raw_drtg="169.5"
+                    data-raw_net="-36.5"
+                    data-stabilized_net="-7.9"
+                    data-confidence="Medium">
+                    <td></td>
+                    <td>A. Goga, J. Andre, K. Elvis, K. Filewich</td>
+                    <td>56</td>
+                    <td>133.0</td>
+                    <td>169.5</td>
+                    <td>
+                        -7.9
+                    </td>
+                    <td>
+                        -36.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="88.4"
+                    data-raw_drtg="159.0"
+                    data-raw_net="-70.6"
+                    data-stabilized_net="-8.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Elvis, M. Nelson</td>
+                    <td>23</td>
+                    <td>88.4</td>
+                    <td>159.0</td>
+                    <td>
+                        -8.7
+                    </td>
+                    <td>
+                        -70.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="144.5"
+                    data-raw_drtg="150.9"
+                    data-raw_net="-6.4"
+                    data-stabilized_net="-9.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, J. Andre, M. Kvapil</td>
+                    <td>13</td>
+                    <td>144.5</td>
+                    <td>150.9</td>
+                    <td>
+                        -9.3
+                    </td>
+                    <td>
+                        -6.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="19"
+                    data-raw_ortg="87.2"
+                    data-raw_drtg="190.3"
+                    data-raw_net="-103.1"
+                    data-stabilized_net="-11.9"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, K. Elvis, M. Nelson</td>
+                    <td>19</td>
+                    <td>87.2</td>
+                    <td>190.3</td>
+                    <td>
+                        -11.9
+                    </td>
+                    <td>
+                        -103.1
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="5">
+        <p class="min-note">Minimum minut: 10</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="36"
+                    data-raw_ortg="128.5"
+                    data-raw_drtg="89.4"
+                    data-raw_net="39.1"
+                    data-stabilized_net="21.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Elvis, K. Filewich, O. Šiška</td>
+                    <td>36</td>
+                    <td>128.5</td>
+                    <td>89.4</td>
+                    <td>
+                        +21.7
+                    </td>
+                    <td>
+                        +39.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="15"
+                    data-raw_ortg="154.4"
+                    data-raw_drtg="98.4"
+                    data-raw_net="56.0"
+                    data-stabilized_net="20.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>15</td>
+                    <td>154.4</td>
+                    <td>98.4</td>
+                    <td>
+                        +20.1
+                    </td>
+                    <td>
+                        +56.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="44"
+                    data-raw_ortg="148.9"
+                    data-raw_drtg="122.2"
+                    data-raw_net="26.7"
+                    data-stabilized_net="18.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, K. Elvis, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>44</td>
+                    <td>148.9</td>
+                    <td>122.2</td>
+                    <td>
+                        +18.8
+                    </td>
+                    <td>
+                        +26.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="116.4"
+                    data-raw_drtg="77.4"
+                    data-raw_net="39.0"
+                    data-stabilized_net="18.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, K. Elvis, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>24</td>
+                    <td>116.4</td>
+                    <td>77.4</td>
+                    <td>
+                        +18.7
+                    </td>
+                    <td>
+                        +39.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="10"
+                    data-raw_ortg="106.9"
+                    data-raw_drtg="58.1"
+                    data-raw_net="48.8"
+                    data-stabilized_net="16.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Holmes, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>10</td>
+                    <td>106.9</td>
+                    <td>58.1</td>
+                    <td>
+                        +16.1
+                    </td>
+                    <td>
+                        +48.8
+                    </td>
+                </tr>
+                
+                <tr data-minutes="18"
+                    data-raw_ortg="135.2"
+                    data-raw_drtg="108.3"
+                    data-raw_net="26.9"
+                    data-stabilized_net="15.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, K. Elvis, K. Filewich, O. Šiška</td>
+                    <td>18</td>
+                    <td>135.2</td>
+                    <td>108.3</td>
+                    <td>
+                        +15.8
+                    </td>
+                    <td>
+                        +26.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="107.4"
+                    data-raw_drtg="86.0"
+                    data-raw_net="21.4"
+                    data-stabilized_net="15.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Holmes, K. Elvis, K. Filewich, M. Nelson, O. Šiška</td>
+                    <td>23</td>
+                    <td>107.4</td>
+                    <td>86.0</td>
+                    <td>
+                        +15.5
+                    </td>
+                    <td>
+                        +21.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="144.5"
+                    data-raw_drtg="153.2"
+                    data-raw_net="-8.7"
+                    data-stabilized_net="8.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, M. Nelson, O. Šiška</td>
+                    <td>13</td>
+                    <td>144.5</td>
+                    <td>153.2</td>
+                    <td>
+                        +8.1
+                    </td>
+                    <td>
+                        -8.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="103.8"
+                    data-raw_drtg="121.8"
+                    data-raw_net="-18.0"
+                    data-stabilized_net="7.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, K. Filewich, O. Šiška</td>
+                    <td>16</td>
+                    <td>103.8</td>
+                    <td>121.8</td>
+                    <td>
+                        +7.8
+                    </td>
+                    <td>
+                        -18.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="10"
+                    data-raw_ortg="77.2"
+                    data-raw_drtg="113.8"
+                    data-raw_net="-36.6"
+                    data-stabilized_net="7.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes, K. Filewich, O. Šiška</td>
+                    <td>10</td>
+                    <td>77.2</td>
+                    <td>113.8</td>
+                    <td>
+                        +7.7
+                    </td>
+                    <td>
+                        -36.6
+                    </td>
+                </tr>
+                
+                <tr data-minutes="18"
+                    data-raw_ortg="100.9"
+                    data-raw_drtg="122.3"
+                    data-raw_net="-21.4"
+                    data-stabilized_net="5.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Andre, J. Holmes, K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>18</td>
+                    <td>100.9</td>
+                    <td>122.3</td>
+                    <td>
+                        +5.3
+                    </td>
+                    <td>
+                        -21.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="69.4"
+                    data-raw_drtg="91.3"
+                    data-raw_net="-21.9"
+                    data-stabilized_net="4.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, D. Žák, K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>13</td>
+                    <td>69.4</td>
+                    <td>91.3</td>
+                    <td>
+                        +4.6
+                    </td>
+                    <td>
+                        -21.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="10"
+                    data-raw_ortg="117.2"
+                    data-raw_drtg="139.9"
+                    data-raw_net="-22.7"
+                    data-stabilized_net="4.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, K. Elvis, M. Nelson</td>
+                    <td>10</td>
+                    <td>117.2</td>
+                    <td>139.9</td>
+                    <td>
+                        +4.6
+                    </td>
+                    <td>
+                        -22.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="97.3"
+                    data-raw_drtg="112.2"
+                    data-raw_net="-14.9"
+                    data-stabilized_net="4.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes, K. Filewich, M. Nelson</td>
+                    <td>22</td>
+                    <td>97.3</td>
+                    <td>112.2</td>
+                    <td>
+                        +4.4
+                    </td>
+                    <td>
+                        -14.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="13"
+                    data-raw_ortg="127.0"
+                    data-raw_drtg="192.4"
+                    data-raw_net="-65.4"
+                    data-stabilized_net="0.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, K. Elvis, K. Filewich, M. Nelson</td>
+                    <td>13</td>
+                    <td>127.0</td>
+                    <td>192.4</td>
+                    <td>
+                        +0.3
+                    </td>
+                    <td>
+                        -65.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="14"
+                    data-raw_ortg="48.3"
+                    data-raw_drtg="113.7"
+                    data-raw_net="-65.4"
+                    data-stabilized_net="-1.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Žák, J. Andre, J. Holmes, K. Filewich, M. Nelson</td>
+                    <td>14</td>
+                    <td>48.3</td>
+                    <td>113.7</td>
+                    <td>
+                        -1.4
+                    </td>
+                    <td>
+                        -65.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="26"
+                    data-raw_ortg="101.3"
+                    data-raw_drtg="153.8"
+                    data-raw_net="-52.5"
+                    data-stabilized_net="-4.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>A. Goga, J. Andre, J. Holmes, K. Elvis, K. Filewich</td>
+                    <td>26</td>
+                    <td>101.3</td>
+                    <td>153.8</td>
+                    <td>
+                        -4.6
+                    </td>
+                    <td>
+                        -52.5
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+
+    <!-- ── Explanation (visible only on lineup tabs) ───────────────── -->
+    <div id="explain-box-wrap" style="display:none">
+    <div class="explain-box">
+        <h3>Co je Stabilizovaný Net Rating?</h3>
+        <p>
+            Surové statistiky lineupů jsou notoricky nespolehlivé – sestava s Net Ratingem +25 za 30 minut
+            mohla mít prostě štěstí. Stabilizovaný Net Rating kombinuje surová data s <em>priorem</em>
+            (postaveným na síle týmu a individuálním dopadu hráčů), aby poskytl spolehlivější odhad.
+            Čím více minut sestava odehraje dohromady, tím více věříme surovým číslům.
+        </p>
+
+        <h4>Vzorec</h4>
+        <div class="formula">Stab. Net = w × Surový Net + (1 − w) × Prior</div>
+        <div class="formula">váha w = minuty / (minuty + 85)</div>
+        <p style="margin-top:6px">
+            Při 85 minutách věříme surovým datům a prioru stejně (50/50).
+            Hodnota 85 je kalibrována pro délku NBL sezóny (NBA používá 300).
+        </p>
+
+        <h4>Prior</h4>
+        <p>„Očekávaný" rating sestavy před pozorováním dat, sestavený z:</p>
+        <ul>
+            <li>Celkového Net Ratingu týmu</li>
+            <li>On/Off Net Ratingu každého hráče v sestavě relativně k týmovému průměru</li>
+        </ul>
+        <p style="margin-top:6px">
+            Pokud pro některého hráče nejsou k dispozici on/off data (málo minut),
+            je použit pouze týmový Net Rating.
+        </p>
+
+        <h4>Proč stabilizovat?</h4>
+        <p>
+            Lineupová data mají extrémní rozptyl. Net Rating +30 za 20 minut je téměř jistě
+            štěstí, ne dovednost. Stabilizace přitahuje odlehlé hodnoty k realistickým
+            očekáváním a zároveň odměňuje skutečně silné výkony podložené dostatkem minut.
+        </p>
+
+        <h4>Úrovně spolehlivosti (Confidence)</h4>
+        <div class="conf-legend">
+            <span class="conf-badge conf-Low">Low</span> váha &lt; 35 % – dominuje prior
+            &ensp;
+            <span class="conf-badge conf-Medium">Medium</span> 35–55 %
+            &ensp;
+            <span class="conf-badge conf-High">High</span> 55–70 %
+            &ensp;
+            <span class="conf-badge conf-Very-High">Very High</span> &gt; 70 % – dominují data
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+// ── Header tooltips ───────────────────────────────────────────────────────────
+const thTipEl = document.createElement('div');
+thTipEl.style.cssText = 'position:fixed;pointer-events:none;background:#0f0f23;color:#ccc;border:1px solid #444;border-radius:4px;padding:5px 10px;font-size:0.75rem;white-space:normal;max-width:280px;line-height:1.4;z-index:500;display:none';
+document.body.appendChild(thTipEl);
+document.querySelectorAll('thead th[data-tip]').forEach(th => {
+    th.style.cursor = 'help';
+    th.addEventListener('mouseenter', () => {
+        thTipEl.textContent = th.dataset.tip;
+        thTipEl.style.display = 'block';
+        const r = th.getBoundingClientRect();
+        const tw = thTipEl.offsetWidth;
+        let left = r.left + r.width / 2 - tw / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+        thTipEl.style.left = left + 'px';
+        thTipEl.style.top  = (r.bottom + 4) + 'px';
+    });
+    th.addEventListener('mouseleave', () => { thTipEl.style.display = 'none'; });
+});
+
+// ── Tab switching (lineup size tabs) ─────────────────────────────────────────
+const explainWrap = document.getElementById('explain-box-wrap');
+document.querySelectorAll('.combo-tab[data-size]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const size = btn.dataset.size;
+        document.querySelectorAll('.combo-tab[data-size]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.combo-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelector(`.combo-panel[data-size="${size}"]`).classList.add('active');
+        if (explainWrap) explainWrap.style.display = size === 'players' ? 'none' : '';
+    });
+});
+
+// ── On/Off table: filter + cell coloring ──────────────────────────────────────
+(function () {
+    const table = document.getElementById('onoff-table');
+    if (!table) return;
+
+    function colorNet(cell, val) {
+        if (isNaN(val)) { cell.textContent = '–'; return; }
+        const sign = val > 0 ? '+' : '';
+        cell.textContent = sign + val.toFixed(1);
+        cell.style.color      = val > 0 ? '#4caf50' : val < 0 ? '#ef5350' : '#ccc';
+        cell.style.fontWeight = val !== 0 ? 'bold' : '';
+    }
+
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        colorNet(tr.querySelector('.on-net'),    parseFloat(tr.dataset.onNet));
+        if (tr.dataset.hasOff === 'true') {
+            colorNet(tr.querySelector('.off-net'),   parseFloat(tr.dataset.offNet));
+            colorNet(tr.querySelector('.delta-net'), parseFloat(tr.dataset.deltaNet));
+        }
+    });
+
+    document.querySelectorAll('#onoff-filters .combo-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const minPct = parseInt(btn.dataset.minPct) || 0;
+            document.querySelectorAll('#onoff-filters .combo-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const pct = parseInt(tr.dataset.onPct) || 0;
+                tr.style.display = pct >= minPct ? '' : 'none';
+            });
+        });
+    });
+})();
+
+// ── Sortable tables ───────────────────────────────────────────────────────────
+const CONF_CLASS = {
+    'Low': 'conf-Low', 'Medium': 'conf-Medium',
+    'High': 'conf-High', 'Very High': 'conf-Very-High',
+};
+
+function applyRowDecorations(tbody) {
+    tbody.querySelectorAll('tr').forEach((tr, i) => {
+        tr.cells[0].textContent = i + 1;
+
+        const stabNet  = parseFloat(tr.dataset.stabilized_net);
+        const rawNet   = parseFloat(tr.dataset.raw_net);
+        const stabCell = tr.cells[5];
+        const rawCell  = tr.cells[6];
+
+        // Stab. Net cell: colored value + confidence badge
+        const stabSign = stabNet > 0 ? '+' : '';
+        stabCell.innerHTML =
+            `<span style="color:${stabNet > 0 ? '#4caf50' : stabNet < 0 ? '#ef5350' : ''};font-weight:bold">${stabSign}${stabNet.toFixed(1)}</span>` +
+            `<span class="conf-badge ${CONF_CLASS[tr.dataset.confidence] || ''}" style="margin-left:6px">${tr.dataset.confidence}</span>`;
+
+        // Raw Net cell: colored value
+        const rawSign = rawNet > 0 ? '+' : '';
+        rawCell.style.color      = rawNet > 0 ? '#4caf50' : rawNet < 0 ? '#ef5350' : '';
+        rawCell.style.fontWeight = rawNet !== 0 ? 'bold' : '';
+        rawCell.textContent      = rawSign + rawNet.toFixed(1);
+    });
+}
+
+document.querySelectorAll('.combo-table:not(#onoff-table)').forEach(table => {
+    const tbody = table.querySelector('tbody');
+
+    applyRowDecorations(tbody);
+
+    let sortKey = 'stabilized_net';
+    let sortDir = 'desc';
+
+    table.querySelectorAll('thead th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const key = th.dataset.key;
+            if (sortKey === key) {
+                sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+            } else {
+                sortKey = key;
+                sortDir = key === 'raw_drtg' ? 'asc' : 'desc';
+            }
+
+            table.querySelectorAll('thead th.sortable').forEach(h =>
+                h.classList.remove('sort-asc', 'sort-desc'));
+            th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+
+            const rows = [...tbody.querySelectorAll('tr[data-minutes]')];
+            rows.sort((a, b) => {
+                const va = parseFloat(a.dataset[sortKey]) || 0;
+                const vb = parseFloat(b.dataset[sortKey]) || 0;
+                return sortDir === 'asc' ? va - vb : vb - va;
+            });
+            rows.forEach(r => tbody.appendChild(r));
+
+            applyRowDecorations(tbody);
+        });
+    });
+});
+</script>
+</body>
+</html>
