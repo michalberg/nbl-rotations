@@ -33,6 +33,7 @@
         }
         .min-btn:hover { background: #1a2a50; color: #ccc; }
         .min-btn.active { background: #1a3a8b; color: #fff; border-color: #1a3a8b; }
+        #min-filter { transition: opacity 0.15s; }
         .lb-table-wrap { overflow-x: auto; }
         table {
             border-collapse: collapse;
@@ -64,6 +65,9 @@
         .rank-1 td:first-child { color: #f0c040; font-weight: bold; }
         .rank-2 td:first-child { color: #aaa; }
         .rank-3 td:first-child { color: #c08040; }
+        .positive { color: #4caf50; font-weight: bold; }
+        .negative { color: #e57373; font-weight: bold; }
+        .col-sep { border-left: 1px solid #2a2a3a; }
     </style>
 </head>
 <body>
@@ -120,20 +124,28 @@
                     <option value="foulsOut">Foul-outy</option>
                     <option value="technical">Technické chyby</option>
                 </optgroup>
+                <optgroup label="Ratingy">
+                    <option value="on_net">ON Net Rating</option>
+                    <option value="delta_net">Δ Net Rating</option>
+                    <option value="on_ortg">ON ORTG</option>
+                    <option value="on_drtg">ON DRTG</option>
+                </optgroup>
             </select>
         </label>
-        <label>Min. zápasů:</label>
-        <div class="min-btns">
-            <button class="min-btn active" data-pct="0">Vše</button>
-            <button class="min-btn" data-pct="0.1">10%+</button>
-            <button class="min-btn" data-pct="0.33">33%+</button>
-            <button class="min-btn" data-pct="0.66">66%+</button>
+        <div id="min-filter">
+            <label>Min. zápasů:</label>
+            <div class="min-btns">
+                <button class="min-btn active" data-pct="0">Vše</button>
+                <button class="min-btn" data-pct="0.1">10%+</button>
+                <button class="min-btn" data-pct="0.33">33%+</button>
+                <button class="min-btn" data-pct="0.66">66%+</button>
+            </div>
         </div>
     </div>
 
     <div class="lb-table-wrap">
         <table>
-            <thead>
+            <thead id="lb-head">
                 <tr>
                     <th>#</th>
                     <th>Hráč</th>
@@ -152,6 +164,9 @@
 <script>
 const PLAYERS = {{ players_json }};
 const GAME_META = {{ game_meta_json }};
+const RATINGS = {{ ratings_json }};
+
+const RATING_CATS = new Set(['on_net', 'delta_net', 'on_ortg', 'on_drtg']);
 
 const CAT_LABELS = {
     ptsPerGame: 'Body / zápas', pts: 'Body celkem',
@@ -169,6 +184,8 @@ const CAT_LABELS = {
     per: 'PER', tsPct: 'TS%', efgPct: 'eFG%', usagePct: 'USG%',
     doubleDoubles: 'Double-doubles', tripleDoubles: 'Triple-doubles',
     foulsOut: 'Foul-outy', technical: 'Technické chyby',
+    on_net: 'ON Net Rating', delta_net: 'Δ Net Rating',
+    on_ortg: 'ON ORTG', on_drtg: 'ON DRTG',
 };
 
 // Best game stat mapping
@@ -197,6 +214,18 @@ function fmt(v, decimals=1) {
     return v;
 }
 
+function fmtRtg(v) {
+    if (v === null || v === undefined) return '<span style="color:#555">–</span>';
+    return v.toFixed(1);
+}
+
+function fmtDelta(v) {
+    if (v === null || v === undefined) return '<span style="color:#555">–</span>';
+    const cls = v > 0 ? 'positive' : v < 0 ? 'negative' : '';
+    const sign = v > 0 ? '+' : '';
+    return cls ? `<span class="${cls}">${sign}${v.toFixed(1)}</span>` : `${sign}${v.toFixed(1)}`;
+}
+
 function gameRef(gameId) {
     if (!gameId || !GAME_META[gameId]) return gameId || '-';
     const m = GAME_META[gameId];
@@ -207,31 +236,28 @@ function gameRef(gameId) {
     return `<a href="../../game/${gameId}.html">${label} ${score}${dateStr ? ' (' + dateStr + ')' : ''}</a>`;
 }
 
-function render() {
+function renderStandard() {
+    document.getElementById('lb-head').innerHTML = `<tr>
+        <th>#</th><th>Hráč</th><th>Tým</th><th>GP</th>
+        <th id="val-header">${CAT_LABELS[cat] || cat}</th>
+        <th>Best</th><th>Zápas</th>
+    </tr>`;
+
     const minGP = Math.round(minGpPct * maxGP);
-    let filtered = PLAYERS.filter(p =>
-        p.gp > 0 && p.gp >= minGP
-    );
-
-    filtered.sort((a, b) => {
-        const va = a[cat] ?? 0, vb = b[cat] ?? 0;
-        return vb - va;
-    });
-
-    const top20 = filtered.slice(0, 20);
-    document.getElementById('val-header').textContent = CAT_LABELS[cat] || cat;
+    const filtered = PLAYERS
+        .filter(p => p.gp > 0 && p.gp >= minGP)
+        .sort((a, b) => (b[cat] ?? 0) - (a[cat] ?? 0))
+        .slice(0, 20);
 
     const bestKey = BEST_KEY[cat];
-    const tbody = document.getElementById('lb-body');
-    tbody.innerHTML = top20.map((p, i) => {
+    document.getElementById('lb-body').innerHTML = filtered.map((p, i) => {
         const rank = i + 1;
         const rankClass = rank <= 3 ? ` rank-${rank}` : '';
         const val = p[cat];
         const isFloat = typeof val === 'number' && !Number.isInteger(val);
         const valFmt = isFloat ? val.toFixed(1) : (val ?? '-');
 
-        let bestVal = '-';
-        let bestGame = '-';
+        let bestVal = '-', bestGame = '-';
         if (bestKey && p.best && p.best[bestKey]) {
             const b = p.best[bestKey];
             bestVal = b.value;
@@ -248,6 +274,46 @@ function render() {
             <td class="val-best">${bestGame}</td>
         </tr>`;
     }).join('');
+}
+
+function renderRatings() {
+    const ascCats = new Set(['on_drtg']);
+    document.getElementById('lb-head').innerHTML = `<tr>
+        <th>#</th><th>Hráč</th><th>Tým</th>
+        <th>ON min</th><th>ON ORTG</th><th>ON DRTG</th><th>ON Net</th>
+        <th class="col-sep">OFF min</th><th>OFF Net</th>
+        <th class="col-sep">Δ Net</th>
+    </tr>`;
+
+    const sorted = [...RATINGS]
+        .filter(p => p[cat] !== null && p[cat] !== undefined)
+        .sort((a, b) => ascCats.has(cat) ? a[cat] - b[cat] : b[cat] - a[cat])
+        .slice(0, 20);
+
+    document.getElementById('lb-body').innerHTML = sorted.map((p, i) => {
+        const rank = i + 1;
+        const rankClass = rank <= 3 ? ` rank-${rank}` : '';
+        return `<tr class="${rankClass}">
+            <td>${rank}</td>
+            <td><a href="../../player/${p.season}/${p.slug}.html">${p.first_name} ${p.family_name}</a></td>
+            <td style="color:#888;font-size:0.82rem">${p.team}</td>
+            <td>${p.on_min}</td>
+            <td>${fmtRtg(p.on_ortg)}</td>
+            <td>${fmtRtg(p.on_drtg)}</td>
+            <td><strong>${fmtRtg(p.on_net)}</strong></td>
+            <td class="col-sep">${p.off_min || '–'}</td>
+            <td>${fmtRtg(p.off_net)}</td>
+            <td class="col-sep">${fmtDelta(p.delta_net)}</td>
+        </tr>`;
+    }).join('');
+}
+
+function render() {
+    const isRating = RATING_CATS.has(cat);
+    document.getElementById('min-filter').style.opacity = isRating ? '0.3' : '1';
+    document.getElementById('min-filter').style.pointerEvents = isRating ? 'none' : '';
+    if (isRating) renderRatings();
+    else renderStandard();
 }
 
 document.getElementById('cat-select').addEventListener('change', e => {

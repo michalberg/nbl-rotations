@@ -343,7 +343,7 @@ def build_game_json(
         for m in range(total_minutes):
             on_court = []
             for p in minute_data[tno_str]:
-                if p["minutes"][m]["onCourt"]:
+                if p["minutes"][m]["onCourtSeconds"] > 30:
                     on_court.append(p["name"])
             lineups[tno_str].append(on_court)
 
@@ -869,13 +869,16 @@ def generate_player_pages(all_games_data: list[dict]):
     print(f"  Generated: {count} player pages")
 
     # Generate players index
-    _generate_players_index(players_index, env)
+    _generate_players_index(players_index, env, season_onoff)
 
 
-def _generate_players_index(players_index: dict, env: Environment):
+def _generate_players_index(players_index: dict, env: Environment, season_onoff: dict | None = None):
     """Generate the players index page grouped by team."""
+    season_onoff = season_onoff or {}
     # Group players by their last team
     teams: dict[str, list] = {}
+    ratings_list: list[dict] = []
+
     for player_key, pi in players_index.items():
         last_team = pi["games"][-1]["teamName"]
         dates = [g["date"] for g in pi["games"] if g["date"]]
@@ -901,6 +904,46 @@ def _generate_players_index(players_index: dict, env: Environment):
             teams[last_team] = []
         teams[last_team].append(player_entry)
 
+        # Build ratings entry: use last team, fall back to any team with valid data
+        short_name = pi.get("shortName", "")
+        if short_name:
+            best_raw = None
+            best_team = last_team
+            for team_name in pi["teamNames"]:
+                raw = season_onoff.get(f"{_slugify(team_name)}|{short_name}")
+                if raw and raw["on"]["poss"] > 0 and raw["on"]["opp_poss"] > 0:
+                    if best_raw is None or raw["on"]["minutes"] > best_raw["on"]["minutes"]:
+                        best_raw = raw
+                        best_team = team_name
+            if best_raw:
+                on, off = best_raw["on"], best_raw["off"]
+                on_ortg = round(on["pts"] / on["poss"] * 100, 1)
+                on_drtg = round(on["opp_pts"] / on["opp_poss"] * 100, 1)
+                on_net  = round(on_ortg - on_drtg, 1)
+                has_off = off["poss"] > 0 and off["opp_poss"] > 0
+                off_ortg = round(off["pts"] / off["poss"] * 100, 1) if has_off else None
+                off_drtg = round(off["opp_pts"] / off["opp_poss"] * 100, 1) if has_off else None
+                off_net  = round(off_ortg - off_drtg, 1) if has_off else None
+                delta_net = round(on_net - off_net, 1) if has_off else None
+                ratings_list.append({
+                    "first_name":  pi["firstName"],
+                    "family_name": pi["familyName"],
+                    "slug":        slug,
+                    "season":      season,
+                    "team":        best_team,
+                    "on_min":      on["minutes"],
+                    "on_ortg":     on_ortg,
+                    "on_drtg":     on_drtg,
+                    "on_net":      on_net,
+                    "off_min":     off["minutes"] if has_off else 0,
+                    "off_ortg":    off_ortg,
+                    "off_drtg":    off_drtg,
+                    "off_net":     off_net,
+                    "delta_net":   delta_net,
+                })
+
+    ratings_list.sort(key=lambda x: -x["on_net"])
+
     # Sort teams alphabetically, sort players within team by points desc
     sorted_teams = []
     for team_name in sorted(teams.keys()):
@@ -917,9 +960,16 @@ def _generate_players_index(players_index: dict, env: Environment):
             all_seasons.add(_date_to_season(dates[0]))
     season = sorted(all_seasons)[-1] if all_seasons else "unknown"
 
+    # Save flat player ratings for leaderboard page
+    data_dir = DOCS_DIR / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    with open(data_dir / f"player_ratings_{season}.json", "w") as f:
+        json.dump(ratings_list, f, ensure_ascii=False)
+
     template = env.get_template("players.html")
     html = template.render(
         teams=sorted_teams, season=season,
+        ratings_json=json.dumps(ratings_list, ensure_ascii=False),
         nav_base="../", nav_active="players", nav_season=season,
     )
 
@@ -1168,11 +1218,19 @@ def generate_leaderboard_pages(docs_path: Path | None = None):
         ]
         player_stats = [p for p in player_stats if p.get("gp", 0) > 0]
 
+        # Load player on/off ratings if available
+        ratings_file = base / "data" / f"player_ratings_{season}.json"
+        player_ratings = []
+        if ratings_file.exists():
+            with open(ratings_file) as f:
+                player_ratings = json.load(f)
+
         template = env.get_template("leaderboard_players.html")
         html = template.render(
             season=season,
             players_json=json.dumps(player_stats, ensure_ascii=False),
             game_meta_json=json.dumps(log["game_meta"], ensure_ascii=False),
+            ratings_json=json.dumps(player_ratings, ensure_ascii=False),
             nav_base="../../", nav_active="leaderboard-players", nav_season=season,
         )
         with open(out_dir / "players.html", "w") as f:
