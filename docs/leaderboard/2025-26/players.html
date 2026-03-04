@@ -148,12 +148,12 @@
             </select>
         </label>
         <div id="min-filter">
-            <label>Min. zápasů:</label>
+            <label id="filter-label">Min. zápasů:</label>
             <div class="min-btns">
-                <button class="min-btn active" data-pct="0">Vše</button>
-                <button class="min-btn" data-pct="0.1">10%+</button>
-                <button class="min-btn" data-pct="0.33">33%+</button>
-                <button class="min-btn" data-pct="0.66">66%+</button>
+                <button class="min-btn active" data-pct="0"    data-min-min="0"  >Vše</button>
+                <button class="min-btn"        data-pct="0.1"  data-min-min="50" >10%+</button>
+                <button class="min-btn"        data-pct="0.33" data-min-min="100">33%+</button>
+                <button class="min-btn"        data-pct="0.66" data-min-min="200">66%+</button>
             </div>
         </div>
     </div>
@@ -218,6 +218,7 @@ const BEST_KEY = {
 
 let cat = 'ptsPerGame';
 let minGpPct = 0;
+let minMinutes = 0;
 const maxGP = Math.max(...PLAYERS.filter(p => p.gp > 0).map(p => p.gp));
 
 function fmt(v, decimals=1) {
@@ -301,7 +302,7 @@ function renderRatings() {
     </tr>`;
 
     const sorted = [...RATINGS]
-        .filter(p => p[cat] !== null && p[cat] !== undefined)
+        .filter(p => p[cat] !== null && p[cat] !== undefined && p.on_min >= minMinutes)
         .sort((a, b) => ascCats.has(cat) ? a[cat] - b[cat] : b[cat] - a[cat])
         .slice(0, 20);
 
@@ -323,10 +324,17 @@ function renderRatings() {
     }).join('');
 }
 
+const RATING_LABELS = { 0: 'Vše', 50: '50 min+', 100: '100 min+', 200: '200 min+' };
+const STANDARD_LABELS = { 0: 'Vše', 0.1: '10%+', 0.33: '33%+', 0.66: '66%+' };
+
 function render() {
     const isRating = RATING_CATS.has(cat);
-    document.getElementById('min-filter').style.opacity = isRating ? '0.3' : '1';
-    document.getElementById('min-filter').style.pointerEvents = isRating ? 'none' : '';
+    document.getElementById('filter-label').textContent = isRating ? 'Min. minut ON:' : 'Min. zápasů:';
+    document.querySelectorAll('.min-btn').forEach(btn => {
+        btn.textContent = isRating
+            ? (RATING_LABELS[+btn.dataset.minMin] ?? btn.dataset.minMin + ' min+')
+            : (STANDARD_LABELS[+btn.dataset.pct] ?? btn.dataset.pct);
+    });
     if (isRating) renderRatings();
     else renderStandard();
 }
@@ -341,6 +349,7 @@ document.querySelectorAll('.min-btn').forEach(btn => {
         document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         minGpPct = +btn.dataset.pct;
+        minMinutes = +btn.dataset.minMin;
         render();
     });
 });
