@@ -1115,12 +1115,20 @@ def generate_stats_pages(docs_path: Path | None = None):
         player_stats = [p for p in player_stats if p.get("gp", 0) > 0]
         all_teams = sorted({p["team"] for p in player_stats})
 
+        # Load player on/off ratings if available
+        ratings_file = base / "data" / f"player_ratings_{season}.json"
+        player_ratings = []
+        if ratings_file.exists():
+            with open(ratings_file) as f:
+                player_ratings = json.load(f)
+
         template = env.get_template("stats_players.html")
         html = template.render(
             season=season,
             teams=all_teams,
             players_json=json.dumps(player_stats, ensure_ascii=False),
             game_meta_json=json.dumps(log["game_meta"], ensure_ascii=False),
+            ratings_json=json.dumps(player_ratings, ensure_ascii=False),
             nav_base="../../", nav_active="stats-players", nav_season=season,
         )
         with open(out_dir / "players.html", "w") as f:

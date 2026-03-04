@@ -137,6 +137,7 @@
         <button class="tab-btn" data-tab="milestones">Doubles</button>
         <button class="tab-btn" data-tab="maxima">Maxima</button>
         <button class="tab-btn" data-tab="quarters">Čtvrtiny</button>
+        <button class="tab-btn" data-tab="ratings">Ratings</button>
     </div>
 
     <div class="stats-controls">
@@ -306,6 +307,31 @@
             <tbody id="body-quarters"></tbody>
         </table>
 
+        <!-- RATINGS TAB -->
+        <table id="tab-ratings" class="hidden">
+            <thead>
+                <tr>
+                    <th rowspan="2" data-key="rank">#</th>
+                    <th rowspan="2" data-key="name">Hráč</th>
+                    <th rowspan="2" data-key="team">Tým</th>
+                    <th colspan="4" style="text-align:center;border-bottom:1px solid #2a2a3e;padding-bottom:2px">ON</th>
+                    <th colspan="4" style="text-align:center;border-bottom:1px solid #2a2a3e;padding-bottom:2px" class="col-group-sep">OFF</th>
+                    <th rowspan="2" class="col-group-sep sorted-desc" data-key="r_delta_net" data-tip="ON Net − OFF Net: kladné = hráč zlepšuje tým">Δ Net</th>
+                </tr>
+                <tr>
+                    <th data-key="r_on_min" data-tip="Minuty kdy byl hráč na hřišti v platné sestavě">min</th>
+                    <th data-key="r_on_ortg" data-tip="Útočný rating týmu když hráč hraje">ORTG</th>
+                    <th data-key="r_on_drtg" data-tip="Obranný rating týmu když hráč hraje">DRTG</th>
+                    <th data-key="r_on_net" data-tip="Net rating týmu když hráč hraje">Net</th>
+                    <th data-key="r_off_min" class="col-group-sep" data-tip="Minuty kdy byl hráč na lavičce v platné sestavě">min</th>
+                    <th data-key="r_off_ortg" data-tip="Útočný rating týmu když hráč nesedí">ORTG</th>
+                    <th data-key="r_off_drtg" data-tip="Obranný rating týmu když hráč nesedí">DRTG</th>
+                    <th data-key="r_off_net" data-tip="Net rating týmu když hráč nesedí">Net</th>
+                </tr>
+            </thead>
+            <tbody id="body-ratings"></tbody>
+        </table>
+
         <!-- MAXIMA TAB -->
         <table id="tab-maxima" class="hidden">
             <thead>
@@ -330,6 +356,11 @@
 <script>
 const PLAYERS = {{ players_json }};
 const GAME_META = {{ game_meta_json }};
+const RATINGS = {{ ratings_json }};
+
+// Build lookup: slug -> ratings entry
+const RATINGS_BY_SLUG = {};
+RATINGS.forEach(r => { RATINGS_BY_SLUG[r.slug] = r; });
 
 let currentTab = 'basic';
 let sortKey = 'ptsPerGame';
@@ -454,6 +485,34 @@ function renderRow(p, rank, tab) {
         <td>${fmt(p.q2PerGame)}</td>
         <td>${fmt(p.q3PerGame)}</td>
         <td>${fmt(p.q4PerGame)}</td>`;
+    if (tab === 'ratings') {
+        const r = RATINGS_BY_SLUG[p.slug];
+        function fmtR(v) { return (v === null || v === undefined) ? '-' : v.toFixed(1); }
+        function fmtDelta(v) {
+            if (v === null || v === undefined) return '-';
+            const sign = v > 0 ? '+' : '';
+            return sign + v.toFixed(1);
+        }
+        if (!r) return `
+        <td>${rank}</td>
+        <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
+        <td>${p.team}</td>
+        <td colspan="8" style="color:#555;text-align:center">–</td>
+        <td class="col-group-sep">–</td>`;
+        return `
+        <td>${rank}</td>
+        <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
+        <td>${p.team}</td>
+        <td>${r.on_min}</td>
+        <td>${fmtR(r.on_ortg)}</td>
+        <td>${fmtR(r.on_drtg)}</td>
+        <td>${fmtR(r.on_net)}</td>
+        <td class="col-group-sep">${r.off_min || '-'}</td>
+        <td>${fmtR(r.off_ortg)}</td>
+        <td>${fmtR(r.off_drtg)}</td>
+        <td>${fmtR(r.off_net)}</td>
+        <td class="col-group-sep">${fmtDelta(r.delta_net)}</td>`;
+    }
     if (tab === 'maxima') {
         function bestLink(key) {
             const b = p.best?.[key];
@@ -490,7 +549,13 @@ function render() {
         (!teamFilter || p.team === teamFilter)
     );
 
-    function toSortVal(v, key) {
+    function toSortVal(p, key) {
+        if (key.startsWith('r_')) {
+            const rkey = key.slice(2);
+            const r = RATINGS_BY_SLUG[p.slug];
+            return r ? (r[rkey] ?? null) : null;
+        }
+        const v = p[key];
         if (key === 'minPerGame' && typeof v === 'string' && v.includes(':')) {
             const [m, s] = v.split(':').map(Number);
             return m * 60 + (s || 0);
@@ -500,7 +565,7 @@ function render() {
     }
 
     filtered.sort((a, b) => {
-        let va = toSortVal(a[sortKey], sortKey), vb = toSortVal(b[sortKey], sortKey);
+        let va = toSortVal(a, sortKey), vb = toSortVal(b, sortKey);
         if (va < vb) return sortDesc ? 1 : -1;
         if (va > vb) return sortDesc ? -1 : 1;
         return 0;
@@ -522,7 +587,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
         document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
 
-        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', fouls: 'tovPerGame', ft: 'ftPct', advanced: 'per', milestones: 'doubleDoubles', maxima: 'maxPts', quarters: 'q4PerGame' };
+        const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', fouls: 'tovPerGame', ft: 'ftPct', advanced: 'per', milestones: 'doubleDoubles', maxima: 'maxPts', quarters: 'q4PerGame', ratings: 'r_delta_net' };
         sortKey = defaults[currentTab] || 'ptsPerGame';
         sortDesc = true;
         render();
