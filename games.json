@@ -1294,5 +1294,21 @@
     "team2": "BK Opava",
     "score1": 117,
     "score2": 121
+  },
+  {
+    "game_id": "2812145",
+    "date": "2026-03-05",
+    "team1": "SLUNETA Ústí nad Labem",
+    "team2": "BK ARMEX ENERGY Děčín",
+    "score1": 70,
+    "score2": 78
+  },
+  {
+    "game_id": "2812146",
+    "date": "2026-03-05",
+    "team1": "ERA Basketball Nymburk",
+    "team2": "PUMPA Basket Brno",
+    "score1": 60,
+    "score2": 92
   }
 ]
