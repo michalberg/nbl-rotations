@@ -1318,5 +1318,13 @@
     "team2": "SK Slavia Praha",
     "score1": 72,
     "score2": 79
+  },
+  {
+    "game_id": "2812147",
+    "date": "2026-03-05",
+    "team1": "BK GAPA Hradec Králové",
+    "team2": "BK Olomoucko",
+    "score1": 77,
+    "score2": 92
   }
 ]
