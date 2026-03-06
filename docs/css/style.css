@@ -60,6 +60,56 @@ body {
 
 .nav-link.active { color: #fff; background: #16213e; }
 
+.nav-toggle {
+    display: none;
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    flex-direction: column;
+    gap: 5px;
+}
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #888;
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+}
+.nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 860px) {
+    .nav-toggle { display: flex; }
+
+    .site-nav-inner {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 0 16px;
+        min-height: 48px;
+    }
+
+    .nav-brand { padding: 14px 0; }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+        padding-bottom: 8px;
+    }
+    .nav-links.open { display: flex; }
+
+    .nav-link {
+        padding: 10px 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

@@ -33,10 +33,13 @@
     </style>
 </head>
 <body>
-<nav class="site-nav">
+<nav class="site-nav" id="site-nav">
     <div class="site-nav-inner">
         <a href="../index.html" class="nav-brand">NBL data</a>
-        <div class="nav-links">
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="nav-links">
             <a href="../index.html" class="nav-link">Zápasy</a>
             <a href="../player/index.html" class="nav-link active">Hráči</a>
             <a href="../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
@@ -50,6 +53,25 @@
         </div>
     </div>
 </nav>
+<script>
+(function() {
+    var btn = document.getElementById('nav-toggle');
+    var links = document.getElementById('nav-links');
+    if (!btn || !links) return;
+    btn.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        btn.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('site-nav').contains(e.target)) {
+            links.classList.remove('open');
+            btn.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+</script>
     <div class="container">
         <h1>Hráči NBL 2025-26</h1>
         <p class="subtitle">Sezonní přehledy minutáže a statistik</p>

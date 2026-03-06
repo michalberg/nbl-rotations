@@ -14,10 +14,13 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-<nav class="site-nav">
+<nav class="site-nav" id="site-nav">
     <div class="site-nav-inner">
         <a href="../../index.html" class="nav-brand">NBL data</a>
-        <div class="nav-links">
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="nav-links">
             <a href="../../index.html" class="nav-link">Zápasy</a>
             <a href="../../player/index.html" class="nav-link active">Hráči</a>
             <a href="../../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
@@ -31,6 +34,25 @@
         </div>
     </div>
 </nav>
+<script>
+(function() {
+    var btn = document.getElementById('nav-toggle');
+    var links = document.getElementById('nav-links');
+    if (!btn || !links) return;
+    btn.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        btn.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('site-nav').contains(e.target)) {
+            links.classList.remove('open');
+            btn.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+</script>
 <script>const PLAYER_GAMES = [{"date": "2026-01-31", "isDNP": false, "won": true, "team": "USK Praha", "game_id": "2803576", "plus_minus": 13, "opponent": "BK Olomoucko", "score": "101:74", "isHome": true, "q1": 0, "q2": 0, "q3": 0, "q4": 2, "pts": 2, "reb": 1, "oreb": 0, "dreb": 1, "ast": 0, "stl": 0, "blk": 0, "tov": 0, "pf": 0, "pfd": 1, "technical": 0, "fgm": 1, "fga": 5, "fg2m": 1, "fg2a": 2, "fg3m": 0, "fg3a": 3, "ftm": 0, "fta": 0}, {"date": "2026-02-17", "isDNP": false, "won": true, "team": "USK Praha", "game_id": "2805265", "plus_minus": -5, "opponent": "BK Olomoucko", "score": "88:79", "isHome": false, "q1": 0, "q2": 0, "q3": 0, "q4": 0, "pts": 0, "reb": 0, "oreb": 0, "dreb": 0, "ast": 0, "stl": 0, "blk": 0, "tov": 1, "pf": 1, "pfd": 0, "technical": 0, "fgm": 0, "fga": 1, "fg2m": 0, "fg2a": 1, "fg3m": 0, "fg3a": 0, "ftm": 0, "fta": 0}];
 const TEAM_RECORDS = {"BK Olomoucko": {"gp": 27, "wins": 9}, "BK GAPA Hradec Králové": {"gp": 27, "wins": 5}, "BK Opava": {"gp": 27, "wins": 14}, "BK KVIS Pardubice": {"gp": 29, "wins": 22}, "USK Praha": {"gp": 28, "wins": 9}, "BK ARMEX ENERGY Děčín": {"gp": 29, "wins": 16}, "SK Slavia Praha": {"gp": 28, "wins": 9}, "ERA Basketball Nymburk": {"gp": 26, "wins": 25}, "Sršni Photomate Písek": {"gp": 28, "wins": 15}, "NH Ostrava": {"gp": 29, "wins": 10}, "SLUNETA  Ústí nad Labem": {"gp": 28, "wins": 16}, "PUMPA Basket Brno": {"gp": 28, "wins": 17}};
 const ONOFF_DATA = [{"team": "USK Praha", "on_ortg": 145.1, "on_drtg": 122.7, "on_net": 22.4, "off_ortg": 138.0, "off_drtg": 116.8, "off_net": 21.2, "delta_ortg": 7.1, "delta_drtg": 5.9, "delta_net": 1.2, "on_minutes": 15, "off_minutes": 64, "has_off": true}];

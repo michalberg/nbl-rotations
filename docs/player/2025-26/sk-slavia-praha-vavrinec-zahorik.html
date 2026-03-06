@@ -14,10 +14,13 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-<nav class="site-nav">
+<nav class="site-nav" id="site-nav">
     <div class="site-nav-inner">
         <a href="../../index.html" class="nav-brand">NBL data</a>
-        <div class="nav-links">
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="nav-links">
             <a href="../../index.html" class="nav-link">Zápasy</a>
             <a href="../../player/index.html" class="nav-link active">Hráči</a>
             <a href="../../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
@@ -31,6 +34,25 @@
         </div>
     </div>
 </nav>
+<script>
+(function() {
+    var btn = document.getElementById('nav-toggle');
+    var links = document.getElementById('nav-links');
+    if (!btn || !links) return;
+    btn.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        btn.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('site-nav').contains(e.target)) {
+            links.classList.remove('open');
+            btn.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+</script>
 <script>const PLAYER_GAMES = [{"date": "2025-12-20", "isDNP": true, "won": false, "team": "SK Slavia Praha"}];
 const TEAM_RECORDS = {"BK Olomoucko": {"gp": 27, "wins": 9}, "BK GAPA Hradec Králové": {"gp": 27, "wins": 5}, "BK Opava": {"gp": 27, "wins": 14}, "BK KVIS Pardubice": {"gp": 29, "wins": 22}, "USK Praha": {"gp": 28, "wins": 9}, "BK ARMEX ENERGY Děčín": {"gp": 29, "wins": 16}, "SK Slavia Praha": {"gp": 28, "wins": 9}, "ERA Basketball Nymburk": {"gp": 26, "wins": 25}, "Sršni Photomate Písek": {"gp": 28, "wins": 15}, "NH Ostrava": {"gp": 29, "wins": 10}, "SLUNETA  Ústí nad Labem": {"gp": 28, "wins": 16}, "PUMPA Basket Brno": {"gp": 28, "wins": 17}};
 const ONOFF_DATA = [];
