@@ -10,7 +10,10 @@ PRIOR_WEIGHT = 85  # minutes, calibrated for NBL season length
 def _slugify(name: str) -> str:
     nfkd = unicodedata.normalize("NFKD", name)
     ascii_str = nfkd.encode("ascii", "ignore").decode("ascii")
-    return ascii_str.lower().replace(" ", "-").replace("'", "").replace(".", "")
+    slug = "".join(c if c.isalnum() else "-" for c in ascii_str.lower())
+    while "--" in slug:
+        slug = slug.replace("--", "-")
+    return slug.strip("-")
 
 
 def _poss(fga: float, oreb: float, tov: float, fta: float, opp_dreb: float) -> float:
