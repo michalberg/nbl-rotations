@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOP výkony {{ season }} | NBL Rotations</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 32px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        .section-title:first-child { margin-top: 8px; }
+        .perf-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 8px;
+        }
+        .perf-card-title {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .wrap { overflow-x: auto; }
+    </style>
+</head>
+<body>
+{% include '_nav.html' %}
+<div class="container">
+    <h1>TOP výkony NBL {{ season }}</h1>
+
+    <!-- Triple doubles -->
+    <div class="section-title">Triple doubles ({{ triple_doubles|length }})</div>
+    {% if triple_doubles %}
+    <div class="wrap">
+    <table class="records-table">
+        <thead><tr>
+            <th>#</th>
+            <th>Hráč</th>
+            <th>Tým</th>
+            <th>Statistiky</th>
+            <th>Zápas</th>
+            <th class="num">Datum</th>
+        </tr></thead>
+        <tbody>
+        {% for td in triple_doubles %}
+        <tr>
+            <td class="label">{{ loop.index }}.</td>
+            <td><a class="game-link" href="../../player/{{ td.player_season }}/{{ td.player_slug }}.html">{{ td.player_name }}</a></td>
+            <td style="color:#888">{{ td.team }}</td>
+            <td style="color:#ccc">{{ td.stats_display }}</td>
+            <td>{% if td.game_id %}<a class="game-link" href="../../game/{{ td.game_id }}.html">{{ td.loc }} {{ td.opponent }}{% if td.score %} <span class="game-score">{{ td.score }}</span>{% endif %}</a>{% endif %}</td>
+            <td class="date">{{ td.date_fmt }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p style="color:#666;padding:10px 0">V této sezoně zatím žádný triple double.</p>
+    {% endif %}
+
+    <!-- Per-category TOP5 -->
+    {% for section in sections %}
+    <div class="section-title">{{ section.title }}</div>
+    <div class="perf-grid">
+    {% for cat in section.categories %}
+    <div>
+        <div class="perf-card-title">{{ cat.label }}</div>
+        <div class="wrap">
+        <table class="records-table">
+            <thead><tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th class="num">Max</th>
+                <th>Zápas</th>
+                <th class="num">Datum</th>
+            </tr></thead>
+            <tbody>
+            {% for e in cat.entries %}
+            <tr>
+                <td class="label">{{ loop.index }}.</td>
+                <td><a class="game-link" href="../../player/{{ e.player_season }}/{{ e.player_slug }}.html">{{ e.player_name }}</a></td>
+                <td style="color:#666;font-size:0.78rem">{{ e.team }}</td>
+                <td class="value num">{{ e.display }}</td>
+                <td>{% if e.game_id %}<a class="game-link" href="../../game/{{ e.game_id }}.html">{{ e.loc }} {{ e.opponent }}{% if e.score %} <span class="game-score">{{ e.score }}</span>{% endif %}</a>{% endif %}</td>
+                <td class="date">{{ e.date_fmt }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% endfor %}
+
+</div>
+</body>
+</html>

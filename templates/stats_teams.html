@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiky týmů {{ season }} | NBL Rotations</title>
     <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .tab-nav {
             display: flex;
@@ -64,6 +65,8 @@
         .hidden { display: none; }
         .positive { color: #4caf50; }
         .negative { color: #ef5350; }
+        .game-link { color: #4a7ab8; text-decoration: none; }
+        .game-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -78,6 +81,8 @@
         <button class="tab-btn" data-tab="opponent">Soupeř</button>
         <button class="tab-btn" data-tab="doubles">Doubles</button>
         <button class="tab-btn" data-tab="advanced">Pokročilé</button>
+        <button class="tab-btn" data-tab="dvojice">Dvojice</button>
+        <button class="tab-btn" data-tab="situacni">Herní situace</button>
     </div>
 
     <div class="time-filter">
@@ -122,7 +127,7 @@
                 <th data-key="blkPerGame" data-tip="Bloky za zápas">BLK/G</th>
                 <th data-key="tovPerGame" class="col-group-sep" data-tip="Ztráty za zápas">TOV/G</th>
                 <th data-key="pfPerGame" class="col-group-sep" data-tip="Osobní chyby za zápas">PF/G</th>
-                <th data-key="pfdPerGame" data-tip="Vyprovokované osobní chyby za zápas">PFD/G</th>
+                <th data-key="pfdPerGame" data-tip="Získané fauly za zápas">PFD/G</th>
             </tr></thead>
             <tbody id="body-basic"></tbody>
         </table>
@@ -202,8 +207,10 @@
                 <th data-key="rank">#</th>
                 <th data-key="name">Tým</th>
                 <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
-                <th data-key="dd" class="sorted-desc col-group-sep" data-tip="Počet double-doubles hráčů v sezóně">DD</th>
+                <th data-key="dd" class="sorted-desc col-group-sep" data-tip="Double-double: alespoň 2 ze 5 kategorií (body, doskoky, asistence, zisky, bloky) ≥ 10">DD</th>
                 <th data-key="td" class="col-group-sep" data-tip="Počet triple-doubles hráčů v sezóně">TD</th>
+                <th data-key="pts20" class="col-group-sep" data-tip="Počet výkonů hráčů s 20 a více body">20+</th>
+                <th data-key="pts30" data-tip="Počet výkonů hráčů s 30 a více body">30+</th>
             </tr></thead>
             <tbody id="body-doubles"></tbody>
         </table>
@@ -228,11 +235,57 @@
             <b style="color:#aaa">DRTG</b> – Defensive Rating: počet bodů inkasovaných na 100 possessions; nižší = lepší obrana<br>
             <b style="color:#aaa">Net RTG</b> – ORTG − DRTG; kladné číslo = tým skóruje víc, než inkasuje
         </div>
+
+        <!-- DVOJICE -->
+        <div id="tab-dvojice" class="hidden">
+            <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="color:#666;font-size:0.82rem">Tým:</span>
+                <select id="dvojice-team-select" style="background:#16213e;color:#e0e0e0;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:0.82rem"></select>
+            </div>
+            <div id="dvojice-heatmap" style="margin-bottom:24px;overflow-x:auto"></div>
+            <div style="overflow-x:auto">
+            <table class="records-table" id="dvojice-table">
+                <thead><tr>
+                    <th>#</th>
+                    <th>Dvojice</th>
+                    <th class="num">AST</th>
+                    <th class="num">2b AST</th>
+                    <th class="num">3b AST</th>
+                    <th class="num">Body</th>
+                    <th class="num">Spol. min</th>
+                    <th class="num">AST/36'</th>
+                    <th class="num">Body/36'</th>
+                </tr></thead>
+                <tbody id="dvojice-tbody"></tbody>
+            </table>
+            </div>
+        </div>
+        <!-- HERNÍ SITUACE -->
+        <div id="tab-situacni" class="hidden">
+            <div style="overflow-x:auto">
+            <table id="situacni-table">
+                <thead><tr>
+                    <th style="text-align:left">#</th>
+                    <th style="text-align:left" data-key="name">Tým</th>
+                    <th data-key="fromturnoverAvg" data-tip="Body ze ztrát soupeře – průměr za zápas">Ze ztrát</th>
+                    <th data-key="paintAvg" class="sorted-desc" data-tip="Body z vymezeného území – průměr za zápas">Paint</th>
+                    <th data-key="secondchanceAvg" data-tip="Body z druhých šancí – průměr za zápas">2. šance</th>
+                    <th data-key="fastbreakAvg" data-tip="Body z rychlých protiútoků – průměr za zápas">Protiútok</th>
+                    <th data-key="benchAvg" data-tip="Body z lavičky – průměr za zápas">Z lavičky</th>
+                    <th data-key="benchPct" data-tip="Body z lavičky jako procento všech bodů týmu">Lav.%</th>
+                    <th data-key="maxLead" data-tip="Největší vedení – rekord sezóny v jednom zápase">Max. vedení</th>
+                    <th data-key="maxRun" data-tip="Nejdelší scoring run – rekord sezóny v jednom zápase">Max. run</th>
+                </tr></thead>
+                <tbody id="situacni-tbody"></tbody>
+            </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
 const TEAMS_GAMES = {{ teams_games_json }};
+const ASSIST_PAIRS = {{ assist_pairs_json }};
 
 const MONTH_CS = {
     '01':'Leden','02':'Únor','03':'Březen','04':'Duben',
@@ -275,7 +328,7 @@ function computeTeamStats(slug, teamInfo, games) {
     const gp = games.length;
     if (!gp) return null;
 
-    let wins = 0, totalPts = 0, totalOppPts = 0, dd = 0, td = 0;
+    let wins = 0, totalPts = 0, totalOppPts = 0, dd = 0, td = 0, pts20 = 0, pts30 = 0;
     const totals = Object.fromEntries(TEAM_STAT_KEYS.map(k => [k, 0]));
     const oppTotals = Object.fromEntries(TEAM_STAT_KEYS.map(k => [k, 0]));
     let teamPossTotal = 0, oppPossTotal = 0;
@@ -284,6 +337,8 @@ function computeTeamStats(slug, teamInfo, games) {
         if (g.won) wins++;
         dd += g.dd || 0;
         td += g.td || 0;
+        pts20 += g.pts20 || 0;
+        pts30 += g.pts30 || 0;
         totalPts += g.pts || 0;
         totalOppPts += g.opp_pts || 0;
         for (const k of TEAM_STAT_KEYS) {
@@ -311,7 +366,7 @@ function computeTeamStats(slug, teamInfo, games) {
 
     const result = {
         slug, name: teamInfo.name, gp, wins, losses: gp - wins,
-        dd, td, ddPerGame: r1t(dd / gp), tdPerGame: r1t(td / gp),
+        dd, td, ddPerGame: r1t(dd / gp), tdPerGame: r1t(td / gp), pts20, pts30,
         pts: totalPts, opp_pts: totalOppPts,
         ptsPerGame:     r1t(totalPts / gp),
         opp_ptsPerGame: r1t(totalOppPts / gp),
@@ -433,7 +488,9 @@ function renderRow(t, rank, tab) {
         <td>${t.name}</td>
         <td>${t.gp}</td>
         <td class="col-group-sep">${t.dd}</td>
-        <td class="col-group-sep">${t.td}</td>`;
+        <td class="col-group-sep">${t.td}</td>
+        <td class="col-group-sep">${t.pts20 ?? 0}</td>
+        <td>${t.pts30 ?? 0}</td>`;
     if (tab === 'advanced') return `
         <td>${rank}</td>
         <td>${t.name}</td>
@@ -555,8 +612,14 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.add('active');
         currentTab = btn.dataset.tab;
         document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
-        document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
+        document.getElementById('tab-dvojice')?.classList.add('hidden');
+        document.getElementById('tab-situacni')?.classList.add('hidden');
+        document.getElementById(`tab-${currentTab}`)?.classList.remove('hidden');
         document.getElementById('advanced-legend').classList.toggle('hidden', currentTab !== 'advanced');
+        const tf = document.querySelector('.time-filter');
+        if (tf) tf.style.display = (currentTab === 'dvojice' || currentTab === 'situacni') ? 'none' : '';
+        if (currentTab === 'dvojice') { renderDvojice(); return; }
+        if (currentTab === 'situacni') { renderSituacni(); return; }
         const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', fouls: 'tovPerGame', doubles: 'dd', opponent: 'opp_ptsPerGame', advanced: 'ortg' };
         const defaultDesc = { opponent: false };
         sortKey = defaults[currentTab] || 'ptsPerGame';
@@ -565,10 +628,260 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
+// ── Dvojice (assist pairs) ───────────────────────────────────────────────────
+const byTeam = (ASSIST_PAIRS && ASSIST_PAIRS.by_team) ? ASSIST_PAIRS.by_team : {};
+const teamNames = Object.keys(byTeam).sort();
+
+const dvojiceSelect = document.getElementById('dvojice-team-select');
+teamNames.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    dvojiceSelect.appendChild(opt);
+});
+dvojiceSelect.addEventListener('change', renderDvojice);
+
+function renderDvojice() {
+    const team = dvojiceSelect.value;
+    const pairs = byTeam[team] || [];
+    renderDvojiceTable(pairs);
+    renderDvojiceHeatmap(pairs);
+}
+
+function renderDvojiceTable(pairs) {
+    const tbody = document.getElementById('dvojice-tbody');
+    if (!tbody) return;
+    document.getElementById('dvojice-table')?.classList.remove('hidden');
+    const fmt1 = v => v != null ? v.toFixed(1) : '–';
+    tbody.innerHTML = pairs.map((p, i) => `<tr>
+        <td class="label">${i+1}.</td>
+        <td style="white-space:nowrap"><a class="game-link" href="../../player/${p.passer_season}/${p.passer_slug}.html">${p.passer_name}</a><span style="color:#555;margin:0 6px;font-size:0.85em">→</span><a class="game-link" href="../../player/${p.scorer_season}/${p.scorer_slug}.html">${p.scorer_name}</a></td>
+        <td class="value num">${p.ast}</td>
+        <td class="num">${p.ast2}</td>
+        <td class="num">${p.ast3}</td>
+        <td class="num">${p.pts}</td>
+        <td class="num" style="color:#666;font-size:0.75rem">${Math.round(p.shared_min)}'</td>
+        <td class="num">${fmt1(p.ast_per36)}</td>
+        <td class="num">${fmt1(p.pts_per36)}</td>
+    </tr>`).join('');
+}
+
+// Tooltip for heatmap cells
+let dvTip = document.getElementById('dvojice-cell-tip');
+if (!dvTip) {
+    dvTip = document.createElement('div');
+    dvTip.id = 'dvojice-cell-tip';
+    dvTip.className = 'tooltip';
+    document.body.appendChild(dvTip);
+}
+
+function renderDvojiceHeatmap(pairs) {
+    const container = document.getElementById('dvojice-heatmap');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!pairs.length) return;
+
+    // Collect unique passers/scorers, sort by total ast
+    const passerAst = {}, scorerAst = {};
+    pairs.forEach(p => {
+        passerAst[p.passer_name] = (passerAst[p.passer_name] || 0) + p.ast;
+        scorerAst[p.scorer_name] = (scorerAst[p.scorer_name] || 0) + p.ast;
+    });
+    const passers = Object.keys(passerAst).sort((a, b) => passerAst[b] - passerAst[a]);
+    const scorers = Object.keys(scorerAst).sort((a, b) => scorerAst[b] - scorerAst[a]);
+
+    // Full lookup (for tooltip data)
+    const fullLookup = {};
+    pairs.forEach(p => { fullLookup[`${p.passer_name}||${p.scorer_name}`] = p; });
+
+    const maxAst = Math.max(...pairs.map(p => p.ast), 1);
+    const cellW = 44, cellH = 32, labelW = 160, labelH = 120;
+    const svgW = labelW + scorers.length * cellW + 1;
+    const svgH = labelH + passers.length * cellH + 1;
+
+    const svg = d3.select(container).append('svg')
+        .attr('width', svgW).attr('height', svgH)
+        .style('overflow', 'visible');
+
+    // Color scale: dark navy for empty, dark-to-bright cyan-blue for non-zero
+    const colorScale = d3.scaleSequential()
+        .domain([0, maxAst])
+        .interpolator(d3.interpolateRgb('#1a3d6e', '#4db8ff'));
+    const cellColor = val => val === 0 ? '#0d1520' : colorScale(val);
+
+    // Scorer labels (rotated)
+    svg.selectAll('.sc-label').data(scorers).enter().append('text')
+        .attr('class', 'sc-label')
+        .attr('x', (d, i) => labelW + i * cellW + cellW / 2)
+        .attr('y', labelH - 4)
+        .attr('text-anchor', 'start')
+        .attr('transform', (d, i) => `rotate(-50, ${labelW + i * cellW + cellW / 2}, ${labelH - 4})`)
+        .attr('fill', '#bbb').attr('font-size', 12)
+        .text(d => d);
+
+    // Passer labels
+    svg.selectAll('.pa-label').data(passers).enter().append('text')
+        .attr('class', 'pa-label')
+        .attr('x', labelW - 6)
+        .attr('y', (d, i) => labelH + i * cellH + cellH / 2 + 5)
+        .attr('text-anchor', 'end')
+        .attr('fill', '#bbb').attr('font-size', 12)
+        .text(d => d);
+
+    // Cells
+    passers.forEach((passer, pi) => {
+        scorers.forEach((scorer, si) => {
+            const pair = fullLookup[`${passer}||${scorer}`];
+            const val = pair ? pair.ast : 0;
+            const x = labelW + si * cellW;
+            const y = labelH + pi * cellH;
+
+            const rect = svg.append('rect')
+                .attr('x', x).attr('y', y)
+                .attr('width', cellW - 2).attr('height', cellH - 2)
+                .attr('fill', cellColor(val))
+                .attr('rx', 3)
+                .style('cursor', val > 0 ? 'crosshair' : 'default');
+
+            if (val > 0) {
+                svg.append('text')
+                    .attr('x', x + cellW / 2).attr('y', y + cellH / 2 + 5)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', '#fff')
+                    .attr('font-size', 12)
+                    .attr('pointer-events', 'none')
+                    .text(val);
+
+                // Tooltip on the rect
+                rect.on('mousemove', function(event) {
+                    const p = pair;
+                    dvTip.innerHTML = `<strong>${p.passer_name} → ${p.scorer_name}</strong><br>${p.ast} nahrávek, ${p.pts} bodů (${p.ast2}×2b / ${p.ast3}×3b)<br>${Math.round(p.shared_min)} min spolu`;
+                    dvTip.style.display = 'block';
+                    const vw = window.innerWidth, vh = window.innerHeight;
+                    let lx = event.clientX + 14, ly = event.clientY + 14;
+                    if (lx + 220 > vw) lx = event.clientX - 224;
+                    if (ly + 80 > vh) ly = event.clientY - 84;
+                    dvTip.style.left = lx + 'px';
+                    dvTip.style.top = ly + 'px';
+                })
+                .on('mouseleave', function() {
+                    dvTip.style.display = 'none';
+                });
+            }
+        });
+    });
+}
+
+// Init Dvojice select if data available
+if (teamNames.length) dvojiceSelect.value = teamNames[0];
+
+// ── Herní situace ────────────────────────────────────────────────────────────
+let situacniSortKey = 'paintAvg';
+let situacniSortDesc = true;
+
+function renderSituacni() {
+    const tbody = document.getElementById('situacni-tbody');
+    const table = document.getElementById('situacni-table');
+    if (!tbody) return;
+
+    // Aggregate from all team games (full season, no time filter here)
+    let rows = Object.values(TEAMS_GAMES).map(tg => {
+        const games = tg.games;
+        const gp = games.length;
+        if (!gp) return null;
+        let fromturnover = 0, paint = 0, secondchance = 0, fastbreak = 0;
+        let bench = 0, totalPts = 0, maxLead = 0, maxRun = 0;
+        let maxLeadGame = null, maxRunGame = null;
+        for (const g of games) {
+            fromturnover  += g.fromturnover_pts  || 0;
+            paint         += g.paint_pts          || 0;
+            secondchance  += g.secondchance_pts   || 0;
+            fastbreak     += g.fastbreak_pts      || 0;
+            bench         += g.bench_pts          || 0;
+            totalPts      += g.pts                || 0;
+            if ((g.biggest_lead || 0) > maxLead) { maxLead = g.biggest_lead; maxLeadGame = g; }
+            if ((g.biggest_run  || 0) > maxRun)  { maxRun  = g.biggest_run;  maxRunGame  = g; }
+        }
+        const r1 = v => (v / gp).toFixed(1);
+        const benchPct = totalPts ? (bench / totalPts * 100).toFixed(1) : '0.0';
+        return {
+            name: tg.name, gp,
+            fromturnover, fromturnoverAvg: +r1(fromturnover),
+            paint, paintAvg: +r1(paint),
+            secondchance, secondchanceAvg: +r1(secondchance),
+            fastbreak, fastbreakAvg: +r1(fastbreak),
+            bench, benchAvg: +r1(bench), benchPct: +benchPct,
+            maxLead, maxLeadGame, maxRun, maxRunGame,
+        };
+    }).filter(Boolean);
+
+    rows.sort((a, b) => {
+        let va = a[situacniSortKey], vb = b[situacniSortKey];
+        if (typeof va === 'string') va = va.toLowerCase();
+        if (typeof vb === 'string') vb = vb.toLowerCase();
+        if (va < vb) return situacniSortDesc ? 1 : -1;
+        if (va > vb) return situacniSortDesc ? -1 : 1;
+        return 0;
+    });
+
+    function r(v) { return v.toFixed(1); }
+    function gameCell(val, game) {
+        if (!game || !game.game_id) return val;
+        const dp = (game.date || '').split('-');
+        const dateStr = dp.length === 3 ? `${dp[2]}.${dp[1]}.${dp[0]}` : (game.date || '');
+        const score = game.score || (game.pts != null ? `${game.pts}:${game.opp_pts ?? '?'}` : '');
+        const loc = game.isHome ? 'vs.' : '@';
+        const tip = `${loc} ${game.opponent || '?'} ${score} (${dateStr})`;
+        return `<a href="../../game/${game.game_id}.html" class="game-link" data-gametip="${tip}">${val}</a>`;
+    }
+    tbody.innerHTML = rows.map((row, i) => `<tr>
+        <td style="text-align:left;color:#555">${i+1}.</td>
+        <td style="text-align:left;color:#e0e0e0">${row.name}</td>
+        <td>${r(row.fromturnoverAvg)}</td>
+        <td>${r(row.paintAvg)}</td>
+        <td>${r(row.secondchanceAvg)}</td>
+        <td>${r(row.fastbreakAvg)}</td>
+        <td>${r(row.benchAvg)}</td>
+        <td>${r(row.benchPct)}%</td>
+        <td>${gameCell(row.maxLead, row.maxLeadGame)}</td>
+        <td>${gameCell(row.maxRun, row.maxRunGame)}</td>
+    </tr>`).join('');
+    tbody.querySelectorAll('a[data-gametip]').forEach(a => {
+        a.addEventListener('mousemove', e => {
+            dvTip.textContent = a.dataset.gametip;
+            dvTip.style.display = 'block';
+            const vw = window.innerWidth, vh = window.innerHeight;
+            let lx = e.clientX + 14, ly = e.clientY + 14;
+            if (lx + 240 > vw) lx = e.clientX - 244;
+            if (ly + 40 > vh) ly = e.clientY - 44;
+            dvTip.style.left = lx + 'px';
+            dvTip.style.top = ly + 'px';
+        });
+        a.addEventListener('mouseleave', () => { dvTip.style.display = 'none'; });
+    });
+    table?.classList.remove('hidden');
+}
+
 document.querySelectorAll('thead th[data-key]').forEach(th => {
     th.addEventListener('click', () => {
         const key = th.dataset.key;
-        if (key === 'rank' || key === 'name') return;
+        if (key === 'rank') return;
+        if (currentTab === 'situacni') {
+            if (key === 'name') return;
+            if (situacniSortKey === key) {
+                situacniSortDesc = !situacniSortDesc;
+            } else {
+                situacniSortKey = key;
+                situacniSortDesc = true;
+            }
+            document.querySelectorAll('#tab-situacni thead th').forEach(h => {
+                h.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            th.classList.add(situacniSortDesc ? 'sorted-desc' : 'sorted-asc');
+            renderSituacni();
+            return;
+        }
+        if (key === 'name') return;
         if (sortKey === key) {
             sortDesc = !sortDesc;
         } else {

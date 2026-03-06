@@ -138,6 +138,7 @@
         <button class="tab-btn" data-tab="maxima">Maxima</button>
         <button class="tab-btn" data-tab="quarters">Čtvrtiny</button>
         <button class="tab-btn" data-tab="ratings">Ratings</button>
+        <button class="tab-btn" data-tab="dvojice">Dvojice</button>
     </div>
 
     <div class="stats-controls">
@@ -224,7 +225,7 @@
                     <th data-key="pfdPerGame" class="col-group-sep" data-tip="Získané fauly na zápas">PFD/G</th>
                     <th data-key="pfd" data-tip="Získané fauly celkem">ΣPFD</th>
                     <th data-key="technical" class="col-group-sep" data-tip="Technické chyby celkem">TF</th>
-                    <th data-key="foulsOut" data-tip="Foul-out: 5 nebo více osobních faulů v zápase">Foul-out</th>
+                    <th data-key="foulsOut" data-tip="Foul-out: 5 osobních chyb v zápase">Foul-out</th>
                     <th data-key="plusMinusPerGame" class="col-group-sep" data-tip="Plus/minus na zápas">+/-</th>
                     <th data-key="plusMinus" data-tip="Plus/minus celkem">Σ+/-</th>
                 </tr>
@@ -278,8 +279,8 @@
                     <th data-key="name">Hráč</th>
                     <th data-key="team">Tým</th>
                     <th data-key="gp" data-tip="Odehrané zápasy">GP</th>
-                    <th data-key="doubleDoubles" class="sorted-desc col-group-sep" data-tip="Double-double: alespoň 2 ze 4 kategorií (body, doskoky, asistence, zisky) ≥ 10">DD</th>
-                    <th data-key="tripleDoubles" data-tip="Triple-double: alespoň 3 ze 4 kategorií (body, doskoky, asistence, zisky) ≥ 10">TD</th>
+                    <th data-key="doubleDoubles" class="sorted-desc col-group-sep" data-tip="Double-double: alespoň 2 ze 5 kategorií (body, doskoky, asistence, zisky, bloky) ≥ 10">DD</th>
+                    <th data-key="tripleDoubles" data-tip="Triple-double: alespoň 3 ze 5 kategorií (body, doskoky, asistence, zisky, bloky) ≥ 10">TD</th>
                     <th data-key="pts20" class="col-group-sep" data-tip="Počet zápasů s alespoň 20 body">20+</th>
                     <th data-key="pts30" data-tip="Počet zápasů s alespoň 30 body">30+</th>
                 </tr>
@@ -351,12 +352,22 @@
             <tbody id="body-maxima"></tbody>
         </table>
     </div>
+
+    <!-- DVOJICE TAB -->
+    <div id="tab-dvojice" class="hidden" style="margin-top:8px">
+        <div id="dvojice-league-wrap"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:24px">
+            <div id="dvojice-passers-wrap" style="flex:1 1 300px"></div>
+            <div id="dvojice-scorers-wrap" style="flex:1 1 300px"></div>
+        </div>
+    </div>
 </div>
 
 <script>
 const PLAYERS = {{ players_json }};
 const GAME_META = {{ game_meta_json }};
 const RATINGS = {{ ratings_json }};
+const ASSIST_PAIRS_DATA = {{ assist_pairs_json }};
 
 // Build lookup: slug -> ratings entry
 const RATINGS_BY_SLUG = {};
@@ -585,7 +596,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         currentTab = btn.dataset.tab;
 
         document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
-        document.getElementById(`tab-${currentTab}`).classList.remove('hidden');
+        document.getElementById('tab-dvojice')?.classList.add('hidden');
+        document.getElementById(`tab-${currentTab}`)?.classList.remove('hidden');
+
+        const sc = document.querySelector('.stats-controls');
+        if (sc) sc.style.display = currentTab === 'dvojice' ? 'none' : '';
+
+        if (currentTab === 'dvojice') { renderDvojiceStats(); return; }
 
         const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', fouls: 'tovPerGame', ft: 'ftPct', advanced: 'per', milestones: 'doubleDoubles', maxima: 'maxPts', quarters: 'q4PerGame', ratings: 'r_delta_net' };
         sortKey = defaults[currentTab] || 'ptsPerGame';
@@ -593,6 +610,114 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         render();
     });
 });
+
+// ── Dvojice tab (stats players) ──────────────────────────────────────────────
+function pairLink(season, slug, name) {
+    return `<a style="color:#4a7ab8;text-decoration:none" href="../../player/${season}/${slug}.html">${name}</a>`;
+}
+function fmt1(v) { return v != null ? parseFloat(v).toFixed(1) : '–'; }
+
+let leagueSortKey = 'ast', leagueSortDesc = true;
+
+function renderLeagueTable(league) {
+    const leagueEl = document.getElementById('dvojice-league-wrap');
+    if (!leagueEl) return;
+    const sorted = [...league].sort((a, b) => {
+        const va = a[leagueSortKey] ?? -Infinity, vb = b[leagueSortKey] ?? -Infinity;
+        return leagueSortDesc ? vb - va : va - vb;
+    });
+    const cols = [
+        {key: 'ast',      label: 'AST'},
+        {key: 'ast2',     label: '2b'},
+        {key: 'ast3',     label: '3b'},
+        {key: 'pts',      label: 'Body'},
+        {key: 'shared_min', label: 'Min'},
+        {key: 'ast_per36',  label: 'AST/36\''},
+    ];
+    const thClass = k => k === leagueSortKey ? (leagueSortDesc ? 'sorted-desc' : 'sorted-asc') : '';
+    const ths = cols.map(c => `<th class="num ${thClass(c.key)}" data-lkey="${c.key}">${c.label}</th>`).join('');
+    const rows = sorted.map((p, i) => `<tr>
+        <td class="label">${i+1}.</td>
+        <td>${pairLink(p.passer_season, p.passer_slug, p.passer_name)}</td>
+        <td>${pairLink(p.scorer_season, p.scorer_slug, p.scorer_name)}</td>
+        <td style="color:#888;font-size:0.75rem;padding:7px 10px">${p.team}</td>
+        <td class="value num">${p.ast}</td>
+        <td class="num">${p.ast2}</td>
+        <td class="num">${p.ast3}</td>
+        <td class="num">${p.pts}</td>
+        <td class="num" style="color:#666;font-size:0.75rem">${Math.round(p.shared_min)}'</td>
+        <td class="num">${fmt1(p.ast_per36)}</td>
+    </tr>`).join('');
+    leagueEl.innerHTML = `
+        <div style="font-size:0.85rem;color:#888;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Top 20 dvojic ligy (min 20 nahrávek)</div>
+        <div style="overflow-x:auto">
+        <table class="records-table">
+            <thead><tr>
+                <th>#</th><th>Nahrávač</th><th>Střelec</th><th>Tým</th>
+                ${ths}
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table></div>`;
+    leagueEl.querySelectorAll('th[data-lkey]').forEach(th => {
+        th.style.cursor = 'pointer';
+        th.addEventListener('click', () => {
+            const k = th.dataset.lkey;
+            if (leagueSortKey === k) leagueSortDesc = !leagueSortDesc;
+            else { leagueSortKey = k; leagueSortDesc = true; }
+            renderLeagueTable(ASSIST_PAIRS_DATA?.league || []);
+        });
+    });
+}
+
+function renderDvojiceStats() {
+    const ap = ASSIST_PAIRS_DATA || {};
+    const passers = ap.best_passers || [];
+    const scorers = ap.best_scorers || [];
+
+    renderLeagueTable(ap.league || []);
+
+    // Best passers
+    const passersEl = document.getElementById('dvojice-passers-wrap');
+    if (passersEl) {
+        const rows = passers.map((p, i) => `<tr>
+            <td class="label">${i+1}.</td>
+            <td>${pairLink(p.season, p.slug, p.name)}</td>
+            <td style="color:#888;font-size:0.75rem;padding:7px 10px">${p.team || ''}</td>
+            <td class="value num">${p.ast}</td>
+            <td class="num">${p.ast2 ?? 0}</td>
+            <td class="num">${p.ast3 ?? 0}</td>
+            <td class="num">${p.pts}</td>
+        </tr>`).join('');
+        passersEl.innerHTML = `
+            <div style="font-size:0.85rem;color:#888;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Nejlepší nahrávači</div>
+            <div style="overflow-x:auto">
+            <table class="records-table">
+                <thead><tr><th>#</th><th>Hráč</th><th>Tým</th><th class="num">AST</th><th class="num">2b</th><th class="num">3b</th><th class="num">Body</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>`;
+    }
+
+    // Best scorers
+    const scorersEl = document.getElementById('dvojice-scorers-wrap');
+    if (scorersEl) {
+        const rows = scorers.map((p, i) => `<tr>
+            <td class="label">${i+1}.</td>
+            <td>${pairLink(p.season, p.slug, p.name)}</td>
+            <td style="color:#888;font-size:0.75rem;padding:7px 10px">${p.team || ''}</td>
+            <td class="value num">${p.ast}</td>
+            <td class="num">${p.ast2 ?? 0}</td>
+            <td class="num">${p.ast3 ?? 0}</td>
+            <td class="num">${p.pts}</td>
+        </tr>`).join('');
+        scorersEl.innerHTML = `
+            <div style="font-size:0.85rem;color:#888;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Nejlepší střelci z nahrávky</div>
+            <div style="overflow-x:auto">
+            <table class="records-table">
+                <thead><tr><th>#</th><th>Hráč</th><th>Tým</th><th class="num">AST</th><th class="num">2b</th><th class="num">3b</th><th class="num">Body</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>`;
+    }
+}
 
 // Column sorting
 document.querySelectorAll('thead th[data-key]').forEach(th => {

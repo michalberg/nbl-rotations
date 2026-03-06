@@ -17,44 +17,6 @@
             border-bottom: 1px solid #2a2a3e;
         }
         .section-title:first-child { margin-top: 8px; }
-        .records-table {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 0.82rem;
-            white-space: nowrap;
-            margin-bottom: 8px;
-        }
-        .records-table thead th {
-            background: #16213e;
-            color: #888;
-            font-weight: normal;
-            text-transform: uppercase;
-            font-size: 0.72rem;
-            letter-spacing: 0.5px;
-            padding: 8px 10px;
-            text-align: left;
-        }
-        .records-table thead th.num { text-align: right; }
-        .records-table tbody tr {
-            border-bottom: 1px solid #222;
-            transition: background 0.1s;
-        }
-        .records-table tbody tr:hover { background: #16213e; }
-        .records-table tbody td { padding: 7px 10px; color: #ccc; }
-        .records-table tbody td.num { text-align: right; }
-        .records-table tbody td.label { color: #888; font-size: 0.78rem; }
-        .records-table tbody td.value { font-weight: bold; color: #e0e0e0; }
-        .records-table tbody td.unit { color: #666; font-size: 0.75rem; padding-left: 0; }
-        .records-table tbody td.note { color: #aaa; }
-        .records-table tbody td.game { text-align: right; }
-        .records-table tbody td.date { text-align: right; color: #666; font-size: 0.75rem; }
-        .game-link {
-            color: #4a7ab8;
-            text-decoration: none;
-            font-size: 0.78rem;
-        }
-        .game-link:hover { text-decoration: underline; }
-        .game-score { color: #888; font-size: 0.72rem; }
         .wrap { overflow-x: auto; }
     </style>
 </head>
@@ -98,6 +60,40 @@
     </table>
     </div>
     {% endfor %}
+
+    {% if top_stints %}
+    <div class="section-title">Nejdelší střídání (Top 25)</div>
+    <div class="wrap">
+    <table class="records-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Hráč</th>
+                <th>Tým</th>
+                <th class="num">Min</th>
+                <th class="num">Zápas</th>
+                <th class="num">Datum</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in top_stints %}
+            <tr>
+                <td class="label">{{ loop.index }}.</td>
+                <td><a class="game-link" href="../../player/{{ s.player_season }}/{{ s.player_slug }}.html">{{ s.player_name }}</a></td>
+                <td class="note">{{ s.team }}</td>
+                <td class="value num">{{ s.length }}'</td>
+                <td class="game">
+                    <a class="game-link" href="../../game/{{ s.gid }}.html">
+                        {{ s.t1 }} – {{ s.t2 }} <span class="game-score">{{ s.s1 }}:{{ s.s2 }}</span>
+                    </a>
+                </td>
+                <td class="date">{{ s.date[8:]|int }}. {{ s.date[5:7]|int }}. {{ s.date[:4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% endif %}
 
 </div>
 </body>

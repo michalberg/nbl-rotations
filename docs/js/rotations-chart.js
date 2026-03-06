@@ -341,12 +341,280 @@
     tooltip.style("display", "none");
   }
 
+  // ── Scoring development chart ───────────────────────────────────────────────
+  function renderScoringChart(data) {
+    const container = d3.select("#chart-scoring");
+    if (!container.node()) return;
+    const timeline = data.scoreTimeline;
+    if (!timeline || timeline.length < 2) return;
+
+    const periods = data.periods;
+    const mL = 36, mT = 28, mB = 24, mR = 16;
+    const containerW = Math.max(300, container.node().getBoundingClientRect().width || 400);
+    const plotW = containerW - mL - mR;
+    const plotH = 120;
+    const svgW = containerW;
+    const svgH = mT + plotH + mB;
+
+    const totalSec = data.totalMinutes * 60;
+    const xScale = d3.scaleLinear().domain([0, totalSec]).range([0, plotW]);
+
+    const diffs = timeline.map(d => d.s1 - d.s2);
+    const maxAbs = Math.max(Math.abs(d3.min(diffs)), Math.abs(d3.max(diffs)), 5);
+    const yScale = d3.scaleLinear().domain([-maxAbs, maxAbs]).range([plotH, 0]);
+    const y0 = yScale(0); // plotH/2 since domain is symmetric
+
+    const c1 = TEAM_COLORS["1"], c2 = TEAM_COLORS["2"];
+
+    container.append("div").attr("class", "team-header")
+      .style("display", "flex").style("justify-content", "space-between").style("align-items", "center")
+      .html(`<span>Vývoj skóre</span>
+        <span style="display:flex;gap:16px;font-size:11px;color:#aaa">
+          <span><span style="display:inline-block;width:12px;height:3px;background:${c1};margin-right:4px;vertical-align:middle;border-radius:1px"></span>${data.team1.name}</span>
+          <span><span style="display:inline-block;width:12px;height:3px;background:${c2};margin-right:4px;vertical-align:middle;border-radius:1px"></span>${data.team2.name}</span>
+        </span>`);
+
+    const svg = container.append("svg")
+      .attr("width", svgW).attr("height", svgH);
+
+    const g = svg.append("g").attr("transform", `translate(${mL},${mT})`);
+
+    // Plot background so tied-score gaps show page color rather than SVG default
+    g.append("rect")
+      .attr("x", 0).attr("y", 0).attr("width", plotW).attr("height", plotH)
+      .attr("fill", "#16213e");
+
+    // Y-axis grid + tick labels
+    yScale.ticks(6).forEach(t => {
+      g.append("line")
+        .attr("x1", 0).attr("x2", plotW).attr("y1", yScale(t)).attr("y2", yScale(t))
+        .attr("stroke", t === 0 ? "#555" : "#1e2040").attr("stroke-width", t === 0 ? 1 : 0.5);
+      g.append("text")
+        .attr("x", -5).attr("y", yScale(t) + 4).attr("text-anchor", "end")
+        .attr("fill", "#555").attr("font-size", "9px")
+        .text(t > 0 ? `+${t}` : t === 0 ? "0" : t);
+    });
+
+    const last = timeline[timeline.length - 1];
+    const pts = [...timeline, { t: totalSec, s1: last.s1, s2: last.s2 }];
+
+    // Team1 area: above zero (Math.max ensures no overlap with team2 area)
+    g.append("path").datum(pts)
+      .attr("fill", c1).attr("fill-opacity", 0.9)
+      .attr("d", d3.area()
+        .x(d => xScale(d.t)).y0(y0)
+        .y1(d => yScale(Math.max(0, d.s1 - d.s2)))
+        .curve(d3.curveStepAfter));
+
+    // Team2 area: below zero
+    g.append("path").datum(pts)
+      .attr("fill", c2).attr("fill-opacity", 0.9)
+      .attr("d", d3.area()
+        .x(d => xScale(d.t)).y0(y0)
+        .y1(d => yScale(Math.min(0, d.s1 - d.s2)))
+        .curve(d3.curveStepAfter));
+
+    // Zero line
+    g.append("line")
+      .attr("x1", 0).attr("x2", plotW).attr("y1", y0).attr("y2", y0)
+      .attr("stroke", "#555").attr("stroke-width", 1);
+
+    // Period separators + labels
+    periods.forEach((p, i) => {
+      const startX = xScale(p.startMinute * 60);
+      const midX = xScale((p.startMinute + p.endMinute) / 2 * 60);
+      if (i > 0)
+        g.append("line").attr("x1", startX).attr("x2", startX).attr("y1", 0).attr("y2", plotH)
+          .attr("stroke", "#444").attr("stroke-width", 1).attr("stroke-dasharray", "3,2");
+      g.append("text").attr("x", midX).attr("y", plotH + 16)
+        .attr("text-anchor", "middle").attr("fill", "#666").attr("font-size", "10px").text(p.label);
+    });
+  }
+
+  // ── Box score comparison ────────────────────────────────────────────────────
+  function renderBoxScore(data) {
+    const el = document.getElementById("chart-boxscore");
+    if (!el) return;
+
+    function sum(tno, key) {
+      return data.players[tno].reduce((acc, p) => acc + (p.gameStats[key] || 0), 0);
+    }
+    function pct(m, a) { return a ? Math.round(m / a * 100) : 0; }
+
+    const s = {
+      "1": {
+        pts: data.team1.score,
+        fgm: sum("1","fgm"), fga: sum("1","fga"),
+        fg2m: sum("1","fg2m"), fg2a: sum("1","fg2a"),
+        fg3m: sum("1","fg3m"), fg3a: sum("1","fg3a"),
+        ftm: sum("1","ftm"), fta: sum("1","fta"),
+        reb: sum("1","reb"), oreb: sum("1","oreb"), dreb: sum("1","dreb"),
+        ast: sum("1","ast"), stl: sum("1","stl"), blk: sum("1","blk"),
+        tov: sum("1","tov"), pf: sum("1","pf"),
+      },
+      "2": {
+        pts: data.team2.score,
+        fgm: sum("2","fgm"), fga: sum("2","fga"),
+        fg2m: sum("2","fg2m"), fg2a: sum("2","fg2a"),
+        fg3m: sum("2","fg3m"), fg3a: sum("2","fg3a"),
+        ftm: sum("2","ftm"), fta: sum("2","fta"),
+        reb: sum("2","reb"), oreb: sum("2","oreb"), dreb: sum("2","dreb"),
+        ast: sum("2","ast"), stl: sum("2","stl"), blk: sum("2","blk"),
+        tov: sum("2","tov"), pf: sum("2","pf"),
+      },
+    };
+
+    function pctRow(cat, m1, a1, m2, a2) {
+      const p1 = pct(m1, a1), p2 = pct(m2, a2);
+      return { cat,
+        v1: `${p1}% <span style="font-weight:normal;font-size:0.72rem;color:#999">(${m1}/${a1})</span>`,
+        v2: `${p2}% <span style="font-weight:normal;font-size:0.72rem;color:#999">(${m2}/${a2})</span>`,
+        cmp1: p1, cmp2: p2, higherBetter: true };
+    }
+
+    const rows = [
+      { cat: "Body",         v1: s["1"].pts, v2: s["2"].pts,
+        cmp1: s["1"].pts, cmp2: s["2"].pts, higherBetter: true },
+      pctRow("Střelba z pole", s["1"].fgm, s["1"].fga, s["2"].fgm, s["2"].fga),
+      pctRow("Dvojky",         s["1"].fg2m, s["1"].fg2a, s["2"].fg2m, s["2"].fg2a),
+      pctRow("Trojky",         s["1"].fg3m, s["1"].fg3a, s["2"].fg3m, s["2"].fg3a),
+      pctRow("Trestné hody",   s["1"].ftm, s["1"].fta, s["2"].ftm, s["2"].fta),
+      { cat: "Doskoky",      v1: `${s["1"].reb} <span style="font-weight:normal;font-size:0.72rem;color:#999">(${s["1"].oreb}+${s["1"].dreb})</span>`,
+                             v2: `${s["2"].reb} <span style="font-weight:normal;font-size:0.72rem;color:#999">(${s["2"].oreb}+${s["2"].dreb})</span>`,
+        cmp1: s["1"].reb, cmp2: s["2"].reb, higherBetter: true },
+      { cat: "Asistence",    v1: s["1"].ast, v2: s["2"].ast, higherBetter: true },
+      { cat: "Zisky",        v1: s["1"].stl, v2: s["2"].stl, higherBetter: true },
+      { cat: "Bloky",        v1: s["1"].blk, v2: s["2"].blk, higherBetter: true },
+      { cat: "Ztráty",       v1: s["1"].tov, v2: s["2"].tov, higherBetter: false },
+      { cat: "Osobní chyby", v1: s["1"].pf,  v2: s["2"].pf,  higherBetter: false },
+    ];
+
+    const c1 = TEAM_COLORS["1"], c2 = TEAM_COLORS["2"];
+
+    function splitBar(n1, n2, higherBetter) {
+      const total = n1 + n2;
+      if (!total) return '';
+      const p1 = Math.round(n1 / total * 100);
+      const better1 = higherBetter ? n1 > n2 : n1 < n2;
+      return `<div style="display:flex;height:4px;border-radius:2px;overflow:hidden;margin-top:3px">
+        <div style="width:${p1}%;background:${c1};opacity:${better1?0.9:0.35}"></div>
+        <div style="width:${100-p1}%;background:${c2};opacity:${better1?0.35:0.9}"></div>
+      </div>`;
+    }
+
+    const rowsHtml = rows.map(row => {
+      const n1 = row.cmp1 !== undefined ? row.cmp1 : +row.v1;
+      const n2 = row.cmp2 !== undefined ? row.cmp2 : +row.v2;
+      return `<div style="display:grid;grid-template-columns:1fr 96px 1fr;align-items:center;
+                  padding:5px 10px;border-bottom:1px solid #1e2040">
+        <span style="color:#ccc;font-size:0.88rem;font-weight:bold;text-align:right;padding-right:10px">${row.v1}</span>
+        <div>
+          <div style="color:#666;font-size:0.65rem;text-align:center">${row.cat}</div>
+          ${splitBar(n1, n2, row.higherBetter)}
+        </div>
+        <span style="color:#ccc;font-size:0.88rem;font-weight:bold;padding-left:10px">${row.v2}</span>
+      </div>`;
+    }).join("");
+
+    el.innerHTML = `
+      <div class="team-header" style="display:grid;grid-template-columns:1fr 96px 1fr;padding:0 10px 8px">
+        <span style="color:#ddd;text-align:right;padding-right:10px">${data.team1.name}</span>
+        <span></span>
+        <span style="color:#ddd;padding-left:10px">${data.team2.name}</span>
+      </div>
+      ${rowsHtml}`;
+  }
+
+  function renderTeamStats(data) {
+    const el = document.getElementById("chart-team-stats");
+    if (!el) return;
+    const tss = data.teamShotStats || {};
+    function qs(tno, key) { return ((tss[tno] || {}).qualifiers || {})[key] || {}; }
+    const t1 = tss["1"] || {}, t2 = tss["2"] || {};
+    const c1 = TEAM_COLORS["1"], c2 = TEAM_COLORS["2"];
+
+    function benchCell(benchPts, totalPts) {
+      const pct = totalPts ? Math.round(benchPts / totalPts * 100) : 0;
+      return `${benchPts} <span style="color:#666;font-size:0.75rem;font-weight:normal">(${pct}%)</span>`;
+    }
+
+    const cols = [
+      { label: "Ze ztrát",    tip: "Body ze ztrát soupeře" },
+      { label: "Paint",        tip: "Body z vymezeného území" },
+      { label: "2. šance",    tip: "Body z druhých šancí (po útočném doskoky)" },
+      { label: "Protiútoky",  tip: "Body z rychlých protiútoků" },
+      { label: "Lavička",     tip: "Body z lavičky (% ze všech bodů týmu)" },
+      { label: "Max. vedení", tip: "Největší vedení v zápase" },
+      { label: "Scoring run", tip: "Nejdelší scoring run – po sobě jdoucí body bez odpovědi soupeře" },
+    ];
+
+    function val(tno, colIdx) {
+      const t = tno === "1" ? t1 : t2;
+      const score = tno === "1" ? data.team1.score : data.team2.score;
+      switch(colIdx) {
+        case 0: return qs(tno,"fromturnover").pts || 0;
+        case 1: return qs(tno,"paint").pts || 0;
+        case 2: return qs(tno,"secondchance").pts || 0;
+        case 3: return qs(tno,"fastbreak").pts || 0;
+        case 4: return benchCell(t.benchPts||0, score);
+        case 5: return t.biggestLead || 0;
+        case 6: return t.biggestRun || 0;
+      }
+    }
+    function numVal(tno, colIdx) {
+      const t = tno === "1" ? t1 : t2;
+      const score = tno === "1" ? data.team1.score : data.team2.score;
+      switch(colIdx) {
+        case 0: return qs(tno,"fromturnover").pts || 0;
+        case 1: return qs(tno,"paint").pts || 0;
+        case 2: return qs(tno,"secondchance").pts || 0;
+        case 3: return qs(tno,"fastbreak").pts || 0;
+        case 4: return t.benchPts || 0;
+        case 5: return t.biggestLead || 0;
+        case 6: return t.biggestRun || 0;
+      }
+    }
+
+    const thCells = cols.map(c =>
+      `<th style="text-align:right;padding:7px 10px;background:#16213e;color:#666;font-size:0.68rem;
+                  text-transform:uppercase;letter-spacing:0.5px;font-weight:normal;white-space:nowrap"
+           title="${c.tip}">${c.label}</th>`
+    ).join("");
+
+    function teamRow(tno, name) {
+      const tds = cols.map((_, i) =>
+        `<td style="text-align:right;padding:7px 10px;font-weight:bold;color:#fff">${val(tno,i)}</td>`
+      ).join("");
+      return `<tr style="border-bottom:1px solid #222">
+        <td style="padding:7px 10px;font-weight:bold;color:#fff;white-space:nowrap">${name}</td>
+        ${tds}
+      </tr>`;
+    }
+
+    el.innerHTML = `<div style="overflow-x:auto">
+      <table style="border-collapse:collapse;width:100%;font-size:0.85rem;white-space:nowrap">
+        <thead><tr>
+          <th style="text-align:left;padding:7px 10px;background:#16213e;color:#555;font-size:0.68rem;
+                     text-transform:uppercase;letter-spacing:0.5px;font-weight:normal">Tým</th>
+          ${thCells}
+        </tr></thead>
+        <tbody>
+          ${teamRow("1", data.team1.name)}
+          ${teamRow("2", data.team2.name)}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
   // Load data and render
   function init() {
     const dataUrl = `../data/${GAME_ID}.json`;
     d3.json(dataUrl).then((data) => {
       renderTeamChart("#chart-team1", data, "1");
       renderTeamChart("#chart-team2", data, "2");
+      renderScoringChart(data);
+      renderBoxScore(data);
+      renderTeamStats(data);
     });
   }
 

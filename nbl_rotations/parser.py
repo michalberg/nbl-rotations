@@ -27,6 +27,7 @@ class Event:
     score2: int  # team 2 score
     shirt_number: str = ""
     player_name: str = ""
+    qualifier: list = field(default_factory=list)
 
 
 @dataclass
@@ -171,6 +172,7 @@ def parse_game(raw: dict, game_id: str = "") -> GameData:
             score2=int(e.get("s2") or 0),
             shirt_number=str(e.get("shirtNumber", "")),
             player_name=e.get("scoreboardName", e.get("name", "")),
+            qualifier=e.get("qualifier") or [],
         )
         game.events.append(event)
 

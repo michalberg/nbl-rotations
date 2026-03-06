@@ -3,7 +3,7 @@
 import json
 import shutil
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -19,6 +19,26 @@ STATIC_DIR = PROJECT_DIR / "static"
 DOCS_DIR = PROJECT_DIR / "docs"
 
 
+_LAYUP_SUBTYPES = frozenset({
+    "layup", "drivinglayup", "reverselayup", "tipinlayup",
+    "eurostep", "floatingjumpshot", "hookshot",
+})
+_DUNK_SUBTYPES = frozenset({
+    "dunk", "alleyoopdunk", "tipindunk", "alleyoop",
+})
+
+
+def _shot_group(action_type: str, sub_type: str) -> str:
+    """Return shot group: 'layup', 'dunk', 'midrange', or '3pt'."""
+    if action_type == "3pt":
+        return "3pt"
+    if sub_type in _DUNK_SUBTYPES:
+        return "dunk"
+    if sub_type in _LAYUP_SUBTYPES:
+        return "layup"
+    return "midrange"
+
+
 @dataclass
 class _PbpEvent:
     """Pre-processed PBP event with absolute time."""
@@ -29,6 +49,7 @@ class _PbpEvent:
     sub_type: str
     success: int
     points: int  # 0, 1, 2, or 3
+    qualifier: list = field(default_factory=list)
 
 
 def _build_pbp_events(game: GameData) -> list[_PbpEvent]:
@@ -53,8 +74,118 @@ def _build_pbp_events(game: GameData) -> list[_PbpEvent]:
             sub_type=event.sub_type,
             success=event.success,
             points=points,
+            qualifier=event.qualifier,
         ))
     return events
+
+
+def _build_shot_stats(events: list, team_number: int, shirt_number: str = "") -> dict:
+    """Compute shot-type and qualifier stats for a team or player.
+
+    Groups:
+      layup    – layup family (drivinglayup, reverselayup, tipinlayup, eurostep, floatingjumpshot, hookshot)
+      dunk     – dunk family (alleyoop, alleyoopdunk, tipindunk)
+      midrange – 2pt jump shots not in the above groups
+      3pt      – all three-pointers
+
+    Qualifiers (on 2pt/3pt + FT for pts):
+      fastbreak    – fast-break possession
+      secondchance – offensive-rebound possession
+      fromturnover – after opponent turnover
+      paint        – pointsinthepaint (2pt only, has made/att/pts)
+      blocked      – shot blocked (missed shots only, att count)
+    """
+    groups = {
+        "layup":    {"made": 0, "att": 0, "pts": 0},
+        "dunk":     {"made": 0, "att": 0, "pts": 0},
+        "midrange": {"made": 0, "att": 0, "pts": 0},
+        "3pt":      {"made": 0, "att": 0, "pts": 0},
+    }
+    qualifiers = {
+        "fastbreak":    {"pts": 0, "fg_att": 0},
+        "secondchance": {"pts": 0, "fg_att": 0},
+        "fromturnover": {"pts": 0, "fg_att": 0},
+        "paint":        {"pts": 0, "made": 0, "att": 0},
+        "blocked":      {"att": 0},
+    }
+    _qmap = {"fastbreak": "fastbreak", "2ndchance": "secondchance", "fromturnover": "fromturnover"}
+
+    for e in events:
+        if e.team_number != team_number:
+            continue
+        if shirt_number and e.shirt_number != shirt_number:
+            continue
+
+        # Shot-type grouping (field goals only)
+        if e.action_type in ("2pt", "3pt"):
+            grp = _shot_group(e.action_type, e.sub_type)
+            groups[grp]["att"] += 1
+            if e.success == 1:
+                groups[grp]["made"] += 1
+                groups[grp]["pts"] += e.points
+
+        # Qualifier stats (field goals + free throws contribute pts)
+        for q in e.qualifier:
+            if q in _qmap:
+                key = _qmap[q]
+                if e.action_type in ("2pt", "3pt"):
+                    qualifiers[key]["fg_att"] += 1
+                if e.points > 0:
+                    qualifiers[key]["pts"] += e.points
+            elif q == "pointsinthepaint" and e.action_type in ("2pt", "3pt"):
+                qualifiers["paint"]["att"] += 1
+                if e.success == 1:
+                    qualifiers["paint"]["made"] += 1
+                    qualifiers["paint"]["pts"] += e.points
+            elif q == "blocked" and e.action_type in ("2pt", "3pt"):
+                qualifiers["blocked"]["att"] += 1
+
+    return {"groups": groups, "qualifiers": qualifiers}
+
+
+def _compute_team_situational_stats(minute_data: dict, score_timeline: list) -> dict:
+    """Compute bench points, biggest lead, and biggest scoring run per team."""
+    result = {"1": {}, "2": {}}
+
+    # Bench points: non-starters who actually played
+    for tno_str in ["1", "2"]:
+        result[tno_str]["benchPts"] = sum(
+            p.get("gameStats", {}).get("pts", 0)
+            for p in minute_data[tno_str]
+            if not p.get("isStarter") and not p.get("isDNP")
+        )
+
+    # Biggest lead and biggest scoring run from score timeline
+    max_lead = {1: 0, 2: 0}
+    max_run = {1: 0, 2: 0}
+    cur_run = {1: 0, 2: 0}
+    prev_s1, prev_s2 = 0, 0
+
+    for event in score_timeline[1:]:  # skip initial {t:0, s1:0, s2:0}
+        s1, s2 = event["s1"], event["s2"]
+        d1, d2 = s1 - prev_s1, s2 - prev_s2
+        if d1 > 0:
+            cur_run[1] += d1
+            cur_run[2] = 0
+            if cur_run[1] > max_run[1]:
+                max_run[1] = cur_run[1]
+        if d2 > 0:
+            cur_run[2] += d2
+            cur_run[1] = 0
+            if cur_run[2] > max_run[2]:
+                max_run[2] = cur_run[2]
+        lead1, lead2 = s1 - s2, s2 - s1
+        if lead1 > max_lead[1]:
+            max_lead[1] = lead1
+        if lead2 > max_lead[2]:
+            max_lead[2] = lead2
+        prev_s1, prev_s2 = s1, s2
+
+    for tno_str, tno in [("1", 1), ("2", 2)]:
+        result[tno_str]["biggestLead"] = max_lead[tno]
+        result[tno_str]["biggestRun"] = max_run[tno]
+
+    return result
 
 
 def _empty_stats() -> dict:
@@ -164,7 +295,9 @@ def _build_minute_data(
                 for stint in pr.stints:
                     overlap_start = max(stint.time_in, minute_start)
                     overlap_end = min(stint.time_out, minute_end)
-                    if overlap_start < overlap_end:
+                    # Use <= to include zero-duration stints (player enters, acts, exits
+                    # at the same game-clock second — e.g. fouled in, shoots FTs, subs out)
+                    if overlap_start <= overlap_end:
                         on_court_seconds += overlap_end - overlap_start
                         intervals.append((overlap_start, overlap_end))
 
@@ -175,7 +308,10 @@ def _build_minute_data(
                     if e.abs_time < minute_start or e.abs_time >= minute_end:
                         continue
                     for iv_start, iv_end in intervals:
-                        if iv_start <= e.abs_time < iv_end:
+                        # Zero-duration interval: match events at exactly that second
+                        in_interval = (e.abs_time == iv_start) if iv_start == iv_end \
+                            else (iv_start <= e.abs_time < iv_end)
+                        if in_interval:
                             if e.points > 0:
                                 if e.team_number == tno:
                                     plus_minus += e.points
@@ -203,6 +339,7 @@ def _build_minute_data(
 
             # Full-game box score from PBP
             game_stats = _collect_player_stats(pbp_events, pr.shirt_number, tno)
+            shot_stats = _build_shot_stats(pbp_events, tno, pr.shirt_number)
             # Compute +/- from all minutes
             total_pm = sum(m["plusMinus"] for m in minutes if m["onCourt"])
 
@@ -217,7 +354,12 @@ def _build_minute_data(
                 "isStarter": pr.is_starter,
                 "totalSeconds": round(pr.total_seconds, 1),
                 "minutes": minutes,
+                "rawStints": [
+                    {"timeIn": round(s.time_in, 1), "timeOut": round(s.time_out, 1)}
+                    for s in pr.stints
+                ],
                 "gameStats": game_stats,
+                "shotStats": shot_stats,
                 "totalPlusMinus": total_pm,
             })
 
@@ -349,6 +491,16 @@ def build_game_json(
 
     num_ot = game.num_periods - 4 if game.num_periods > 4 else 0
 
+    pbp_events_all = _build_pbp_events(game)
+    score_timeline = _build_score_timeline(game)
+    team_shot_stats = {
+        "1": _build_shot_stats(pbp_events_all, 1),
+        "2": _build_shot_stats(pbp_events_all, 2),
+    }
+    situational = _compute_team_situational_stats(minute_data, score_timeline)
+    for tno_str in ["1", "2"]:
+        team_shot_stats[tno_str].update(situational[tno_str])
+
     return {
         "gameId": game.game_id,
         "team1": {
@@ -368,7 +520,27 @@ def build_game_json(
         "teamPlusMinus": team_pm,
         "lineups": lineups,
         "ratings": ratings_by_player,
+        "assistPairs": _build_assist_pairs(game),
+        "scoreTimeline": score_timeline,
+        "teamShotStats": team_shot_stats,
     }
+
+
+def _build_score_timeline(game: GameData) -> list[dict]:
+    """Score at each scoring event: [{t, s1, s2}, ...] starting from 0:0."""
+    timeline: list[dict] = [{"t": 0.0, "s1": 0, "s2": 0}]
+    last_s1, last_s2 = 0, 0
+    for e in game.events:
+        s1, s2 = e.score1, e.score2
+        if s1 + s2 > 0 and (s1 != last_s1 or s2 != last_s2):
+            # Skip stale/out-of-order events (FIBA API sometimes appends late corrections
+            # with old scores — basketball scores are monotonically non-decreasing)
+            if s1 < last_s1 or s2 < last_s2:
+                continue
+            t = parse_time_to_seconds(e.game_time, e.period)
+            timeline.append({"t": round(t, 1), "s1": s1, "s2": s2})
+            last_s1, last_s2 = s1, s2
+    return timeline
 
 
 def _format_date(date_str: str) -> str:
@@ -377,6 +549,105 @@ def _format_date(date_str: str) -> str:
         return date_str
     parts = date_str.split("-")
     return f"{int(parts[2])}.{int(parts[1])}.{parts[0]}"
+
+
+def _compute_stints(player: dict) -> list[tuple]:
+    """Return list of (start_min, end_min, length_min) for each true on-court stint.
+
+    Uses rawStints (exact seconds) when available — correctly handles substitutions
+    at minute boundaries. Falls back to minute-bucket heuristic for old data.
+    Quarter/OT breaks are NOT interruptions — only substitutions are.
+    """
+    raw = player.get("rawStints") if isinstance(player, dict) else None
+    if raw:
+        # Sort by start time, then merge adjacent stints with gap ≤ 2s
+        # (technical substitutions at period breaks have gap = 0)
+        valid = sorted(
+            [(s["timeIn"], s["timeOut"]) for s in raw if s["timeOut"] > s["timeIn"]],
+            key=lambda x: x[0],
+        )
+        if not valid:
+            return []
+        merged = [list(valid[0])]
+        for t_in, t_out in valid[1:]:
+            if t_in - merged[-1][1] <= 2.0:
+                merged[-1][1] = max(merged[-1][1], t_out)
+            else:
+                merged.append([t_in, t_out])
+        stints = []
+        for t_in, t_out in merged:
+            start_min = int(t_in / 60)
+            end_min = int((t_out - 0.001) / 60)
+            length = end_min - start_min + 1
+            if length > 0:
+                stints.append((start_min, end_min, length))
+        return stints
+    # Fallback: minute buckets (less accurate at substitution boundaries)
+    minutes_data = player.get("minutes", []) if isinstance(player, dict) else player
+    on_court = [m["minute"] for m in minutes_data if m.get("onCourt")]
+    if not on_court:
+        return []
+    stints = []
+    cur_start = on_court[0]
+    cur_end = on_court[0]
+    for i in range(1, len(on_court)):
+        if on_court[i] == on_court[i - 1] + 1:
+            cur_end = on_court[i]
+        else:
+            stints.append((cur_start, cur_end, cur_end - cur_start + 1))
+            cur_start = on_court[i]
+            cur_end = on_court[i]
+    stints.append((cur_start, cur_end, cur_end - cur_start + 1))
+    return stints
+
+
+def _compute_shared_seconds(stints1: list, stints2: list) -> float:
+    """Compute total overlapping seconds between two sets of raw stints."""
+    total = 0.0
+    for s1 in stints1:
+        for s2 in stints2:
+            overlap = min(s1["timeOut"], s2["timeOut"]) - max(s1["timeIn"], s2["timeIn"])
+            if overlap > 0:
+                total += overlap
+    return total
+
+
+def _build_assist_pairs(game: "GameData") -> list[dict]:
+    """Extract passer→scorer assist pairs from PBP events (sequential matching).
+
+    Each assist event follows the made shot it belongs to in the PBP stream.
+    We track the last successful field goal per team and link it to the next assist.
+    """
+    from .parser import Event as _Event
+    last_made: dict[int, _Event | None] = {1: None, 2: None}
+    pairs: dict[tuple, dict] = {}  # (tno, passer_shirt, scorer_shirt) -> stats
+
+    for event in game.events:  # already sorted ascending by actionNumber
+        tno = event.team_number
+        if tno not in (1, 2):
+            continue
+        if event.action_type in ("2pt", "3pt") and event.success == 1:
+            last_made[tno] = event
+        elif event.action_type == "assist":
+            shot = last_made[tno]
+            if shot and shot.shirt_number and event.shirt_number:
+                key = (tno, event.shirt_number, shot.shirt_number)
+                if key not in pairs:
+                    pairs[key] = {"ast": 0, "ast2": 0, "ast3": 0, "pts": 0}
+                p = pairs[key]
+                p["ast"] += 1
+                pts = 3 if shot.action_type == "3pt" else 2
+                p["pts"] += pts
+                if shot.action_type == "3pt":
+                    p["ast3"] += 1
+                else:
+                    p["ast2"] += 1
+
+    result = []
+    for (tno, passer_shirt, scorer_shirt), stats in pairs.items():
+        result.append({"tno": tno, "passer_shirt": passer_shirt,
+                        "scorer_shirt": scorer_shirt, **stats})
+    return result
 
 
 def _slugify(text: str) -> str:
@@ -672,6 +943,7 @@ def generate_player_pages(all_games_data: list[dict]):
                     "totalSeconds": player["totalSeconds"],
                     "periods": periods,
                     "minutes": player["minutes"] if not is_dnp else [],
+                    "rawStints": player.get("rawStints", []) if not is_dnp else [],
                     "gameStats": player["gameStats"],
                     "totalPlusMinus": player["totalPlusMinus"],
                 })
@@ -686,6 +958,63 @@ def generate_player_pages(all_games_data: list[dict]):
     print("  Computing lineup/on-off stats for player pages…")
     season_onoff = compute_season_onoff(all_games_data)
     season_lineups = aggregate_season_lineups(all_games_data, season_onoff)
+
+    # Aggregate assist pairs per player per team
+    # {player_key: {team_name: {"as_passer": {partner_key: {...}}, "as_scorer": {partner_key: {...}}}}}
+    player_pairs: dict = {}
+    for game_json in all_games_data:
+        shirt_to_key: dict = {}    # (tno, shirt) -> player_key
+        shirt_to_name: dict = {}   # (tno, shirt) -> display name
+        shirt_to_stints: dict = {} # (tno, shirt) -> rawStints
+        for tno_str in ["1", "2"]:
+            tno = int(tno_str)
+            for player in game_json["players"][tno_str]:
+                first = player.get("firstName", "")
+                family = player.get("familyName", "")
+                if not first or not family:
+                    continue
+                shirt = player["shirtNumber"]
+                k = (tno, shirt)
+                shirt_to_key[k] = f"{first}_{family}"
+                shirt_to_name[k] = f"{first} {family}"
+                shirt_to_stints[k] = player.get("rawStints", [])
+
+        for pair in game_json.get("assistPairs", []):
+            tno = pair["tno"]
+            tno_str = str(tno)
+            team_name = game_json[f"team{tno_str}"]["name"]
+            pk = (tno, pair["passer_shirt"])
+            sk = (tno, pair["scorer_shirt"])
+            passer_key = shirt_to_key.get(pk)
+            scorer_key = shirt_to_key.get(sk)
+            if not passer_key or not scorer_key:
+                continue
+            shared_s = _compute_shared_seconds(
+                shirt_to_stints.get(pk, []), shirt_to_stints.get(sk, []))
+
+            for main_key, role, partner_key, partner_name in [
+                (passer_key, "as_passer", scorer_key, shirt_to_name.get(sk, "")),
+                (scorer_key, "as_scorer", passer_key, shirt_to_name.get(pk, "")),
+            ]:
+                if main_key not in player_pairs:
+                    player_pairs[main_key] = {}
+                if team_name not in player_pairs[main_key]:
+                    player_pairs[main_key][team_name] = {"as_passer": {}, "as_scorer": {}}
+                role_dict = player_pairs[main_key][team_name][role]
+                if partner_key not in role_dict:
+                    role_dict[partner_key] = {
+                        "name": partner_name, "ast": 0, "ast2": 0,
+                        "ast3": 0, "pts": 0, "shared_seconds": 0.0,
+                    }
+                for stat_k in ("ast", "ast2", "ast3", "pts"):
+                    role_dict[partner_key][stat_k] += pair[stat_k]
+                role_dict[partner_key]["shared_seconds"] += shared_s
+
+    # Build lookup: player_key -> last team name (for partner slugs)
+    player_last_team_lookup: dict[str, str] = {}
+    for pk, pi_tmp in players_index.items():
+        if pi_tmp["games"]:
+            player_last_team_lookup[pk] = pi_tmp["games"][-1]["teamName"]
 
     count = 0
     for player_key, pi in players_index.items():
@@ -848,6 +1177,82 @@ def generate_player_pages(all_games_data: list[dict]):
             ])
         best_quintets = sorted(best_quintets, key=lambda q: -q["stabilized_net"])[:3]
 
+        # Compute top 10 longest stints for this player
+        top_stints = []
+        for g in pi["games"]:
+            if g.get("isDNP"):
+                continue
+            for start, end, length in _compute_stints(g):
+                top_stints.append({
+                    "length": length,
+                    "start": start,
+                    "end": end,
+                    "game_id": g["gameId"],
+                    "date": g["date"],
+                    "opponent": g["opponent"],
+                    "score": g["score"],
+                    "is_home": g["isHome"],
+                    "num_ot": g.get("numOT", 0),
+                })
+        top_stints.sort(key=lambda s: -s["length"])
+        top_stints = top_stints[:10]
+
+        # Build top assist pairs per team for this player
+        player_pairs_out: dict[str, dict] = {}
+        if player_key in player_pairs:
+            for team_name, team_data in player_pairs[player_key].items():
+                def _partner_slug(partner_key: str, fallback_team: str) -> str:
+                    pk_parts = partner_key.split("_", 1)
+                    p_first = pk_parts[0]
+                    p_family = pk_parts[1] if len(pk_parts) > 1 else ""
+                    p_team = player_last_team_lookup.get(partner_key, fallback_team)
+                    return (f"{_slugify(p_team)}-"
+                            f"{_slugify(p_first)}-{_slugify(p_family)}")
+
+                as_passer = []
+                for partner_key, d in team_data["as_passer"].items():
+                    if d["ast"] < 10:
+                        continue
+                    shared_min = d["shared_seconds"] / 60.0
+                    entry = {
+                        "name": d["name"],
+                        "slug": _partner_slug(partner_key, team_name),
+                        "season": season,
+                        "ast": d["ast"],
+                        "ast2": d["ast2"], "ast3": d["ast3"], "pts": d["pts"],
+                        "shared_min": round(shared_min),
+                    }
+                    if shared_min >= 5:
+                        entry["ast_per36"] = round(d["ast"] / shared_min * 36, 1)
+                        entry["pts_per36"] = round(d["pts"] / shared_min * 36, 1)
+                    as_passer.append(entry)
+                as_passer.sort(key=lambda x: -x["ast"])
+
+                as_scorer = []
+                for partner_key, d in team_data["as_scorer"].items():
+                    if d["ast"] < 10:
+                        continue
+                    shared_min = d["shared_seconds"] / 60.0
+                    entry = {
+                        "name": d["name"],
+                        "slug": _partner_slug(partner_key, team_name),
+                        "season": season,
+                        "ast": d["ast"],
+                        "ast2": d["ast2"], "ast3": d["ast3"], "pts": d["pts"],
+                        "shared_min": round(shared_min),
+                    }
+                    if shared_min >= 5:
+                        entry["ast_per36"] = round(d["ast"] / shared_min * 36, 1)
+                        entry["pts_per36"] = round(d["pts"] / shared_min * 36, 1)
+                    as_scorer.append(entry)
+                as_scorer.sort(key=lambda x: -x["ast"])
+
+                if as_passer or as_scorer:
+                    player_pairs_out[team_name] = {
+                        "as_passer": as_passer[:5],
+                        "as_scorer": as_scorer[:5],
+                    }
+
         # Render HTML
         html_dir = DOCS_DIR / "player" / season
         html_dir.mkdir(parents=True, exist_ok=True)
@@ -858,6 +1263,8 @@ def generate_player_pages(all_games_data: list[dict]):
             team_records_json=json.dumps(team_records, ensure_ascii=False),
             onoff_json=json.dumps(onoff_data, ensure_ascii=False),
             best_quintets_json=json.dumps(best_quintets, ensure_ascii=False),
+            top_stints_json=json.dumps(top_stints, ensure_ascii=False),
+            player_pairs_json=json.dumps(player_pairs_out, ensure_ascii=False),
             nav_base="../../", nav_active="players", nav_season=season,
         )
         html_path = html_dir / f"{slug}.html"
@@ -904,19 +1311,19 @@ def _generate_players_index(players_index: dict, env: Environment, season_onoff:
             teams[last_team] = []
         teams[last_team].append(player_entry)
 
-        # Build ratings entry: use last team, fall back to any team with valid data
+        # Build one ratings entry per team stint so each row on the stats page
+        # (which is keyed by team-based slug) can look up its own on/off data.
         short_name = pi.get("shortName", "")
         if short_name:
-            best_raw = None
-            best_team = last_team
             for team_name in pi["teamNames"]:
-                raw = season_onoff.get(f"{_slugify(team_name)}|{short_name}")
-                if raw and raw["on"]["poss"] > 0 and raw["on"]["opp_poss"] > 0:
-                    if best_raw is None or raw["on"]["minutes"] > best_raw["on"]["minutes"]:
-                        best_raw = raw
-                        best_team = team_name
-            if best_raw:
-                on, off = best_raw["on"], best_raw["off"]
+                team_slug = _slugify(team_name)
+                raw = season_onoff.get(f"{team_slug}|{short_name}")
+                if not raw or raw["on"]["poss"] <= 0 or raw["on"]["opp_poss"] <= 0:
+                    continue
+                team_entry_slug = (f"{team_slug}-"
+                                   f"{_slugify(pi['firstName'])}-"
+                                   f"{_slugify(pi['familyName'])}")
+                on, off = raw["on"], raw["off"]
                 on_ortg = round(on["pts"] / on["poss"] * 100, 1)
                 on_drtg = round(on["opp_pts"] / on["opp_poss"] * 100, 1)
                 on_net  = round(on_ortg - on_drtg, 1)
@@ -928,9 +1335,9 @@ def _generate_players_index(players_index: dict, env: Environment, season_onoff:
                 ratings_list.append({
                     "first_name":  pi["firstName"],
                     "family_name": pi["familyName"],
-                    "slug":        slug,
+                    "slug":        team_entry_slug,
                     "season":      season,
-                    "team":        best_team,
+                    "team":        team_name,
                     "on_min":      on["minutes"],
                     "on_ortg":     on_ortg,
                     "on_drtg":     on_drtg,
@@ -1122,6 +1529,13 @@ def generate_stats_pages(docs_path: Path | None = None):
             with open(ratings_file) as f:
                 player_ratings = json.load(f)
 
+        # Load assist pairs if available
+        assist_pairs_file = base / "data" / f"assist_pairs_{season}.json"
+        assist_pairs = {}
+        if assist_pairs_file.exists():
+            with open(assist_pairs_file) as f:
+                assist_pairs = json.load(f)
+
         template = env.get_template("stats_players.html")
         html = template.render(
             season=season,
@@ -1129,6 +1543,7 @@ def generate_stats_pages(docs_path: Path | None = None):
             players_json=json.dumps(player_stats, ensure_ascii=False),
             game_meta_json=json.dumps(log["game_meta"], ensure_ascii=False),
             ratings_json=json.dumps(player_ratings, ensure_ascii=False),
+            assist_pairs_json=json.dumps(assist_pairs, ensure_ascii=False),
             nav_base="../../", nav_active="stats-players", nav_season=season,
         )
         with open(out_dir / "players.html", "w") as f:
@@ -1146,7 +1561,7 @@ def generate_stats_pages(docs_path: Path | None = None):
         teams_games = {}
         for slug, tdata in sdata["teams"].items():
             team_name = tdata["name"]
-            # Build lookup: game_id -> {dd, td} for this team's players
+            # Build lookup: game_id -> {dd, td, pts20, pts30} for this team's players
             game_dd_td: dict[str, dict] = {}
             for pdata in sdata["players"].values():
                 for pg in pdata.get("games", []):
@@ -1154,7 +1569,7 @@ def generate_stats_pages(docs_path: Path | None = None):
                         continue
                     gid = pg.get("game_id", "")
                     if gid not in game_dd_td:
-                        game_dd_td[gid] = {"dd": 0, "td": 0}
+                        game_dd_td[gid] = {"dd": 0, "td": 0, "pts20": 0, "pts30": 0}
                     dd_cats = sum(1 for cat in ["pts", "reb", "ast", "stl"]
                                   if pg.get(cat, 0) >= 10)
                     if dd_cats >= 3:
@@ -1162,17 +1577,67 @@ def generate_stats_pages(docs_path: Path | None = None):
                         game_dd_td[gid]["dd"] += 1
                     elif dd_cats == 2:
                         game_dd_td[gid]["dd"] += 1
+                    if pg.get("pts", 0) >= 20:
+                        game_dd_td[gid]["pts20"] += 1
+                    if pg.get("pts", 0) >= 30:
+                        game_dd_td[gid]["pts30"] += 1
             augmented = [
-                {**g, **game_dd_td.get(g.get("game_id", ""), {"dd": 0, "td": 0})}
+                {**g, **game_dd_td.get(g.get("game_id", ""), {"dd": 0, "td": 0, "pts20": 0, "pts30": 0})}
                 for g in tdata.get("games", [])
             ]
             teams_games[slug] = {"name": team_name, "games": augmented}
+            # Patch cumulative dd/td/pts20/pts30 into team_stats
+            cumul = {
+                "dd": sum(v["dd"] for v in game_dd_td.values()),
+                "td": sum(v["td"] for v in game_dd_td.values()),
+                "pts20": sum(v["pts20"] for v in game_dd_td.values()),
+                "pts30": sum(v["pts30"] for v in game_dd_td.values()),
+            }
+            for ts in team_stats:
+                if ts.get("slug") == slug:
+                    ts.update(cumul)
+                    break
+
+        # Augment teams_games with situational stats from per-game JSON files
+        game_json_cache: dict[str, dict] = {}
+        for slug, tg_data in teams_games.items():
+            team_name = tg_data["name"]
+            for g in tg_data["games"]:
+                gid = g.get("game_id", "")
+                if not gid:
+                    continue
+                if gid not in game_json_cache:
+                    gpath = base / "data" / f"{gid}.json"
+                    if gpath.exists():
+                        with open(gpath) as _f:
+                            game_json_cache[gid] = json.load(_f)
+                gdata = game_json_cache.get(gid)
+                if not gdata:
+                    continue
+                tno = None
+                if gdata.get("team1", {}).get("name") == team_name:
+                    tno = "1"
+                elif gdata.get("team2", {}).get("name") == team_name:
+                    tno = "2"
+                if not tno:
+                    continue
+                tss = (gdata.get("teamShotStats") or {}).get(tno, {})
+                q = tss.get("qualifiers", {})
+                g["fromturnover_pts"] = q.get("fromturnover", {}).get("pts", 0)
+                g["paint_pts"] = q.get("paint", {}).get("pts", 0)
+                g["secondchance_pts"] = q.get("secondchance", {}).get("pts", 0)
+                g["fastbreak_pts"] = q.get("fastbreak", {}).get("pts", 0)
+                g["bench_pts"] = tss.get("benchPts", 0)
+                g["biggest_lead"] = tss.get("biggestLead", 0)
+                g["biggest_run"] = tss.get("biggestRun", 0)
+                g["isHome"] = (tno == "1")
 
         template = env.get_template("stats_teams.html")
         html = template.render(
             season=season,
             teams_json=json.dumps(team_stats, ensure_ascii=False),
             teams_games_json=json.dumps(teams_games, ensure_ascii=False),
+            assist_pairs_json=json.dumps(assist_pairs, ensure_ascii=False),
             nav_base="../../", nav_active="stats-teams", nav_season=season,
         )
         with open(out_dir / "teams.html", "w") as f:
@@ -1494,6 +1959,43 @@ def generate_top_games_page(all_games_data: list[dict], docs_path: Path | None =
         },
     ]
 
+    # ── Top 20 longest stints ─────────────────────────────────────────────────
+    all_stints = []
+    for g in all_games_data:
+        gid = g["gameId"]
+        date = g.get("date", "")
+        t1, s1 = g["team1"]["name"], g["team1"]["score"]
+        t2, s2 = g["team2"]["name"], g["team2"]["score"]
+        for tno_str in ["1", "2"]:
+            team_name = g[f"team{tno_str}"]["name"]
+            opp_name = g["team2"]["name"] if tno_str == "1" else g["team1"]["name"]
+            for player in g["players"].get(tno_str, []):
+                if player.get("isDNP"):
+                    continue
+                first_name = player.get("firstName", "")
+                family_name = player.get("familyName", "")
+                short_name = player.get("name", "")
+                if not first_name or not family_name:
+                    continue
+                player_slug = (f"{_slugify(team_name)}-"
+                               f"{_slugify(first_name)}-"
+                               f"{_slugify(family_name)}")
+                for start, end, length in _compute_stints(player):
+                    all_stints.append({
+                        "length": length,
+                        "start": start,
+                        "end": end,
+                        "player_name": short_name,
+                        "player_slug": player_slug,
+                        "player_season": season,
+                        "team": team_name,
+                        "gid": gid,
+                        "date": date,
+                        "t1": t1, "s1": s1, "t2": t2, "s2": s2,
+                    })
+    all_stints.sort(key=lambda s: (-s["length"], s["date"]))
+    top_stints = all_stints[:20]
+
     # ── Render ────────────────────────────────────────────────────────────────
     out_dir = base / "stats" / season
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1501,6 +2003,7 @@ def generate_top_games_page(all_games_data: list[dict], docs_path: Path | None =
     html = template.render(
         season=season,
         sections=sections,
+        top_stints=top_stints,
         nav_base="../../", nav_active="top-games", nav_season=season,
     )
     with open(out_dir / "top_games.html", "w") as f:
@@ -1612,6 +2115,186 @@ def generate_milestones_page(docs_path: Path | None = None):
 
 
 _MIN_MINUTES: dict[int, int] = {2: 20, 3: 15, 4: 12, 5: 10}
+
+
+def generate_top_performances_page(docs_path: Path | None = None):
+    """Generate league-wide TOP5 performances per stat category + triple doubles."""
+    base = docs_path or DOCS_DIR
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+
+    log_path = base / "data" / "season_log.json"
+    if not log_path.exists():
+        print("  No season_log.json found for top performances page.")
+        return
+
+    with open(log_path) as f:
+        log = json.load(f)
+
+    players = log.get("players", {})
+    all_dates = [g["date"] for p in players.values() for g in p.get("games", []) if g.get("date")]
+    if not all_dates:
+        return
+    season = _date_to_season(max(all_dates))
+
+    SIMPLE_KEYS = [
+        "pts", "q1", "q2", "q3", "q4",
+        "reb", "oreb", "dreb",
+        "ast", "stl", "blk", "tov",
+        "fgm", "fga", "fg2m", "fg2a", "fg3m", "fg3a", "ftm", "fta",
+    ]
+    ALL_KEYS = SIMPLE_KEYS + ["pm", "per", "fgpct", "fg2pct", "fg3pct", "ftpct"]
+    records: dict[str, list] = {k: [] for k in ALL_KEYS}
+    triple_doubles: list[dict] = []
+
+    for slug, pdata in players.items():
+        first = pdata.get("firstName", "")
+        family = pdata.get("familyName", "")
+        player_name = f"{first} {family}".strip() or slug
+        cur_team = pdata.get("team", "")
+
+        for g in pdata.get("games", []):
+            if g.get("isDNP", False):
+                continue
+
+            gid = g.get("game_id", "")
+            team = g.get("team", cur_team)
+            base_info = {
+                "player_name": player_name,
+                "player_slug": slug,
+                "player_season": season,
+                "team": team,
+                "game_id": gid,
+                "date": g.get("date", ""),
+                "opponent": g.get("opponent", ""),
+            }
+
+            for k in SIMPLE_KEYS:
+                v = g.get(k) or 0
+                records[k].append({**base_info, "value": v, "display": str(v)})
+
+            pm = g.get("plus_minus") or 0
+            records["pm"].append({**base_info, "value": pm,
+                "display": ("+" + str(pm)) if pm > 0 else str(pm)})
+
+            per_v = (
+                (g.get("pts") or 0) + (g.get("reb") or 0) + (g.get("ast") or 0) +
+                (g.get("stl") or 0) + (g.get("blk") or 0) -
+                ((g.get("fga") or 0) - (g.get("fgm") or 0)) -
+                ((g.get("fta") or 0) - (g.get("ftm") or 0)) -
+                (g.get("tov") or 0)
+            )
+            records["per"].append({**base_info, "value": per_v, "display": str(per_v)})
+
+            fga, fgm = (g.get("fga") or 0), (g.get("fgm") or 0)
+            if fga >= 10:
+                v = fgm / fga
+                records["fgpct"].append({**base_info, "value": v,
+                    "display": f"{v*100:.1f}% ({fgm}/{fga})"})
+
+            fg2a, fg2m = (g.get("fg2a") or 0), (g.get("fg2m") or 0)
+            if fg2a >= 10:
+                v = fg2m / fg2a
+                records["fg2pct"].append({**base_info, "value": v,
+                    "display": f"{v*100:.1f}% ({fg2m}/{fg2a})"})
+
+            fg3a, fg3m = (g.get("fg3a") or 0), (g.get("fg3m") or 0)
+            if fg3a >= 5:
+                v = fg3m / fg3a
+                records["fg3pct"].append({**base_info, "value": v,
+                    "display": f"{v*100:.1f}% ({fg3m}/{fg3a})"})
+
+            fta, ftm = (g.get("fta") or 0), (g.get("ftm") or 0)
+            if fta >= 5:
+                v = ftm / fta
+                records["ftpct"].append({**base_info, "value": v,
+                    "display": f"{v*100:.1f}% ({ftm}/{fta})"})
+
+            # Triple double: ≥10 in any 3 of {pts, reb, ast, stl, blk}
+            td_vals = {k: (g.get(k) or 0) for k in ["pts", "reb", "ast", "stl", "blk"]}
+            if sum(1 for v in td_vals.values() if v >= 10) >= 3:
+                shown = {k: v for k, v in td_vals.items() if v >= 9}
+                triple_doubles.append({**base_info, "td_stats": shown})
+
+    # Sort and keep TOP5
+    top5: dict[str, list] = {
+        k: sorted(records[k], key=lambda x: x["value"], reverse=True)[:5]
+        for k in ALL_KEYS
+    }
+
+    # Load game JSONs for score / isHome enrichment (only games referenced in TOP5 + TDs)
+    game_cache: dict[str, dict] = {}
+    needed_gids = {e["game_id"] for entries in top5.values() for e in entries} | \
+                  {td["game_id"] for td in triple_doubles}
+    for gid in needed_gids:
+        gpath = base / "data" / f"{gid}.json"
+        if gpath.exists():
+            with open(gpath) as f:
+                game_cache[gid] = json.load(f)
+
+    def _enrich(entry: dict) -> dict:
+        gid = entry.get("game_id", "")
+        gdata = game_cache.get(gid, {})
+        t1name = gdata.get("team1", {}).get("name", "")
+        s1 = gdata.get("team1", {}).get("score", "")
+        s2 = gdata.get("team2", {}).get("score", "")
+        score = f"{s1}:{s2}" if s1 != "" and s2 != "" else ""
+        is_home = (entry.get("team", "") == t1name) if t1name else True
+        dp = entry.get("date", "").split("-")
+        date_fmt = f"{dp[2]}.{dp[1]}.{dp[0]}" if len(dp) == 3 else entry.get("date", "")
+        return {**entry, "score": score, "is_home": is_home,
+                "loc": "vs." if is_home else "@", "date_fmt": date_fmt}
+
+    SECTION_DEFS = [
+        ("Skórování", [
+            ("Body", "pts"), ("PER", "per"),
+            ("1. čtvrtina", "q1"), ("2. čtvrtina", "q2"),
+            ("3. čtvrtina", "q3"), ("4. čtvrtina", "q4"), ("+/−", "pm"),
+        ]),
+        ("Doskoky", [
+            ("Doskoky celkem", "reb"), ("Útočné doskoky", "oreb"), ("Obranné doskoky", "dreb"),
+        ]),
+        ("Ostatní statistiky", [
+            ("Asistence", "ast"), ("Zisky", "stl"), ("Bloky", "blk"), ("Ztráty", "tov"),
+        ]),
+        ("Střelba", [
+            ("FGM", "fgm"), ("FGA", "fga"), ("2PM", "fg2m"), ("2PA", "fg2a"),
+            ("3PM", "fg3m"), ("3PA", "fg3a"), ("FTM", "ftm"), ("FTA", "fta"),
+        ]),
+        ("Úspěšnost střelby", [
+            ("FG% (min 10)", "fgpct"), ("2P% (min 10)", "fg2pct"),
+            ("3P% (min 5)", "fg3pct"), ("FT% (min 5)", "ftpct"),
+        ]),
+    ]
+
+    sections_data = []
+    for title, cats in SECTION_DEFS:
+        cats_data = [{"label": label, "key": key,
+                      "entries": [_enrich(e) for e in top5[key]]}
+                     for label, key in cats]
+        sections_data.append({"title": title, "categories": cats_data})
+
+    _TD_LABELS = {"pts": "Pts", "reb": "Reb", "ast": "Ast", "stl": "Stl", "blk": "Blk"}
+    _TD_ORDER = list(_TD_LABELS.keys())
+    td_enriched = []
+    for td in sorted(triple_doubles, key=lambda x: x["date"]):
+        e = _enrich(td)
+        stats_parts = [f"{_TD_LABELS[k]} {e['td_stats'][k]}"
+                       for k in _TD_ORDER if k in e.get("td_stats", {})]
+        e["stats_display"] = ", ".join(stats_parts)
+        td_enriched.append(e)
+
+    template = env.get_template("top_performances.html")
+    out_dir = base / "stats" / season
+    out_dir.mkdir(parents=True, exist_ok=True)
+    html = template.render(
+        season=season,
+        sections=sections_data,
+        triple_doubles=td_enriched,
+        nav_base="../../", nav_active="top-performances", nav_season=season,
+    )
+    with open(out_dir / "top_performances.html", "w") as f:
+        f.write(html)
+    print(f"  Generated: stats/{season}/top_performances.html")
 
 
 def generate_ratings_pages(all_games_data: list[dict], docs_path: Path | None = None):
@@ -1761,3 +2444,169 @@ def generate_ratings_pages(all_games_data: list[dict], docs_path: Path | None = 
             f.write(html)
 
     print(f"  Generated: stats/{season}/ratings/{{}}.html for {len(data)} teams")
+
+
+def generate_assist_pairs_data(all_games_data: list[dict], docs_path: Path | None = None):
+    """Aggregate passer→scorer assist pairs across all games, save per-season JSON.
+
+    Output: docs/data/assist_pairs_{season}.json with keys:
+      season, by_team (dict team→sorted list), league (top 20, min 20 ast),
+      best_passers (top 20, min 10 ast), best_scorers (top 20, min 10 ast).
+    """
+    base = docs_path or DOCS_DIR
+
+    # {season: {(team, passer_key, scorer_key): aggregated}}
+    season_pairs: dict[str, dict] = {}
+    # last seen team for each player key (for slug construction)
+    player_last_team: dict[str, str] = {}
+
+    sorted_games = sorted(all_games_data, key=lambda g: g.get("date", ""))
+
+    for game_json in sorted_games:
+        date = game_json.get("date", "")
+        season = _date_to_season(date)
+        if season not in season_pairs:
+            season_pairs[season] = {}
+
+        # Build per-team lookups
+        name_lookup: dict[tuple, tuple] = {}   # (tno, shirt) -> (first, family)
+        stints_lookup: dict[tuple, list] = {}  # (tno, shirt) -> rawStints
+
+        for tno_str in ["1", "2"]:
+            tno = int(tno_str)
+            team_name = game_json[f"team{tno_str}"]["name"]
+            for player in game_json["players"][tno_str]:
+                shirt = player["shirtNumber"]
+                first = player.get("firstName", "")
+                family = player.get("familyName", "")
+                if not first or not family:
+                    continue
+                k = (tno, shirt)
+                name_lookup[k] = (first, family)
+                stints_lookup[k] = player.get("rawStints", [])
+                player_last_team[f"{first}_{family}"] = team_name
+
+        for pair in game_json.get("assistPairs", []):
+            tno = pair["tno"]
+            tno_str = str(tno)
+            team_name = game_json[f"team{tno_str}"]["name"]
+            pk = (tno, pair["passer_shirt"])
+            sk = (tno, pair["scorer_shirt"])
+            passer_names = name_lookup.get(pk)
+            scorer_names = name_lookup.get(sk)
+            if not passer_names or not scorer_names:
+                continue
+            passer_key = f"{passer_names[0]}_{passer_names[1]}"
+            scorer_key = f"{scorer_names[0]}_{scorer_names[1]}"
+            agg_key = (team_name, passer_key, scorer_key)
+
+            if agg_key not in season_pairs[season]:
+                season_pairs[season][agg_key] = {
+                    "team": team_name,
+                    "passer_first": passer_names[0], "passer_family": passer_names[1],
+                    "scorer_first": scorer_names[0], "scorer_family": scorer_names[1],
+                    "ast": 0, "ast2": 0, "ast3": 0, "pts": 0, "shared_seconds": 0.0,
+                }
+            agg = season_pairs[season][agg_key]
+            for stat_k in ("ast", "ast2", "ast3", "pts"):
+                agg[stat_k] += pair[stat_k]
+            agg["shared_seconds"] += _compute_shared_seconds(
+                stints_lookup.get(pk, []), stints_lookup.get(sk, []))
+
+    for season, pairs_dict in season_pairs.items():
+        result_by_team: dict[str, list] = {}
+
+        for (team_name, passer_key, scorer_key), p in pairs_dict.items():
+            shared_min = p["shared_seconds"] / 60.0
+            p["shared_min"] = round(shared_min)
+            if shared_min >= 5:
+                p["ast_per36"] = round(p["ast"] / shared_min * 36, 1)
+                p["pts_per36"] = round(p["pts"] / shared_min * 36, 1)
+            else:
+                p["ast_per36"] = None
+                p["pts_per36"] = None
+
+            # Slugs (based on last seen team)
+            p_last = player_last_team.get(passer_key, team_name)
+            s_last = player_last_team.get(scorer_key, team_name)
+            p["passer_slug"] = (f"{_slugify(p_last)}-"
+                                f"{_slugify(p['passer_first'])}-"
+                                f"{_slugify(p['passer_family'])}")
+            p["scorer_slug"] = (f"{_slugify(s_last)}-"
+                                f"{_slugify(p['scorer_first'])}-"
+                                f"{_slugify(p['scorer_family'])}")
+            p["passer_season"] = season
+            p["scorer_season"] = season
+            p["passer_name"] = f"{p['passer_first']} {p['passer_family']}"
+            p["scorer_name"] = f"{p['scorer_first']} {p['scorer_family']}"
+
+            if team_name not in result_by_team:
+                result_by_team[team_name] = []
+            result_by_team[team_name].append(p)
+
+        for team_name in result_by_team:
+            result_by_team[team_name].sort(key=lambda x: -x["ast"])
+
+        # League top 20 (min 20 assists)
+        league_top20 = sorted(
+            [p for p in pairs_dict.values() if p["ast"] >= 20],
+            key=lambda x: -x["ast"])[:20]
+
+        # Best passers (min 10 assisted FGs)
+        passer_totals: dict[str, dict] = {}
+        for (team_name, passer_key, _sk), p in pairs_dict.items():
+            if passer_key not in passer_totals:
+                passer_totals[passer_key] = {
+                    "name": p["passer_name"], "slug": p["passer_slug"],
+                    "season": season, "ast": 0, "ast2": 0, "ast3": 0, "pts": 0,
+                    "_teams": {},
+                }
+            passer_totals[passer_key]["ast"] += p["ast"]
+            passer_totals[passer_key]["ast2"] += p["ast2"]
+            passer_totals[passer_key]["ast3"] += p["ast3"]
+            passer_totals[passer_key]["pts"] += p["pts"]
+            t = passer_totals[passer_key]["_teams"]
+            t[team_name] = t.get(team_name, 0) + p["ast"]
+        for v in passer_totals.values():
+            v["team"] = max(v["_teams"], key=lambda t: v["_teams"][t]) if v["_teams"] else ""
+            del v["_teams"]
+        best_passers = sorted(
+            [v for v in passer_totals.values() if v["ast"] >= 10],
+            key=lambda x: -x["ast"])[:20]
+
+        # Best scorers (min 10 assisted FGs)
+        scorer_totals: dict[str, dict] = {}
+        for (_tn, _pk, scorer_key), p in pairs_dict.items():
+            if scorer_key not in scorer_totals:
+                scorer_totals[scorer_key] = {
+                    "name": p["scorer_name"], "slug": p["scorer_slug"],
+                    "season": season, "ast": 0, "ast2": 0, "ast3": 0, "pts": 0,
+                    "_teams": {},
+                }
+            scorer_totals[scorer_key]["ast"] += p["ast"]
+            scorer_totals[scorer_key]["ast2"] += p["ast2"]
+            scorer_totals[scorer_key]["ast3"] += p["ast3"]
+            scorer_totals[scorer_key]["pts"] += p["pts"]
+            t = scorer_totals[scorer_key]["_teams"]
+            t[_tn] = t.get(_tn, 0) + p["ast"]
+        for v in scorer_totals.values():
+            v["team"] = max(v["_teams"], key=lambda t: v["_teams"][t]) if v["_teams"] else ""
+            del v["_teams"]
+        best_scorers = sorted(
+            [v for v in scorer_totals.values() if v["ast"] >= 10],
+            key=lambda x: -x["ast"])[:20]
+
+        output = {
+            "season": season,
+            "by_team": result_by_team,
+            "league": league_top20,
+            "best_passers": best_passers,
+            "best_scorers": best_scorers,
+        }
+
+        data_dir = base / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        with open(data_dir / f"assist_pairs_{season}.json", "w") as f:
+            json.dump(output, f, ensure_ascii=False)
+        print(f"  Assist pairs {season}: {sum(len(v) for v in result_by_team.values())} pairs "
+              f"across {len(result_by_team)} teams")

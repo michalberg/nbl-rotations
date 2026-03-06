@@ -11,12 +11,33 @@
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        #search-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        #player-search {
+            width: 100%;
+            max-width: 360px;
+            padding: 8px 14px;
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        #player-search:focus { border-color: #4a6fa5; }
+        #player-search::placeholder { color: #555; }
+    </style>
 </head>
 <body>
 {% include '_nav.html' %}
     <div class="container">
         <h1>Hráči NBL {{ season }}</h1>
         <p class="subtitle">Sezonní přehledy minutáže a statistik</p>
+        <div id="search-wrap"><input id="player-search" type="search" placeholder="Hledat hráče…" autocomplete="off" spellcheck="false"></div>
         {% for team in teams %}
         <div class="players-team-section">
             <h2 class="players-team-name">{{ team.name }}</h2>
@@ -37,5 +58,21 @@
         </div>
         {% endfor %}
     </div>
+    <script>
+        const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        document.getElementById('player-search').addEventListener('input', function() {
+            const q = norm(this.value.trim());
+            document.querySelectorAll('.players-team-section').forEach(section => {
+                let any = false;
+                section.querySelectorAll('.player-card').forEach(card => {
+                    const name = norm(card.querySelector('.player-card-name').textContent);
+                    const show = !q || name.includes(q);
+                    card.style.display = show ? '' : 'none';
+                    if (show) any = true;
+                });
+                section.style.display = any ? '' : 'none';
+            });
+        });
+    </script>
 </body>
 </html>

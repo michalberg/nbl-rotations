@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ game.team1.name }} {{ game.team1.score }} - {{ game.team2.score }} {{ game.team2.name }} | NBL Rotations</title>
+    <meta name="description" content="Rotace hráčů v zápase {{ game.team1.name }} {{ game.team1.score }}:{{ game.team2.score }} {{ game.team2.name }}{% if date_formatted %} ({{ date_formatted }}){% endif %}">
+    <meta property="og:title" content="{{ game.team1.name }} {{ game.team1.score }} - {{ game.team2.score }} {{ game.team2.name }}">
+    <meta property="og:description" content="Interaktivní vizualizace rotací hráčů v české basketbalové lize NBL">
+    <meta property="og:image" content="https://michalberg.github.io/nbl-rotations/og-image.png">
+    <meta property="og:url" content="https://michalberg.github.io/nbl-rotations/game/{{ game_id }}.html">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ game.team1.name }} {{ game.team1.score }} - {{ game.team2.score }} {{ game.team2.name }}">
+    <meta name="twitter:description" content="Interaktivní vizualizace rotací hráčů v české basketbalové lize NBL">
+    <meta name="twitter:image" content="https://michalberg.github.io/nbl-rotations/og-image.png">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+{% include '_nav.html' %}
+    <div class="container">
+        <h1 class="game-title">
+            <span class="team-name">{{ game.team1.name }}</span>
+            <span class="game-score">{{ game.team1.score }} : {{ game.team2.score }}{% if game.numOT %} <span class="ot-label">{% if game.numOT == 1 %}OT{% else %}{{ game.numOT }}OT{% endif %}</span>{% endif %}</span>
+            <span class="team-name">{{ game.team2.name }}</span>
+        </h1>
+        {% if date_formatted %}<p class="game-date">{{ date_formatted }}</p>{% endif %}
+        <p class="mobile-warning">Web není z důvodu použitých technologií optimalizován pro zobrazení na mobilu</p>
+        <div id="chart-team1" class="rotation-chart" data-team="1"></div>
+        <div id="chart-team2" class="rotation-chart" data-team="2"></div>
+        <div style="display:flex;gap:24px;align-items:flex-start;margin-top:24px;flex-wrap:wrap">
+            <div id="chart-scoring" class="rotation-chart" style="flex:1 1 400px;min-width:0"></div>
+            <div id="chart-boxscore" class="rotation-chart" style="flex:0 0 340px"></div>
+        </div>
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+    <script>
+        const GAME_ID = "{{ game_id }}";
+    </script>
+    <script src="../js/rotations-chart.js"></script>
+</body>
+</html>

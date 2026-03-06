@@ -13,7 +13,8 @@ from nbl_rotations.generator import (
     generate_player_pages, generate_team_data,
     generate_stats_pages, generate_leaderboard_pages,
     generate_top_games_page, generate_milestones_page,
-    generate_ratings_pages,
+    generate_ratings_pages, generate_assist_pairs_data,
+    generate_top_performances_page,
 )
 from nbl_rotations.stats import load_season_log, update_season_log, save_season_log
 from nbl_rotations.scraper import (
@@ -119,8 +120,11 @@ def main():
 
             print("Regenerating ratings pages...")
             generate_ratings_pages(all_games_data)
+            print("Regenerating assist pairs...")
+            from pathlib import Path as _Path
+            generate_assist_pairs_data(all_games_data, _Path(__file__).parent / "docs")
 
-            # Update season log with new games only
+            # Update season log with new games only (stats pages run after assist pairs)
             print("Updating season log...")
             _update_and_generate_stats(new_games_data, new_games)
             print(f"\nDone! {len(new_games)} new games processed.")
@@ -143,6 +147,10 @@ def main():
         generate_team_data(all_games_data)
         print(f"\nGenerating top games page...")
         generate_top_games_page(all_games_data)
+        print(f"\nGenerating assist pairs...")
+        from pathlib import Path as _Path
+        _docs = _Path(__file__).parent / "docs"
+        generate_assist_pairs_data(all_games_data, _docs)
         print(f"\nUpdating season log...")
         _update_and_generate_stats(all_games_data, all_games_meta)
         print(f"\nGenerating ratings pages...")
@@ -218,6 +226,8 @@ def _update_and_generate_stats(games_data: list[dict], games_meta: list[dict]) -
     generate_leaderboard_pages(docs_path)
     print("Generating milestones page...")
     generate_milestones_page(docs_path)
+    print("Generating top performances page...")
+    generate_top_performances_page(docs_path)
 
 
 def _load_and_build_all_games() -> list[dict]:
