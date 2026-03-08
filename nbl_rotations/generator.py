@@ -102,11 +102,13 @@ def _build_shot_stats(events: list, team_number: int, shirt_number: str = "") ->
         "3pt":      {"made": 0, "att": 0, "pts": 0},
     }
     qualifiers = {
-        "fastbreak":    {"pts": 0, "fg_att": 0},
-        "secondchance": {"pts": 0, "fg_att": 0},
-        "fromturnover": {"pts": 0, "fg_att": 0},
+        "fastbreak":    {"pts": 0, "fg_made": 0, "fg_att": 0},
+        "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0},
+        "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 0},
         "paint":        {"pts": 0, "made": 0, "att": 0},
         "blocked":      {"att": 0},
+        "blocked2":     {"att": 0},
+        "blocked3":     {"att": 0},
     }
     _qmap = {"fastbreak": "fastbreak", "2ndchance": "secondchance", "fromturnover": "fromturnover"}
 
@@ -130,6 +132,8 @@ def _build_shot_stats(events: list, team_number: int, shirt_number: str = "") ->
                 key = _qmap[q]
                 if e.action_type in ("2pt", "3pt"):
                     qualifiers[key]["fg_att"] += 1
+                    if e.success == 1:
+                        qualifiers[key]["fg_made"] += 1
                 if e.points > 0:
                     qualifiers[key]["pts"] += e.points
             elif q == "pointsinthepaint" and e.action_type in ("2pt", "3pt"):
@@ -139,6 +143,10 @@ def _build_shot_stats(events: list, team_number: int, shirt_number: str = "") ->
                     qualifiers["paint"]["pts"] += e.points
             elif q == "blocked" and e.action_type in ("2pt", "3pt"):
                 qualifiers["blocked"]["att"] += 1
+                if e.action_type == "2pt":
+                    qualifiers["blocked2"]["att"] += 1
+                else:
+                    qualifiers["blocked3"]["att"] += 1
 
     return {"groups": groups, "qualifiers": qualifiers}
 
@@ -945,6 +953,7 @@ def generate_player_pages(all_games_data: list[dict]):
                     "minutes": player["minutes"] if not is_dnp else [],
                     "rawStints": player.get("rawStints", []) if not is_dnp else [],
                     "gameStats": player["gameStats"],
+                    "shotStats": player.get("shotStats") if not is_dnp else None,
                     "totalPlusMinus": player["totalPlusMinus"],
                 })
 
@@ -1127,6 +1136,7 @@ def generate_player_pages(all_games_data: list[dict]):
                     "score": g.get("score", ""),
                     "isHome": g.get("isHome", False),
                     "q1": q_pts[1], "q2": q_pts[2], "q3": q_pts[3], "q4": q_pts[4],
+                    "shotStats": g.get("shotStats"),
                     **{k: gs.get(k, 0) for k in [
                         "pts", "reb", "oreb", "dreb", "ast", "stl", "blk", "tov",
                         "pf", "pfd", "technical", "fgm", "fga", "fg2m", "fg2a",
@@ -1536,6 +1546,12 @@ def generate_stats_pages(docs_path: Path | None = None):
             with open(assist_pairs_file) as f:
                 assist_pairs = json.load(f)
 
+        shot_profile_file = base / "data" / f"shot_profile_{season}.json"
+        shot_profile_for_players = {}
+        if shot_profile_file.exists():
+            with open(shot_profile_file) as f:
+                shot_profile_for_players = json.load(f)
+
         template = env.get_template("stats_players.html")
         html = template.render(
             season=season,
@@ -1544,6 +1560,7 @@ def generate_stats_pages(docs_path: Path | None = None):
             game_meta_json=json.dumps(log["game_meta"], ensure_ascii=False),
             ratings_json=json.dumps(player_ratings, ensure_ascii=False),
             assist_pairs_json=json.dumps(assist_pairs, ensure_ascii=False),
+            shot_profile_json=json.dumps(shot_profile_for_players, ensure_ascii=False),
             nav_base="../../", nav_active="stats-players", nav_season=season,
         )
         with open(out_dir / "players.html", "w") as f:
@@ -1631,6 +1648,100 @@ def generate_stats_pages(docs_path: Path | None = None):
                 g["biggest_lead"] = tss.get("biggestLead", 0)
                 g["biggest_run"] = tss.get("biggestRun", 0)
                 g["isHome"] = (tno == "1")
+                # Shot groups (for shot profile tab)
+                gr = tss.get("groups", {})
+                for _grp in ("layup", "dunk", "midrange"):
+                    g[f"{_grp}_made"] = gr.get(_grp, {}).get("made", 0)
+                    g[f"{_grp}_att"] = gr.get(_grp, {}).get("att", 0)
+                g["fg3_made"] = gr.get("3pt", {}).get("made", 0)
+                g["fg3_att"] = gr.get("3pt", {}).get("att", 0)
+                g["fastbreak_fg_made"] = q.get("fastbreak", {}).get("fg_made", 0)
+                g["fastbreak_fg_att"] = q.get("fastbreak", {}).get("fg_att", 0)
+                g["secondchance_fg_made"] = q.get("secondchance", {}).get("fg_made", 0)
+                g["secondchance_fg_att"] = q.get("secondchance", {}).get("fg_att", 0)
+                g["fromturnover_fg_made"] = q.get("fromturnover", {}).get("fg_made", 0)
+                g["fromturnover_fg_att"] = q.get("fromturnover", {}).get("fg_att", 0)
+                g["paint_made"] = q.get("paint", {}).get("made", 0)
+                g["paint_att"] = q.get("paint", {}).get("att", 0)
+                g["blocked_att"] = q.get("blocked", {}).get("att", 0)
+                g["blocked2_att"] = q.get("blocked2", {}).get("att", 0)
+                g["blocked3_att"] = q.get("blocked3", {}).get("att", 0)
+
+        # Aggregate per-player shot stats for shot profile tab
+        player_shots: dict[str, dict] = {}
+        for slug, tg_data in teams_games.items():
+            team_name = tg_data["name"]
+            player_shots[slug] = {"name": team_name, "players": {}}
+            for g in tg_data["games"]:
+                gid = g.get("game_id", "")
+                gdata = game_json_cache.get(gid)
+                if not gdata:
+                    continue
+                _tno = "1" if gdata.get("team1", {}).get("name") == team_name else "2"
+                for _p in gdata["players"].get(_tno, []):
+                    if _p.get("isDNP", False):
+                        continue
+                    _first = _p.get("firstName", "")
+                    _family = _p.get("familyName", "")
+                    if not _first or not _family:
+                        continue
+                    _pkey = f"{_first}_{_family}"
+                    _pslug = f"{slug}-{_slugify(_first)}-{_slugify(_family)}"
+                    if _pkey not in player_shots[slug]["players"]:
+                        player_shots[slug]["players"][_pkey] = {
+                            "name": f"{_first} {_family}",
+                            "slug": _pslug,
+                            "gp": 0,
+                            "layup_att": 0, "layup_made": 0,
+                            "dunk_att": 0, "dunk_made": 0,
+                            "midrange_att": 0, "midrange_made": 0,
+                            "fg3_att": 0, "fg3_made": 0,
+                            "total_fga": 0,
+                            "fastbreak_fg_att": 0, "fastbreak_fg_made": 0,
+                            "secondchance_fg_att": 0, "secondchance_fg_made": 0,
+                            "fromturnover_fg_att": 0, "fromturnover_fg_made": 0,
+                            "paint_att": 0, "paint_made": 0,
+                            "blocked_att": 0,
+                        }
+                    _pd = player_shots[slug]["players"][_pkey]
+                    _ss = _p.get("shotStats", {})
+                    _gr = _ss.get("groups", {})
+                    _q = _ss.get("qualifiers", {})
+                    _pd["gp"] += 1
+                    _pd["layup_att"] += _gr.get("layup", {}).get("att", 0)
+                    _pd["layup_made"] += _gr.get("layup", {}).get("made", 0)
+                    _pd["dunk_att"] += _gr.get("dunk", {}).get("att", 0)
+                    _pd["dunk_made"] += _gr.get("dunk", {}).get("made", 0)
+                    _pd["midrange_att"] += _gr.get("midrange", {}).get("att", 0)
+                    _pd["midrange_made"] += _gr.get("midrange", {}).get("made", 0)
+                    _pd["fg3_att"] += _gr.get("3pt", {}).get("att", 0)
+                    _pd["fg3_made"] += _gr.get("3pt", {}).get("made", 0)
+                    _pd["total_fga"] += _p.get("gameStats", {}).get("fga", 0)
+                    _pd["fastbreak_fg_att"]   += _q.get("fastbreak",    {}).get("fg_att",  0)
+                    _pd["fastbreak_fg_made"]  += _q.get("fastbreak",    {}).get("fg_made", 0)
+                    _pd["secondchance_fg_att"]  += _q.get("secondchance", {}).get("fg_att",  0)
+                    _pd["secondchance_fg_made"] += _q.get("secondchance", {}).get("fg_made", 0)
+                    _pd["fromturnover_fg_att"]  += _q.get("fromturnover", {}).get("fg_att",  0)
+                    _pd["fromturnover_fg_made"] += _q.get("fromturnover", {}).get("fg_made", 0)
+                    _pd["paint_att"]   += _q.get("paint",   {}).get("att",  0)
+                    _pd["paint_made"]  += _q.get("paint",   {}).get("made", 0)
+                    _pd["blocked_att"] += _q.get("blocked", {}).get("att",  0)
+
+        shot_profile_by_team: dict[str, dict] = {}
+        for slug, tdata in player_shots.items():
+            players_list = []
+            for _pd in tdata["players"].values():
+                _pd["atrim_att"] = _pd["layup_att"] + _pd["dunk_att"]
+                _pd["atrim_made"] = _pd["layup_made"] + _pd["dunk_made"]
+                players_list.append(_pd)
+            players_list.sort(key=lambda _p: -_p["total_fga"])
+            shot_profile_by_team[slug] = {"name": tdata["name"], "players": players_list}
+
+        shot_profile = {"season": season, "by_team": shot_profile_by_team}
+        with open(base / "data" / f"shot_profile_{season}.json", "w") as _spf:
+            json.dump(shot_profile, _spf, ensure_ascii=False)
+        _sp_players = sum(len(v["players"]) for v in shot_profile_by_team.values())
+        print(f"  Shot profile {season}: {_sp_players} players across {len(shot_profile_by_team)} teams")
 
         template = env.get_template("stats_teams.html")
         html = template.render(
@@ -1638,6 +1749,7 @@ def generate_stats_pages(docs_path: Path | None = None):
             teams_json=json.dumps(team_stats, ensure_ascii=False),
             teams_games_json=json.dumps(teams_games, ensure_ascii=False),
             assist_pairs_json=json.dumps(assist_pairs, ensure_ascii=False),
+            shot_profile_json=json.dumps(shot_profile, ensure_ascii=False),
             nav_base="../../", nav_active="stats-teams", nav_season=season,
         )
         with open(out_dir / "teams.html", "w") as f:

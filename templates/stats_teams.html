@@ -67,6 +67,70 @@
         .negative { color: #ef5350; }
         .game-link { color: #4a7ab8; text-decoration: none; }
         .game-link:hover { text-decoration: underline; }
+        /* Shot Profile Tab */
+        .sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        @media (max-width: 768px) { .sp-grid { grid-template-columns: 1fr; } }
+        .sp-section { background: #0f1a2e; border: 1px solid #1e2a40; border-radius: 6px; padding: 16px; }
+        .sp-section-full { grid-column: 1 / -1; }
+        .sp-section-title { color: #6a9fd8; font-size: 0.72rem; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #1e2a40; }
+        .sp-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.8rem; }
+        .sp-bar-label { color: #888; width: 130px; flex-shrink: 0; }
+        .sp-bar-sub { color: #555; font-size: 0.72rem; padding-left: 8px; flex-shrink: 0; }
+        .sp-bar-track { flex: 1; height: 10px; background: #1a2540; border-radius: 5px; overflow: hidden; min-width: 60px; }
+        .sp-bar-fill { height: 100%; border-radius: 5px; }
+        .sp-bar-val { color: #ccc; width: 46px; text-align: right; flex-shrink: 0; }
+        .sp-bar-att { color: #aaa; width: 50px; text-align: right; flex-shrink: 0; font-size: 0.74rem; }
+        .sp-bar-pct { color: #ccc; width: 54px; text-align: right; flex-shrink: 0; }
+        .sp-stat-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #141d2e; font-size: 0.8rem; }
+        .sp-stat-row:last-child { border-bottom: none; }
+        .sp-stat-label { color: #888; }
+        .sp-stat-value { color: #e0e0e0; }
+        .sp-stat-sub { color: #555; font-size: 0.72rem; }
+        .sp-cmp-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #141d2e; font-size: 0.78rem; }
+        .sp-cmp-row:last-child { border-bottom: none; }
+        .sp-cmp-label { color: #888; flex: 1; }
+        .sp-cmp-team { color: #e0e0e0; width: 52px; text-align: right; }
+        .sp-cmp-diff { width: 54px; text-align: right; font-size: 0.72rem; }
+        .sp-cmp-diff.pos { color: #4caf50; }
+        .sp-cmp-diff.neg { color: #ef5350; }
+        .sp-cmp-diff.neutral { color: #555; }
+        .sp-cmp-league { color: #555; font-size: 0.7rem; width: 52px; text-align: right; }
+        .sp-identity-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .sp-identity-badge { padding: 6px 12px; border-radius: 4px; font-size: 0.78rem; border: 1px solid; }
+        .sp-identity-badge.elite { background: #0d2a1a; border-color: #2d7a4a; color: #4caf50; }
+        .sp-identity-badge.strong { background: #0d2416; border-color: #245c38; color: #66bb6a; }
+        .sp-identity-badge.notable { background: #141e1a; border-color: #1e3a2a; color: #81c784; }
+        .sp-identity-badge.neutral { background: #161622; border-color: #2a2a40; color: #7986cb; }
+        .sp-identity-badge.concern { background: #2a0d0d; border-color: #6a2020; color: #ef5350; }
+        .sp-identity-desc { font-size: 0.68rem; color: #555; margin-top: 3px; }
+        .sp-sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 600px) { .sp-sw-grid { grid-template-columns: 1fr; } }
+        .sp-sw-card { padding: 10px 12px; border-radius: 4px; font-size: 0.78rem; }
+        .sp-sw-card.strength { background: #0a1f10; border-left: 3px solid #4caf50; }
+        .sp-sw-card.weakness { background: #1f0a0a; border-left: 3px solid #ef5350; }
+        .sp-sw-name { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+        .sp-sw-card.strength .sp-sw-name { color: #4caf50; }
+        .sp-sw-card.weakness .sp-sw-name { color: #ef5350; }
+        .sp-sw-text { color: #ccc; margin-bottom: 2px; }
+        .sp-sw-reason { color: #666; font-size: 0.7rem; }
+        .sp-player-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+        .sp-player-table th { color: #555; font-weight: normal; text-align: right; padding: 3px 6px; font-size: 0.68rem; text-transform: uppercase; border-bottom: 1px solid #1e2a40; }
+        .sp-player-table th:first-child, .sp-player-table th:nth-child(2) { text-align: left; }
+        .sp-player-table td { color: #ccc; text-align: right; padding: 4px 6px; border-bottom: 1px solid #0d1525; }
+        .sp-player-table td:first-child { text-align: left; color: #555; width: 20px; }
+        .sp-player-table td:nth-child(2) { text-align: left; color: #e0e0e0; }
+        .sp-player-table td.sp-pct { color: #6a9fd8; }
+        .sp-player-table td.sp-share { color: #555; font-size: 0.7rem; }
+        .sp-players-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        @media (max-width: 700px) { .sp-players-grid { grid-template-columns: 1fr; } }
+        .sp-eff-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; }
+        .sp-eff-table th { color: #555; font-weight: normal; text-align: right; padding: 3px 8px; font-size: 0.68rem; text-transform: uppercase; border-bottom: 1px solid #1e2a40; cursor: default; }
+        .sp-eff-table th:first-child { text-align: left; }
+        .sp-eff-table td { color: #ccc; text-align: right; padding: 5px 8px; border-bottom: 1px solid #0d1525; }
+        .sp-eff-table td:first-child { text-align: left; color: #888; }
+        .sp-eff-sub td:first-child { color: #555; padding-left: 18px; font-size: 0.72rem; }
+        .sp-eff-sub td { color: #777; font-size: 0.72rem; }
+        .sp-eff-hi { color: #6a9fd8; }
     </style>
 </head>
 <body>
@@ -83,6 +147,8 @@
         <button class="tab-btn" data-tab="advanced">Pokročilé</button>
         <button class="tab-btn" data-tab="dvojice">Dvojice</button>
         <button class="tab-btn" data-tab="situacni">Herní situace</button>
+        <button class="tab-btn" data-tab="shotprofile">Profil střelby</button>
+        <button class="tab-btn" data-tab="strelba-cmp">Srovnání střelby</button>
     </div>
 
     <div class="time-filter">
@@ -260,6 +326,46 @@
             </table>
             </div>
         </div>
+        <!-- PROFIL STŘELBY -->
+        <div id="tab-shotprofile" class="hidden">
+            <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">
+                <span style="color:#666;font-size:0.82rem">Tým:</span>
+                <select id="sp-team-select" style="background:#16213e;color:#e0e0e0;border:1px solid #333;border-radius:4px;padding:4px 8px;font-size:0.82rem"></select>
+            </div>
+            <div id="sp-content"></div>
+        </div>
+
+        <!-- SROVNÁNÍ STŘELBY -->
+        <div id="tab-strelba-cmp" class="hidden">
+            <div style="overflow-x:auto">
+            <table id="strelba-cmp-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="text-align:left;min-width:120px" data-cmp-key="name">Tým</th>
+                        <th colspan="8" class="col-group-sep" style="text-align:center;color:#6a9fd8;border-bottom:1px solid #2a2a3e;cursor:default">Shot Distribution</th>
+                        <th rowspan="2" class="col-group-sep" data-tip="Blokované střely jako % všech pokusů" data-cmp-key="blockedRate">Zblok. %</th>
+                        <th colspan="4" class="col-group-sep" style="text-align:center;color:#6a9fd8;border-bottom:1px solid #2a2a3e;cursor:default">Context Shooting (% pokusů)</th>
+                    </tr>
+                    <tr>
+                        <th class="col-group-sep" data-tip="U koše – podíl ze všech pokusů" data-cmp-key="atRimRate">U koše %</th>
+                        <th data-tip="U koše – FG%" data-cmp-key="atRimFGPct">FG%</th>
+                        <th class="col-group-sep" data-tip="Midrange – podíl ze všech pokusů" data-cmp-key="midrangeRate">Mid %</th>
+                        <th data-tip="Midrange – FG%" data-cmp-key="midrangeFGPct">FG%</th>
+                        <th class="col-group-sep" data-tip="Trojky – podíl ze všech pokusů" data-cmp-key="fg3Rate">3PT %</th>
+                        <th data-tip="Trojky – FG%" data-cmp-key="fg3Pct">FG%</th>
+                        <th class="col-group-sep" data-tip="Dunky – průměr proměněných za zápas" data-cmp-key="dunkPerGame">Dunky/z</th>
+                        <th data-tip="Dunky – FG%" data-cmp-key="dunkFGPct">FG%</th>
+                        <th class="col-group-sep" data-tip="Rychlý protiútok – % pokusů z celku" data-cmp-key="fbRate">Protiútok</th>
+                        <th data-tip="Druhé šance – % pokusů z celku" data-cmp-key="scRate">2. šance</th>
+                        <th data-tip="Ze ztrát soupeře – % pokusů z celku" data-cmp-key="ftoRate">Ze ztrát</th>
+                        <th data-tip="Paint – % pokusů z celku" data-cmp-key="paintRate">Paint</th>
+                    </tr>
+                </thead>
+                <tbody id="body-strelba-cmp"></tbody>
+            </table>
+            </div>
+        </div>
+
         <!-- HERNÍ SITUACE -->
         <div id="tab-situacni" class="hidden">
             <div style="overflow-x:auto">
@@ -286,6 +392,7 @@
 <script>
 const TEAMS_GAMES = {{ teams_games_json }};
 const ASSIST_PAIRS = {{ assist_pairs_json }};
+const SHOT_PROFILE = {{ shot_profile_json }};
 
 const MONTH_CS = {
     '01':'Leden','02':'Únor','03':'Březen','04':'Duben',
@@ -614,12 +721,17 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
         document.getElementById('tab-dvojice')?.classList.add('hidden');
         document.getElementById('tab-situacni')?.classList.add('hidden');
+        document.getElementById('tab-shotprofile')?.classList.add('hidden');
+        document.getElementById('tab-strelba-cmp')?.classList.add('hidden');
         document.getElementById(`tab-${currentTab}`)?.classList.remove('hidden');
         document.getElementById('advanced-legend').classList.toggle('hidden', currentTab !== 'advanced');
         const tf = document.querySelector('.time-filter');
-        if (tf) tf.style.display = (currentTab === 'dvojice' || currentTab === 'situacni') ? 'none' : '';
+        const noFilter = ['dvojice','situacni','shotprofile','strelba-cmp'];
+        if (tf) tf.style.display = noFilter.includes(currentTab) ? 'none' : '';
         if (currentTab === 'dvojice') { renderDvojice(); return; }
         if (currentTab === 'situacni') { renderSituacni(); return; }
+        if (currentTab === 'shotprofile') { renderShotProfile(); return; }
+        if (currentTab === 'strelba-cmp') { renderStrelbaCmp(); return; }
         const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', fouls: 'tovPerGame', doubles: 'dd', opponent: 'opp_ptsPerGame', advanced: 'ortg' };
         const defaultDesc = { opponent: false };
         sortKey = defaults[currentTab] || 'ptsPerGame';
@@ -775,6 +887,508 @@ function renderDvojiceHeatmap(pairs) {
 // Init Dvojice select if data available
 if (teamNames.length) dvojiceSelect.value = teamNames[0];
 
+// ── Profil střelby ────────────────────────────────────────────────────────────
+const spSelect = document.getElementById('sp-team-select');
+const spTeamSlugs = Object.keys(TEAMS_GAMES).sort((a, b) =>
+    TEAMS_GAMES[a].name.localeCompare(TEAMS_GAMES[b].name));
+spTeamSlugs.forEach(slug => {
+    const opt = document.createElement('option');
+    opt.value = slug;
+    opt.textContent = TEAMS_GAMES[slug].name;
+    spSelect.appendChild(opt);
+});
+if (spTeamSlugs.length) spSelect.value = spTeamSlugs[0];
+spSelect.addEventListener('change', renderShotProfile);
+
+function computeShotProfile(games) {
+    let layupMade=0, layupAtt=0, dunkMade=0, dunkAtt=0;
+    let midrangeMade=0, midrangeAtt=0, fg3Made=0, fg3Att=0;
+    let ftm=0, fta=0, pts=0;
+    let fbPts=0, fbMade=0, fbAtt=0, scPts=0, scMade=0, scAtt=0, ftoPts=0, ftoMade=0, ftoAtt=0;
+    let paintPts=0, paintMade=0, paintAtt=0, blockedAtt=0, blocked2Att=0, blocked3Att=0;
+    for (const g of games) {
+        layupMade  += g.layup_made  || 0; layupAtt  += g.layup_att  || 0;
+        dunkMade   += g.dunk_made   || 0; dunkAtt   += g.dunk_att   || 0;
+        midrangeMade += g.midrange_made || 0; midrangeAtt += g.midrange_att || 0;
+        fg3Made    += g.fg3_made    || 0; fg3Att    += g.fg3_att    || 0;
+        ftm += g.ftm || 0; fta += g.fta || 0; pts += g.pts || 0;
+        fbPts  += g.fastbreak_pts  || 0; fbMade  += g.fastbreak_fg_made  || 0; fbAtt  += g.fastbreak_fg_att  || 0;
+        scPts  += g.secondchance_pts || 0; scMade += g.secondchance_fg_made || 0; scAtt  += g.secondchance_fg_att || 0;
+        ftoPts += g.fromturnover_pts || 0; ftoMade += g.fromturnover_fg_made || 0; ftoAtt += g.fromturnover_fg_att || 0;
+        paintPts  += g.paint_pts   || 0; paintMade += g.paint_made || 0;
+        paintAtt  += g.paint_att   || 0; blockedAtt += g.blocked_att || 0;
+        blocked2Att += g.blocked2_att || 0; blocked3Att += g.blocked3_att || 0;
+    }
+    const atRimMade = layupMade + dunkMade;
+    const atRimAtt  = layupAtt  + dunkAtt;
+    const total2PM  = atRimMade + midrangeMade;
+    const total2PA  = atRimAtt  + midrangeAtt;
+    const totalFGM  = total2PM  + fg3Made;
+    const totalFGA  = total2PA  + fg3Att;
+    const p = (a, b) => b ? a / b * 100 : 0;
+    return {
+        layupMade, layupAtt, dunkMade, dunkAtt,
+        midrangeMade, midrangeAtt, fg3Made, fg3Att,
+        atRimMade, atRimAtt, total2PM, total2PA, totalFGM, totalFGA,
+        ftm, fta, pts,
+        fbPts, fbMade, fbAtt, scPts, scMade, scAtt, ftoPts, ftoMade, ftoAtt,
+        paintPts, paintMade, paintAtt, blockedAtt, blocked2Att, blocked3Att,
+        // Distribution %
+        atRimRate:    p(atRimAtt,    totalFGA),
+        midrangeRate: p(midrangeAtt, totalFGA),
+        fg3Rate:      p(fg3Att,      totalFGA),
+        // Efficiency
+        atRimFGPct:    p(atRimMade,    atRimAtt),
+        midrangeFGPct: p(midrangeMade, midrangeAtt),
+        fg3Pct:        p(fg3Made,      fg3Att),
+        fg2Pct:        p(total2PM,     total2PA),
+        ftPct:         p(ftm,          fta),
+        paintFGPct:    p(paintMade,    paintAtt),
+        eFGPct: totalFGA ? (totalFGM + 0.5 * fg3Made) / totalFGA * 100 : 0,
+        tsPct:  (totalFGA + 0.44 * fta) ? pts / (2 * (totalFGA + 0.44 * fta)) * 100 : 0,
+        // Context
+        fbPPP:       fbAtt  ? fbPts  / fbAtt  : 0,
+        fbPtsPct:    p(fbPts,  pts),
+        scPPP:       scAtt  ? scPts  / scAtt  : 0,
+        scPtsPct:    p(scPts,  pts),
+        ftoPPP:      ftoAtt ? ftoPts / ftoAtt : 0,
+        ftoPtsPct:   p(ftoPts, pts),
+        paintPtsPct: p(paintPts, pts),
+        blockedRate: p(blockedAtt, totalFGA),
+    };
+}
+
+let _leagueAvgCache = null;
+function computeLeagueAverages() {
+    if (_leagueAvgCache) return _leagueAvgCache;
+    const profiles = Object.values(TEAMS_GAMES)
+        .map(tg => computeShotProfile(tg.games))
+        .filter(pr => pr.totalFGA > 0);
+    if (!profiles.length) return {};
+    const keys = ['atRimRate','midrangeRate','fg3Rate','atRimFGPct','midrangeFGPct',
+        'fg3Pct','fg2Pct','ftPct','eFGPct','tsPct','fbPPP','fbPtsPct',
+        'scPPP','scPtsPct','ftoPPP','ftoPtsPct','paintPtsPct','paintFGPct','blockedRate'];
+    const avg = {};
+    for (const k of keys) avg[k] = profiles.reduce((s, pr) => s + (pr[k] || 0), 0) / profiles.length;
+    _leagueAvgCache = avg;
+    return avg;
+}
+
+function compareWithLeague(profile, league) {
+    const out = {};
+    for (const k of Object.keys(league)) {
+        const team = profile[k] || 0;
+        const lg   = league[k]  || 0;
+        out[k] = { team, league: lg, diff: team - lg };
+    }
+    return out;
+}
+
+function classifyTeamIdentity(cmp) {
+    const ids = [];
+    const add = (type, label, strength, desc) => ids.push({type, label, strength, desc});
+    if (cmp.atRimRate?.diff >= 5)        add('paint_heavy',   'Paint-Heavy Team',      cmp.atRimRate.diff >= 8 ? 'elite' : 'strong',
+        `${cmp.atRimRate.team.toFixed(1)}% pokusů u koše (liga: ${cmp.atRimRate.league.toFixed(1)}%)`);
+    if (cmp.atRimRate?.diff <= -5)       add('perimeter',     'Perimeter-First Team',  'notable',
+        `Jen ${cmp.atRimRate.team.toFixed(1)}% pokusů u koše (liga: ${cmp.atRimRate.league.toFixed(1)}%)`);
+    if (cmp.fg3Rate?.diff >= 5)          add('perimeter_3pt', 'Perimeter-Oriented',    cmp.fg3Rate.diff >= 8 ? 'elite' : 'strong',
+        `${cmp.fg3Rate.team.toFixed(1)}% trojkových pokusů (liga: ${cmp.fg3Rate.league.toFixed(1)}%)`);
+    if (cmp.midrangeRate?.diff >= 3)     add('midrange_heavy','Mid-Range Dependent',   'notable',
+        `${cmp.midrangeRate.team.toFixed(1)}% pokusů z mid-range (liga: ${cmp.midrangeRate.league.toFixed(1)}%)`);
+    if (cmp.midrangeRate?.diff <= -3)    add('midrange_averse','Mid-Range Averse',     Math.abs(cmp.midrangeRate.diff) >= 5 ? 'strong' : 'notable',
+        `Jen ${cmp.midrangeRate.team.toFixed(1)}% pokusů z mid-range (liga: ${cmp.midrangeRate.league.toFixed(1)}%)`);
+    if (cmp.fbPtsPct?.diff >= 3) add('transition','Transition-Oriented',cmp.fbPtsPct.diff >= 6 ? 'elite' : 'strong',
+        `${(cmp.fbPtsPct?.team || 0).toFixed(1)}% bodů z rychlého protiútoku (liga: ${(cmp.fbPtsPct?.league || 0).toFixed(1)}%)`);
+    if (cmp.fbPtsPct?.diff <= -3)        add('halfcourt',     'Half-Court Team',       'notable',
+        `Převážně postupný útok – ${(cmp.fbPtsPct?.team || 0).toFixed(1)}% bodů v transition`);
+    if (cmp.paintPtsPct?.diff >= 3)      add('inside_scoring','Inside-Scoring Team',  cmp.paintPtsPct.diff >= 5 ? 'strong' : 'notable',
+        `${cmp.paintPtsPct.team.toFixed(1)}% bodů v paint (liga: ${cmp.paintPtsPct.league.toFixed(1)}%)`);
+    if (cmp.tsPct?.diff >= 3)            add('efficient',     'Efficient Offense',     cmp.tsPct.diff >= 5 ? 'elite' : 'strong',
+        `${cmp.tsPct.team.toFixed(1)}% TS% (liga: ${cmp.tsPct.league.toFixed(1)}%)`);
+    if (cmp.tsPct?.diff <= -3)           add('inefficient',   'Efficiency Struggles',  'concern',
+        `Jen ${cmp.tsPct.team.toFixed(1)}% TS% (liga: ${cmp.tsPct.league.toFixed(1)}%)`);
+    if (Math.abs(cmp.fg3Rate?.diff || 0) < 2) add('avg_3pt', '3PT Volume: Průměr ligy','neutral',
+        `${(cmp.fg3Rate?.team || 0).toFixed(1)}% trojkových pokusů (liga: ${(cmp.fg3Rate?.league || 0).toFixed(1)}%)`);
+    return ids;
+}
+
+function detectStrengthsWeaknesses(cmp) {
+    const strengths = [], weaknesses = [];
+    const criteria = [
+        { k:'atRimFGPct',    name:'Rim Finishing',     posT:3,   negT:-3,  pos:true,
+          sText: v => `Kvalitní zakončení u koše (${v.toFixed(1)}% FG)`,
+          wText: v => `Slabé zakončení u koše (${v.toFixed(1)}% FG)` },
+        { k:'midrangeFGPct', name:'Mid-Range',          posT:3,   negT:-3,  pos:true,
+          sText: v => `Efektivní střední vzdálenost (${v.toFixed(1)}% FG)`,
+          wText: v => `Slabá střední vzdálenost (${v.toFixed(1)}% FG)` },
+        { k:'fg3Pct',        name:'3PT Střelba',        posT:2,   negT:-2,  pos:true,
+          sText: v => `Nadprůměrná trojková střelba (${v.toFixed(1)}%)`,
+          wText: v => `Podprůměrná trojková střelba (${v.toFixed(1)}%)` },
+        { k:'fbPtsPct',      name:'Transition',         posT:3,   negT:-3,  pos:true,
+          sText: v => `Silný v protiútoku (${v.toFixed(1)}% bodů)`,
+          wText: v => `Slabý v protiútoku (${v.toFixed(1)}% bodů)` },
+        { k:'scPtsPct',      name:'Druhé šance',        posT:2,   negT:-2,  pos:true,
+          sText: v => `Silné druhé šance (${v.toFixed(1)}% bodů)`,
+          wText: v => `Slabé druhé šance (${v.toFixed(1)}% bodů)` },
+        { k:'paintPtsPct',   name:'Paint Scoring',      posT:3,   negT:-3,  pos:true,
+          sText: v => `Dominance v paint (${v.toFixed(1)}% bodů)`,
+          wText: v => `Nízká produktivita v paint (${v.toFixed(1)}% bodů)` },
+        { k:'blockedRate',   name:'Shot Protection',    posT:-1.5,negT:1.5,  pos:false,
+          sText: v => `Nízká míra blokovaných (${v.toFixed(1)}%)`,
+          wText: v => `Vysoká míra blokovaných (${v.toFixed(1)}%)` },
+        { k:'tsPct',         name:'Celková efektivita', posT:2,   negT:-2,  pos:true,
+          sText: v => `Efektivní útok (${v.toFixed(1)}% TS)`,
+          wText: v => `Neefektivní útok (${v.toFixed(1)}% TS)` },
+    ];
+    for (const c of criteria) {
+        const cv = cmp[c.k]; if (!cv) continue;
+        const diff = cv.diff, tv = cv.team, lv = cv.league;
+        const sub = `ø ligy: ${lv.toFixed(1)}%`;
+        if (c.pos) {
+            if (diff >= c.posT) strengths.push({name:c.name, text:c.sText(tv), sub, mag: diff >= c.posT*2 ? 'elite' : 'strong'});
+            else if (diff <= c.negT) weaknesses.push({name:c.name, text:c.wText(tv), sub, mag: diff <= c.negT*2 ? 'severe' : 'moderate'});
+        } else {
+            if (diff <= c.posT) strengths.push({name:c.name, text:c.sText(tv), sub, mag: diff <= c.posT*2 ? 'elite' : 'strong'});
+            else if (diff >= c.negT) weaknesses.push({name:c.name, text:c.wText(tv), sub, mag: diff >= c.negT*2 ? 'severe' : 'moderate'});
+        }
+    }
+    return {strengths, weaknesses};
+}
+
+function spFmt(v, d=1) { return (v == null || isNaN(v)) ? '—' : v.toFixed(d); }
+
+// ── Srovnání střelby – tabulka všech týmů ────────────────────────────────────
+let strelbaCmpSortKey = 'name';
+let strelbaCmpSortDesc = false;
+
+function renderStrelbaCmp() {
+    document.getElementById('strelba-cmp-table')?.classList.remove('hidden');
+    const p = (a, b) => b ? a / b * 100 : 0;
+    const fmt1 = v => v.toFixed(1) + '%';
+    const fmtN = v => v.toFixed(2);
+
+    const rows = Object.entries(TEAMS_GAMES).map(([slug, tg]) => {
+        const pr = computeShotProfile(tg.games);
+        const gp = tg.games.length || 1;
+        return {
+            slug,
+            name: tg.name,
+            atRimRate:    pr.atRimRate,
+            atRimFGPct:   pr.atRimFGPct,
+            midrangeRate: pr.midrangeRate,
+            midrangeFGPct:pr.midrangeFGPct,
+            fg3Rate:      pr.fg3Rate,
+            fg3Pct:       pr.fg3Pct,
+            dunkPerGame:  pr.dunkMade / gp,
+            dunkFGPct:    p(pr.dunkMade, pr.dunkAtt),
+            dunkHasData:  pr.dunkAtt > 0,
+            blockedRate:  p(pr.blockedAtt, pr.totalFGA),
+            fbRate:       p(pr.fbAtt, pr.totalFGA),
+            scRate:       p(pr.scAtt, pr.totalFGA),
+            ftoRate:      p(pr.ftoAtt, pr.totalFGA),
+            paintRate:    p(pr.paintAtt, pr.totalFGA),
+        };
+    });
+
+    rows.sort((a, b) => {
+        const av = a[strelbaCmpSortKey], bv = b[strelbaCmpSortKey];
+        if (typeof av === 'string') return strelbaCmpSortDesc ? bv.localeCompare(av) : av.localeCompare(bv);
+        return strelbaCmpSortDesc ? bv - av : av - bv;
+    });
+
+    const tbody = document.getElementById('body-strelba-cmp');
+    tbody.innerHTML = rows.map((r, i) => `<tr>
+        <td style="text-align:left;color:#ccc"><a href="../../stats/{{ season }}/${r.slug}.html" class="game-link">${r.name}</a></td>
+        <td class="col-group-sep">${fmt1(r.atRimRate)}</td>
+        <td>${fmt1(r.atRimFGPct)}</td>
+        <td class="col-group-sep">${fmt1(r.midrangeRate)}</td>
+        <td>${fmt1(r.midrangeFGPct)}</td>
+        <td class="col-group-sep">${fmt1(r.fg3Rate)}</td>
+        <td>${fmt1(r.fg3Pct)}</td>
+        <td class="col-group-sep">${fmtN(r.dunkPerGame)}</td>
+        <td>${r.dunkHasData ? fmt1(r.dunkFGPct) : '—'}</td>
+        <td class="col-group-sep">${fmt1(r.blockedRate)}</td>
+        <td class="col-group-sep">${fmt1(r.fbRate)}</td>
+        <td>${fmt1(r.scRate)}</td>
+        <td>${fmt1(r.ftoRate)}</td>
+        <td>${fmt1(r.paintRate)}</td>
+    </tr>`).join('');
+
+    // Sortable headers
+    document.querySelectorAll('#strelba-cmp-table thead th[data-cmp-key]').forEach(th => {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+        if (th.dataset.cmpKey === strelbaCmpSortKey)
+            th.classList.add(strelbaCmpSortDesc ? 'sorted-desc' : 'sorted-asc');
+    });
+}
+
+document.querySelectorAll('#strelba-cmp-table thead th[data-cmp-key]').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+        const k = th.dataset.cmpKey;
+        if (strelbaCmpSortKey === k) strelbaCmpSortDesc = !strelbaCmpSortDesc;
+        else { strelbaCmpSortKey = k; strelbaCmpSortDesc = k !== 'name'; }
+        renderStrelbaCmp();
+    });
+});
+
+function renderShotProfile() {
+    const slug = spSelect.value;
+    const tg = TEAMS_GAMES[slug];
+    if (!tg) return;
+    const games = tg.games;
+    const gp = games.length;
+    if (!gp) { document.getElementById('sp-content').innerHTML = '<div style="color:#666;padding:20px">Žádná data.</div>'; return; }
+
+    const pr = computeShotProfile(games);
+    const lg = computeLeagueAverages();
+    const cmp = compareWithLeague(pr, lg);
+    const identities = classifyTeamIdentity(cmp);
+    const {strengths, weaknesses} = detectStrengthsWeaknesses(cmp);
+
+    // Player shot data
+    const spTeamData = (SHOT_PROFILE?.by_team || {})[slug];
+    const players = spTeamData?.players || [];
+
+    function bar(pct, color='#4a7ab8') {
+        return `<div class="sp-bar-track"><div class="sp-bar-fill" style="width:${Math.min(pct, 100).toFixed(1)}%;background:${color}"></div></div>`;
+    }
+    function cmpDiff(diff, negIsGood=false) {
+        const isPos = negIsGood ? diff < 0 : diff > 0;
+        const isNeg = negIsGood ? diff > 0 : diff < 0;
+        const cls = isPos ? 'pos' : isNeg ? 'neg' : 'neutral';
+        const sign = diff > 0 ? '+' : '';
+        return `<span class="sp-cmp-diff ${cls}">${sign}${diff.toFixed(1)}</span>`;
+    }
+    function cmpRow(label, teamVal, lgVal, fmt='pct', negIsGood=false) {
+        const diff = teamVal - lgVal;
+        const fmtVal = v => fmt === 'pct' ? `${v.toFixed(1)}%` : fmt === 'pp' ? v.toFixed(2) : v.toFixed(1);
+        return `<div class="sp-cmp-row">
+            <span class="sp-cmp-label">${label}</span>
+            <span class="sp-cmp-team">${fmtVal(teamVal)}</span>
+            <span class="sp-cmp-league">ø ${fmtVal(lgVal)}</span>
+            ${cmpDiff(diff, negIsGood)}
+        </div>`;
+    }
+
+    // Section 1: Shot Distribution
+    const tfga = pr.totalFGA || 1;
+    const rimW = (pr.atRimAtt  / tfga * 100).toFixed(1);
+    const midW = (pr.midrangeAtt / tfga * 100).toFixed(1);
+    const fg3W = (pr.fg3Att    / tfga * 100).toFixed(1);
+    const stackedBar =
+        `<div style="margin-bottom:14px">` +
+        `<div style="font-size:0.68rem;color:#555;margin-bottom:4px">Shot distribution (${pr.totalFGA} pokusů celkem)</div>` +
+        `<div style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:1px">` +
+        `<div style="width:${rimW}%;background:#4caf50;min-width:2px" title="U koše ${rimW}%"></div>` +
+        `<div style="width:${midW}%;background:#ffa726;min-width:2px" title="Midrange ${midW}%"></div>` +
+        `<div style="width:${fg3W}%;background:#7986cb;min-width:2px" title="3PT ${fg3W}%"></div>` +
+        `</div>` +
+        `<div style="display:flex;gap:12px;margin-top:5px;font-size:0.68rem;color:#666;flex-wrap:wrap">` +
+        `<span><span style="color:#4caf50">■</span> U koše ${rimW}%</span>` +
+        `<span><span style="color:#ffa726">■</span> Midrange ${midW}%</span>` +
+        `<span><span style="color:#7986cb">■</span> 3PT ${fg3W}%</span>` +
+        `</div></div>`;
+
+    function distRow(label, att, made, rate, color, sub) {
+        const labelCls = sub ? 'sp-bar-sub' : 'sp-bar-label';
+        const fgp = att ? Number((made/att*100).toFixed(1))+'%' : '—';
+        return `<div class="sp-bar-row">` +
+            `<span class="${labelCls}" style="width:160px">${label}</span>` +
+            `<div class="sp-bar-track"><div class="sp-bar-fill" style="width:${Math.min(rate,100).toFixed(1)}%;background:${color}"></div></div>` +
+            `<span class="sp-bar-att">${made}/${att}</span>` +
+            `<span class="sp-bar-pct">${fgp}</span>` +
+            `</div>`;
+    }
+    const distHTML = stackedBar +
+        `<div style="display:flex;justify-content:flex-end;margin-bottom:2px;font-size:0.63rem;color:#444">` +
+        `<span style="width:50px;text-align:right">nastř./pok.</span>` +
+        `<span style="width:54px;text-align:right">FG%</span>` +
+        `</div>` +
+        distRow(`U koše (${pr.atRimAtt})`, pr.atRimAtt, pr.atRimMade, pr.atRimRate, '#4caf50', false) +
+        distRow(`↳ Layupy (${pr.layupAtt})`, pr.layupAtt, pr.layupMade, pr.layupAtt/pr.totalFGA*100||0, '#66bb6a', true) +
+        distRow(`↳ Dunky (${pr.dunkAtt})`, pr.dunkAtt, pr.dunkMade, pr.dunkAtt/pr.totalFGA*100||0, '#43a047', true) +
+        distRow(`Midrange (${pr.midrangeAtt})`, pr.midrangeAtt, pr.midrangeMade, pr.midrangeRate, '#ffa726', false) +
+        distRow(`Trojky (${pr.fg3Att})`, pr.fg3Att, pr.fg3Made, pr.fg3Rate, '#7986cb', false) +
+        distRow(`TH (${pr.fta})`, pr.fta, pr.ftm, pr.ftPct, '#90a4ae', false);
+
+    // Section 2: Shooting Efficiency – matrix table (same format as player page)
+    const effZones = [
+        { label:'U koše',      att:pr.atRimAtt,    made:pr.atRimMade,    pts3:0,           style:'' },
+        { label:'↳ Layupy',    att:pr.layupAtt,    made:pr.layupMade,    pts3:0,           style:'sub' },
+        { label:'↳ Dunky',     att:pr.dunkAtt,     made:pr.dunkMade,     pts3:0,           style:'sub' },
+        { label:'Midrange',    att:pr.midrangeAtt, made:pr.midrangeMade, pts3:0,           style:'' },
+        { label:'Trojky',      att:pr.fg3Att,      made:pr.fg3Made,      pts3:pr.fg3Made,  style:'' },
+        { label:'Paint',       att:pr.paintAtt,    made:pr.paintMade,    pts3:0,           style:'' },
+    ];
+    const effRows = effZones.map(z => {
+        const fgp  = z.att ? z.made / z.att * 100 : 0;
+        const efg  = z.att ? (z.made + 0.5 * z.pts3) / z.att * 100 : 0;
+        const ppg  = z.att ? (z.made * (z.pts3 > 0 ? 3 : 2)) / z.att : 0;
+        const sub  = z.style === 'sub';
+        return `<tr class="${sub ? 'sp-eff-sub' : ''}">` +
+            `<td>${z.label}</td><td>${z.att}</td><td>${z.made}</td>` +
+            `<td class="sp-eff-hi">${z.att ? Number(fgp.toFixed(1))+'%' : '—'}</td>` +
+            `<td class="sp-eff-hi">${z.att ? Number(efg.toFixed(1))+'%' : '—'}</td>` +
+            `<td>${z.att ? ppg.toFixed(2) : '—'}</td>` +
+            `</tr>`;
+    }).join('');
+    const effHTML =
+        `<table class="sp-eff-table">` +
+        `<thead><tr>` +
+        `<th>Zóna</th>` +
+        `<th data-tip="Pokusy ze hry (FGA)">Pokusy</th>` +
+        `<th data-tip="Proměněné střely (FGM)">Proměn.</th>` +
+        `<th data-tip="Field Goal % – proměněné / pokusy">FG%</th>` +
+        `<th data-tip="Effective FG% – zohledňuje vyšší hodnotu trojek: (proměněné + 0.5 × trojky) / pokusy">eFG%</th>` +
+        `<th data-tip="Body na pokus – průměrný počet bodů za každý střelecký pokus">Bod/pok</th>` +
+        `</tr></thead><tbody>${effRows}</tbody></table>` +
+        `<div style="margin-top:10px;border-top:1px solid #1e2a40;padding-top:6px">` +
+        `<div style="font-size:0.63rem;color:#444;display:flex;justify-content:flex-end;margin-bottom:2px">` +
+        `<span style="width:52px;text-align:right">tým</span><span style="width:52px;text-align:right">průměr ligy</span><span style="width:54px;text-align:right">rozdíl</span></div>` +
+        `<div class="sp-cmp-row"><span class="sp-cmp-label" data-tip="Effective FG% – zohledňuje vyšší hodnotu trojek: (proměněné + 0.5 × trojky) / pokusy ze hry" style="color:#6a9fd8">eFG%</span><span class="sp-cmp-team" style="color:#6a9fd8">${spFmt(pr.eFGPct)}%</span><span class="sp-cmp-league">ø ${spFmt(lg.eFGPct)}%</span>${cmpDiff(pr.eFGPct-lg.eFGPct)}</div>` +
+        `<div class="sp-cmp-row"><span class="sp-cmp-label" data-tip="True Shooting % – celková efektivita střelby včetně trojek a trestných hodů: body / (2 × (FGA + 0.44 × FTA))" style="color:#6a9fd8">TS%</span><span class="sp-cmp-team" style="color:#6a9fd8">${spFmt(pr.tsPct)}%</span><span class="sp-cmp-league">ø ${spFmt(lg.tsPct)}%</span>${cmpDiff(pr.tsPct-lg.tsPct)}</div>` +
+        `</div>`;
+
+    // Section 3: Context Shooting — same format as player page
+    function ctxRow(label, cMade, cAtt, totalFga) {
+        const fgPct  = cAtt ? cMade / cAtt * 100 : 0;
+        const shareW = totalFga ? cAtt / totalFga * 100 : 0;
+        return `<div class="sp-bar-row">` +
+            `<span class="sp-bar-label" style="width:150px">${label}</span>` +
+            `<span style="width:44px;text-align:right;flex-shrink:0;font-size:0.72rem;color:#555;padding-right:8px">${cAtt ? spFmt(shareW)+'%' : ''}</span>` +
+            `<div class="sp-bar-track"><div class="sp-bar-fill" style="width:${Math.min(shareW,100).toFixed(1)}%;background:#6a9fd8"></div></div>` +
+            `<span style="width:64px;text-align:right;flex-shrink:0;font-size:0.79rem;color:#ccc;padding-left:8px">${cAtt ? cMade+'/'+cAtt : '—'}</span>` +
+            `<span style="width:44px;text-align:right;flex-shrink:0;font-size:0.72rem;color:#555">${cAtt ? Number(fgPct.toFixed(1))+'%' : ''}</span>` +
+            `</div>`;
+    }
+    const ctxHTML =
+        `<div style="display:flex;margin-bottom:3px;font-size:0.63rem;color:#444">` +
+        `<span style="width:150px;flex-shrink:0"></span>` +
+        `<span style="width:44px;text-align:right;flex-shrink:0;padding-right:8px">% pokusů</span>` +
+        `<span style="flex:1"></span>` +
+        `<span style="width:64px;text-align:right;flex-shrink:0;padding-left:8px">nastř.</span>` +
+        `<span style="width:44px;text-align:right;flex-shrink:0">FG%</span>` +
+        `</div>` +
+        ctxRow('Rychlý protiútok', pr.fbMade, pr.fbAtt, pr.totalFGA) +
+        ctxRow('Druhé šance', pr.scMade, pr.scAtt, pr.totalFGA) +
+        ctxRow('Ze ztrát soupeře', pr.ftoMade, pr.ftoAtt, pr.totalFGA) +
+        ctxRow('Paint', pr.paintMade, pr.paintAtt, pr.totalFGA) +
+        `<div style="margin-top:8px;padding-top:6px;border-top:1px solid #1e2a40">` +
+        `<div class="sp-stat-row"><span class="sp-stat-label">Blokované střely</span><span class="sp-stat-value">${pr.blockedAtt} z ${pr.totalFGA} (${spFmt(pr.totalFGA ? pr.blockedAtt/pr.totalFGA*100 : 0)}%)</span></div>` +
+        `<div class="sp-stat-row" style="padding-left:10px"><span class="sp-stat-label" style="font-size:0.72rem;color:#555">↳ Dvojky</span><span class="sp-stat-value" style="color:#888">${pr.blocked2Att} z ${pr.total2PA} (${spFmt(pr.total2PA ? pr.blocked2Att/pr.total2PA*100 : 0)}%)</span></div>` +
+        `<div class="sp-stat-row" style="padding-left:10px"><span class="sp-stat-label" style="font-size:0.72rem;color:#555">↳ Trojky</span><span class="sp-stat-value" style="color:#888">${pr.blocked3Att} z ${pr.fg3Att} (${spFmt(pr.fg3Att ? pr.blocked3Att/pr.fg3Att*100 : 0)}%)</span></div>` +
+        `</div>`;
+
+    // Section 4: League Comparison – shot distribution only (efficiency is now inline in effHTML)
+    const lgCmpHTML =
+        `<div style="font-size:0.63rem;color:#444;display:flex;justify-content:flex-end;margin-bottom:4px">` +
+        `<span style="width:52px;text-align:right">tým</span>` +
+        `<span style="width:52px;text-align:right">průměr ligy</span>` +
+        `<span style="width:54px;text-align:right">rozdíl</span>` +
+        `</div>` +
+        cmpRow('U koše (% pokusů)', pr.atRimRate, lg.atRimRate) +
+        cmpRow('Midrange (% pokusů)', pr.midrangeRate, lg.midrangeRate) +
+        cmpRow('Trojky (% pokusů)', pr.fg3Rate, lg.fg3Rate) +
+        cmpRow('Protiútok (% bodů)', pr.fbPtsPct, lg.fbPtsPct) +
+        cmpRow('Druhé šance (% bodů)', pr.scPtsPct, lg.scPtsPct) +
+        cmpRow('Paint body (%)', pr.paintPtsPct, lg.paintPtsPct) +
+        cmpRow('Blokované (% pokusů)', pr.blockedRate, lg.blockedRate, 'pct', true);
+
+    // Section 5: Team Identity
+    const idHTML = identities.length
+        ? identities.map(id => `
+            <div class="sp-identity-badge ${id.strength}">
+                <div>${id.label}</div>
+                <div class="sp-identity-desc">${id.desc}</div>
+            </div>`).join('')
+        : '<div style="color:#555;font-size:0.8rem">Vyvážený tým – žádná výrazná identita</div>';
+
+    // Section 6: Strengths & Weaknesses
+    const maxSW = Math.max(strengths.length, weaknesses.length, 1);
+    const swPairs = Array.from({length: maxSW}, (_, i) => [strengths[i], weaknesses[i]]);
+    const swHTML = swPairs.map(([s, w]) => `
+        ${s ? `<div class="sp-sw-card strength"><div class="sp-sw-name">${s.name}</div><div class="sp-sw-text">${s.text}</div><div class="sp-sw-reason">${s.sub}</div></div>` : '<div></div>'}
+        ${w ? `<div class="sp-sw-card weakness"><div class="sp-sw-name">${w.name}</div><div class="sp-sw-text">${w.text}</div><div class="sp-sw-reason">${w.sub}</div></div>` : '<div></div>'}`).join('');
+
+    // Section 7: Shot Creators
+    const totalAtRim  = players.reduce((s, p) => s + (p.atrim_att || 0), 0) || 1;
+    const totalDunks  = players.reduce((s, p) => s + (p.dunk_att  || 0), 0) || 1;
+    const totalFGAp   = players.reduce((s, p) => s + (p.total_fga || 0), 0) || 1;
+    const totalMade = p => (p.atrim_made||0) + (p.midrange_made||0) + (p.fg3_made||0);
+    const allAtRim  = [...players].sort((a,b) => (b.atrim_made||0) - (a.atrim_made||0));
+    const allVol    = [...players].sort((a,b) => totalMade(b) - totalMade(a));
+    const allDunk   = [...players].filter(p => (p.dunk_att||0) > 0).sort((a,b) => (b.dunk_made||0) - (a.dunk_made||0));
+
+    function playerLink(p) {
+        return `<a href="../../player/{{ season }}/${p.slug}.html" class="game-link">${p.name}</a>`;
+    }
+    function playerTable(rows, attKey, madeKey, totalVal) {
+        if (!rows.length) return '<div style="color:#555;font-size:0.8rem;padding:4px 0">Žádná data</div>';
+        const showFgp = madeKey !== null;
+        const hdr = showFgp
+            ? `<tr><th>#</th><th>Hráč</th><th>nastř./pok.</th><th>FG%</th><th>Podíl</th></tr>`
+            : `<tr><th>#</th><th>Hráč</th><th>Pokusy</th><th>Podíl</th></tr>`;
+        return `<table class="sp-player-table"><thead>${hdr}</thead><tbody>` +
+            rows.map((p, i) => {
+                const att  = p[attKey] || 0;
+                const made = madeKey ? (p[madeKey] || 0) : null;
+                const fgp  = made !== null && att ? Number((made/att*100).toFixed(1))+'%' : '—';
+                const share = (att / totalVal * 100).toFixed(1) + '%';
+                return showFgp
+                    ? `<tr><td>${i+1}.</td><td>${playerLink(p)}</td><td>${made}/${att}</td><td class="sp-pct">${fgp}</td><td class="sp-share">${share}</td></tr>`
+                    : `<tr><td>${i+1}.</td><td>${playerLink(p)}</td><td>${att}</td><td class="sp-share">${share}</td></tr>`;
+            }).join('') + '</tbody></table>';
+    }
+
+    document.getElementById('sp-content').innerHTML = `
+        <div class="sp-grid">
+            <div class="sp-section">
+                <div class="sp-section-title">Shot Distribution</div>
+                ${distHTML}
+            </div>
+            <div class="sp-section">
+                <div class="sp-section-title">Shooting Efficiency</div>
+                ${effHTML}
+            </div>
+            <div class="sp-section">
+                <div class="sp-section-title">Context Shooting</div>
+                ${ctxHTML}
+            </div>
+            <div class="sp-section">
+                <div class="sp-section-title">Srovnání s ligou</div>
+                ${lgCmpHTML}
+            </div>
+        </div>
+        <div class="sp-section sp-section-full" style="margin-bottom:16px">
+            <div class="sp-section-title">Team Identity</div>
+            <div class="sp-identity-grid">${idHTML}</div>
+        </div>
+        <div class="sp-section sp-section-full" style="margin-bottom:16px">
+            <div class="sp-section-title">Silné &amp; Slabé stránky</div>
+            ${(strengths.length || weaknesses.length)
+                ? `<div class="sp-sw-grid">${swHTML}</div>`
+                : `<div style="color:#555;font-size:0.8rem;padding:4px 0">Tým se ve všech sledovaných metrikách pohybuje blízko průměru ligy.</div>`}
+        </div>
+        <div class="sp-section sp-section-full">
+            <div class="sp-section-title">Top Shot Creators</div>
+            <div class="sp-players-grid">
+                <div>
+                    <div style="color:#888;font-size:0.72rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">U koše (At Rim)</div>
+                    ${playerTable(allAtRim, 'atrim_att', 'atrim_made', totalAtRim)}
+                </div>
+                <div>
+                    <div style="color:#888;font-size:0.72rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Objem střelby</div>
+                    ${playerTable(allVol, 'total_fga', null, totalFGAp)}
+                </div>
+                <div>
+                    <div style="color:#888;font-size:0.72rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Dunky</div>
+                    ${playerTable(allDunk, 'dunk_att', 'dunk_made', totalDunks)}
+                </div>
+            </div>
+        </div>`;
+}
+
 // ── Herní situace ────────────────────────────────────────────────────────────
 let situacniSortKey = 'paintAvg';
 let situacniSortDesc = true;
@@ -902,6 +1516,26 @@ render();
 const thTip = document.createElement('div');
 thTip.id = 'th-tooltip';
 document.body.appendChild(thTip);
+// Tooltip for dynamic sp-content data-tip elements
+document.getElementById('sp-content').addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) return;
+    thTip.textContent = el.dataset.tip;
+    thTip.style.display = 'block';
+});
+document.getElementById('sp-content').addEventListener('mousemove', e => {
+    if (thTip.style.display !== 'block') return;
+    const tw = thTip.offsetWidth;
+    let left = e.clientX - tw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    thTip.style.left = left + 'px';
+    thTip.style.top = (e.clientY + 14) + 'px';
+});
+document.getElementById('sp-content').addEventListener('mouseout', e => {
+    if (!e.target.closest('[data-tip]')) return;
+    thTip.style.display = 'none';
+});
+
 document.querySelectorAll('thead th[data-tip]').forEach(th => {
     th.addEventListener('mouseenter', () => {
         thTip.textContent = th.dataset.tip;

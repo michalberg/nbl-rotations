@@ -102,6 +102,8 @@
         tbody td a { color: #6a9fd8; text-decoration: none; }
         tbody td a:hover { text-decoration: underline; }
         .col-group-sep { border-left: 1px solid #2a2a3e; }
+        .game-link { color: #4a7ab8; text-decoration: none; }
+        .game-link:hover { text-decoration: underline; }
         .hidden { display: none; }
         .tab-nav {
             display: flex;
@@ -134,11 +136,12 @@
         <button class="tab-btn" data-tab="fouls">Ztráty / Fauly / +/-</button>
         <button class="tab-btn" data-tab="ft">Trestné hody</button>
         <button class="tab-btn" data-tab="advanced">Pokročilé</button>
-        <button class="tab-btn" data-tab="milestones">Doubles</button>
+        <button class="tab-btn" data-tab="milestones">Doubles & dunky</button>
         <button class="tab-btn" data-tab="maxima">Maxima</button>
         <button class="tab-btn" data-tab="quarters">Čtvrtiny</button>
         <button class="tab-btn" data-tab="ratings">Ratings</button>
         <button class="tab-btn" data-tab="dvojice">Dvojice</button>
+        <button class="tab-btn" data-tab="situace">Situace</button>
     </div>
 
     <div class="stats-controls">
@@ -283,6 +286,9 @@
                     <th data-key="tripleDoubles" data-tip="Triple-double: alespoň 3 ze 5 kategorií (body, doskoky, asistence, zisky, bloky) ≥ 10">TD</th>
                     <th data-key="pts20" class="col-group-sep" data-tip="Počet zápasů s alespoň 20 body">20+</th>
                     <th data-key="pts30" data-tip="Počet zápasů s alespoň 30 body">30+</th>
+                    <th data-key="dunkMade" class="col-group-sep" data-tip="Dunky proměněné celkem (nastřelené/pokusy)">Dunky</th>
+                    <th data-key="dunkFGPct" data-tip="Dunky – FG%">FG%</th>
+                    <th data-key="dunkPerGame" data-tip="Dunky proměněné průměr za zápas">/z</th>
                 </tr>
             </thead>
             <tbody id="body-milestones"></tbody>
@@ -361,6 +367,43 @@
             <div id="dvojice-scorers-wrap" style="flex:1 1 300px"></div>
         </div>
     </div>
+
+    <!-- SITUACE TAB -->
+    <div id="tab-situace" class="hidden" style="margin-top:8px">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+            <span style="color:#666;font-size:0.82rem">Min. FGA:</span>
+            <input type="range" id="sit-fga-slider" min="0" max="300" value="30" style="width:160px;accent-color:#4a7ab8">
+            <span id="sit-fga-label" style="color:#aaa;font-size:0.82rem;min-width:80px"></span>
+            <span id="sit-count" style="color:#555;font-size:0.78rem"></span>
+        </div>
+        <div style="overflow-x:auto">
+        <table id="sit-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="text-align:left;min-width:140px" data-sit-key="name">Hráč</th>
+                    <th rowspan="2" style="text-align:left" data-sit-key="team">Tým</th>
+                    <th rowspan="2" data-sit-key="total_fga" data-tip="Celkové pokusy ze hry">FGA</th>
+                    <th colspan="6" class="col-group-sep" style="text-align:center;color:#6a9fd8;border-bottom:1px solid #2a2a3e;cursor:default">Shot Distribution</th>
+                    <th rowspan="2" class="col-group-sep" data-tip="Zblokované střely jako % všech pokusů" data-sit-key="blockedRate">Zblok.<br>%</th>
+                    <th colspan="4" class="col-group-sep" style="text-align:center;color:#6a9fd8;border-bottom:1px solid #2a2a3e;cursor:default">Context (% pokusů)</th>
+                </tr>
+                <tr>
+                    <th class="col-group-sep" data-tip="U koše – podíl ze všech pokusů" data-sit-key="atRimRate">U koše %</th>
+                    <th data-tip="U koše – FG%" data-sit-key="atRimFGPct">FG%</th>
+                    <th class="col-group-sep" data-tip="Midrange – podíl ze všech pokusů" data-sit-key="midrangeRate">Mid %</th>
+                    <th data-tip="Midrange – FG%" data-sit-key="midrangeFGPct">FG%</th>
+                    <th class="col-group-sep" data-tip="Trojky – podíl ze všech pokusů" data-sit-key="fg3Rate">3PT %</th>
+                    <th data-tip="Trojky – FG%" data-sit-key="fg3Pct">FG%</th>
+                    <th class="col-group-sep" data-tip="Rychlý protiútok – % pokusů" data-sit-key="fbRate">Protiútok</th>
+                    <th data-tip="Druhé šance – % pokusů" data-sit-key="scRate">2. šance</th>
+                    <th data-tip="Ze ztrát soupeře – % pokusů" data-sit-key="ftoRate">Ze ztrát</th>
+                    <th data-tip="Paint – % pokusů" data-sit-key="paintRate">Paint</th>
+                </tr>
+            </thead>
+            <tbody id="body-sit"></tbody>
+        </table>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -368,6 +411,23 @@ const PLAYERS = {{ players_json }};
 const GAME_META = {{ game_meta_json }};
 const RATINGS = {{ ratings_json }};
 const ASSIST_PAIRS_DATA = {{ assist_pairs_json }};
+const SHOT_PROFILE = {{ shot_profile_json }};
+
+// Merge dunk data from SHOT_PROFILE into PLAYERS by slug
+const _dunkBySlug = {};
+for (const tdata of Object.values(SHOT_PROFILE.by_team || {})) {
+    for (const pl of tdata.players) {
+        _dunkBySlug[pl.slug] = pl;
+    }
+}
+PLAYERS.forEach(p => {
+    const d = _dunkBySlug[p.slug] || {};
+    const gp = d.gp || p.gp || 1;
+    p.dunkMade    = d.dunk_made || 0;
+    p.dunkAtt     = d.dunk_att  || 0;
+    p.dunkFGPct   = p.dunkAtt ? +(p.dunkMade / p.dunkAtt * 100).toFixed(1) : null;
+    p.dunkPerGame = +(p.dunkMade / gp).toFixed(2);
+});
 
 // Build lookup: slug -> ratings entry
 const RATINGS_BY_SLUG = {};
@@ -483,7 +543,10 @@ function renderRow(p, rank, tab) {
         <td class="col-group-sep">${p.doubleDoubles}</td>
         <td>${p.tripleDoubles}</td>
         <td class="col-group-sep">${p.pts20 ?? '-'}</td>
-        <td>${p.pts30 ?? '-'}</td>`;
+        <td>${p.pts30 ?? '-'}</td>
+        <td class="col-group-sep">${p.dunkAtt > 0 ? `${p.dunkMade} <span style="color:#555;font-size:0.72rem">(${p.dunkMade}/${p.dunkAtt})</span>` : '—'}</td>
+        <td>${p.dunkAtt > 0 ? p.dunkFGPct + '%' : '—'}</td>
+        <td>${p.dunkAtt > 0 ? p.dunkPerGame : '—'}</td>`;
     if (tab === 'quarters') return `
         <td>${rank}</td>
         <td><a href="../../player/{{ season }}/${p.slug}.html">${p.firstName} ${p.familyName}</a></td>
@@ -575,7 +638,13 @@ function render() {
         return v;
     }
 
+    const _dunkSortKeys = new Set(['dunkMade','dunkFGPct','dunkPerGame']);
     filtered.sort((a, b) => {
+        if (_dunkSortKeys.has(sortKey)) {
+            if (!a.dunkAtt && !b.dunkAtt) return 0;
+            if (!a.dunkAtt) return 1;
+            if (!b.dunkAtt) return -1;
+        }
         let va = toSortVal(a, sortKey), vb = toSortVal(b, sortKey);
         if (va < vb) return sortDesc ? 1 : -1;
         if (va > vb) return sortDesc ? -1 : 1;
@@ -597,12 +666,15 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
         document.querySelectorAll('table').forEach(t => t.classList.add('hidden'));
         document.getElementById('tab-dvojice')?.classList.add('hidden');
+        document.getElementById('tab-situace')?.classList.add('hidden');
         document.getElementById(`tab-${currentTab}`)?.classList.remove('hidden');
 
         const sc = document.querySelector('.stats-controls');
-        if (sc) sc.style.display = currentTab === 'dvojice' ? 'none' : '';
+        const noControls = ['dvojice', 'situace'];
+        if (sc) sc.style.display = noControls.includes(currentTab) ? 'none' : '';
 
         if (currentTab === 'dvojice') { renderDvojiceStats(); return; }
+        if (currentTab === 'situace') { initSituace(); return; }
 
         const defaults = { basic: 'ptsPerGame', shooting: 'fgPct', fouls: 'tovPerGame', ft: 'ftPct', advanced: 'per', milestones: 'doubleDoubles', maxima: 'maxPts', quarters: 'q4PerGame', ratings: 'r_delta_net' };
         sortKey = defaults[currentTab] || 'ptsPerGame';
@@ -774,6 +846,117 @@ document.querySelectorAll('thead th[data-tip]').forEach(th => {
     });
     th.addEventListener('mouseleave', () => { thTip.style.display = 'none'; });
 });
+// ── Situace tab ──────────────────────────────────────────────────────────────
+let sitSortKey = 'total_fga';
+let sitSortDesc = true;
+let sitInited = false;
+
+function initSituace() {
+    document.getElementById('sit-table')?.classList.remove('hidden');
+
+    const pct = (a, b) => b ? a / b * 100 : 0;
+    const allPlayers = [];
+    for (const [, tdata] of Object.entries(SHOT_PROFILE.by_team || {})) {
+        for (const pl of tdata.players) {
+            const fga = pl.total_fga || 0;
+            if (!fga) continue;
+            const atRimAtt = pl.atrim_att || 0, atRimMade = pl.atrim_made || 0;
+            const gp = pl.gp || 1;
+            allPlayers.push({
+                name: pl.name, slug: pl.slug, team: tdata.name,
+                total_fga: fga, gp,
+                atRimRate:    pct(atRimAtt, fga),
+                atRimFGPct:   pct(atRimMade, atRimAtt),
+                midrangeRate: pct(pl.midrange_att, fga),
+                midrangeFGPct:pct(pl.midrange_made, pl.midrange_att),
+                fg3Rate:      pct(pl.fg3_att, fga),
+                fg3Pct:       pct(pl.fg3_made, pl.fg3_att),
+                dunkMade:     pl.dunk_made || 0,
+                dunkMadeAtt:  `${pl.dunk_made||0}/${pl.dunk_att||0}`,
+                dunkFGPct:    pct(pl.dunk_made, pl.dunk_att),
+                dunkPerGame:  (pl.dunk_made || 0) / gp,
+                hasDunk:      (pl.dunk_att || 0) > 0,
+                blockedRate:  pct(pl.blocked_att, fga),
+                fbRate:       pct(pl.fastbreak_fg_att,   fga),
+                scRate:       pct(pl.secondchance_fg_att, fga),
+                ftoRate:      pct(pl.fromturnover_fg_att, fga),
+                paintRate:    pct(pl.paint_att, fga),
+            });
+        }
+    }
+
+    const fgas = allPlayers.map(p => p.total_fga).sort((a,b) => a-b);
+    const median = fgas[Math.floor(fgas.length / 2)] || 0;
+    const defaultMin = Math.max(1, Math.round(median / 2));
+    const maxFga = fgas[fgas.length - 1] || 300;
+
+    const slider = document.getElementById('sit-fga-slider');
+    const label  = document.getElementById('sit-fga-label');
+    const count  = document.getElementById('sit-count');
+
+    if (!sitInited) {
+        slider.max = maxFga;
+        slider.value = defaultMin;
+        sitInited = true;
+
+        document.querySelectorAll('#sit-table thead th[data-sit-key]').forEach(th => {
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', () => {
+                const k = th.dataset.sitKey;
+                if (sitSortKey === k) sitSortDesc = !sitSortDesc;
+                else { sitSortKey = k; sitSortDesc = k !== 'name' && k !== 'team'; }
+                renderSit();
+            });
+        });
+    }
+
+    function renderSit() {
+        const minFga = +slider.value;
+        label.textContent = `≥ ${minFga} FGA`;
+        const filtered = allPlayers.filter(p => p.total_fga >= minFga);
+        count.textContent = `(${filtered.length} hráčů)`;
+
+        const dunkKeys = new Set(['dunkMade','dunkMadeAtt','dunkFGPct','dunkPerGame']);
+        filtered.sort((a, b) => {
+            if (dunkKeys.has(sitSortKey)) {
+                if (!a.hasDunk && !b.hasDunk) return 0;
+                if (!a.hasDunk) return 1;
+                if (!b.hasDunk) return -1;
+            }
+            const av = a[sitSortKey], bv = b[sitSortKey];
+            if (typeof av === 'string') return sitSortDesc ? bv.localeCompare(av) : av.localeCompare(bv);
+            return sitSortDesc ? bv - av : av - bv;
+        });
+
+        const f1 = v => v.toFixed(1) + '%';
+        const f2 = v => v.toFixed(2);
+        document.getElementById('body-sit').innerHTML = filtered.map(r => `<tr>
+            <td style="text-align:left"><a href="../../player/{{ season }}/${r.slug}.html" class="game-link">${r.name}</a></td>
+            <td style="text-align:left;color:#888;font-size:0.78rem">${r.team}</td>
+            <td>${r.total_fga}</td>
+            <td class="col-group-sep">${f1(r.atRimRate)}</td>
+            <td>${r.atRimRate > 0 ? f1(r.atRimFGPct) : '—'}</td>
+            <td class="col-group-sep">${f1(r.midrangeRate)}</td>
+            <td>${r.midrangeRate > 0 ? f1(r.midrangeFGPct) : '—'}</td>
+            <td class="col-group-sep">${f1(r.fg3Rate)}</td>
+            <td>${r.fg3Rate > 0 ? f1(r.fg3Pct) : '—'}</td>
+            <td class="col-group-sep">${f1(r.blockedRate)}</td>
+            <td class="col-group-sep">${f1(r.fbRate)}</td>
+            <td>${f1(r.scRate)}</td>
+            <td>${f1(r.ftoRate)}</td>
+            <td>${f1(r.paintRate)}</td>
+        </tr>`).join('');
+
+        document.querySelectorAll('#sit-table thead th[data-sit-key]').forEach(th => {
+            th.classList.remove('sorted-asc', 'sorted-desc');
+            if (th.dataset.sitKey === sitSortKey)
+                th.classList.add(sitSortDesc ? 'sorted-desc' : 'sorted-asc');
+        });
+    }
+
+    slider.oninput = renderSit;
+    renderSit();
+}
 </script>
 </body>
 </html>
