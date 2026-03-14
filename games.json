@@ -1350,5 +1350,13 @@
     "team2": "BK GAPA Hradec Králové",
     "score1": 60,
     "score2": 81
+  },
+  {
+    "game_id": "2815469",
+    "date": "2026-03-14",
+    "team1": "NH Ostrava",
+    "team2": "SLUNETA Ústí nad Labem",
+    "score1": 87,
+    "score2": 91
   }
 ]
