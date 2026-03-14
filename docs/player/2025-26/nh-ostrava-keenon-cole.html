@@ -12,6 +12,36 @@
     <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="../../css/style.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .psp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+        @media (max-width: 700px) { .psp-grid { grid-template-columns: 1fr; } }
+        .psp-section { background: #0f1a2e; border: 1px solid #1e2a40; border-radius: 6px; padding: 14px; }
+        .psp-section-full { grid-column: 1 / -1; }
+        .psp-title { color: #6a9fd8; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #1e2a40; }
+        .psp-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 0.79rem; }
+        .psp-bar-label { color: #888; width: 140px; flex-shrink: 0; }
+        .psp-bar-sub { color: #555; width: 140px; font-size: 0.7rem; padding-left: 8px; flex-shrink: 0; }
+        .psp-bar-track { flex: 1; height: 9px; background: #1a2540; border-radius: 5px; overflow: hidden; min-width: 60px; }
+        .psp-bar-fill { height: 100%; border-radius: 5px; }
+        .psp-bar-att { color: #aaa; width: 46px; text-align: right; flex-shrink: 0; font-size: 0.74rem; }
+        .psp-bar-pct { color: #ccc; width: 50px; text-align: right; flex-shrink: 0; }
+        .psp-bar-val { color: #ccc; width: 42px; text-align: right; flex-shrink: 0; }
+        .psp-eff-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; }
+        .psp-eff-table th { color: #555; font-weight: normal; text-align: right; padding: 3px 8px; font-size: 0.68rem; text-transform: uppercase; border-bottom: 1px solid #1e2a40; }
+        .psp-eff-table th:first-child { text-align: left; }
+        .psp-eff-table td { color: #ccc; text-align: right; padding: 5px 8px; border-bottom: 1px solid #0d1525; }
+        .psp-eff-table td:first-child { text-align: left; color: #888; }
+        .psp-eff-table tr.psp-eff-sub td:first-child { color: #555; padding-left: 18px; font-size: 0.72rem; }
+        .psp-eff-table tr.psp-eff-sub td { color: #777; font-size: 0.72rem; }
+        .psp-eff-table td.psp-hi { color: #6a9fd8; }
+        .psp-eff-table .game-link { color: #4a7ab8; text-decoration: none; }
+        .psp-eff-table .game-link:hover { text-decoration: underline; }
+        .psp-stat-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #0d1525; font-size: 0.79rem; }
+        .psp-stat-row:last-child { border-bottom: none; }
+        .psp-stat-label { color: #888; }
+        .psp-stat-value { color: #e0e0e0; }
+        .psp-stacked-wrap { overflow-x: auto; margin-bottom: 14px; }
+    </style>
 </head>
 <body>
 <nav class="site-nav" id="site-nav">
@@ -53,8 +83,8 @@
     });
 })();
 </script>
-<script>const PLAYER_GAMES = [{"date": "2025-09-28", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2705709", "plus_minus": -16, "opponent": "Sršni Photomate Písek", "score": "77:84", "isHome": false, "q1": 5, "q2": 3, "q3": 0, "q4": 0, "pts": 8, "reb": 4, "oreb": 1, "dreb": 3, "ast": 1, "stl": 2, "blk": 0, "tov": 2, "pf": 3, "pfd": 4, "technical": 0, "fgm": 3, "fga": 9, "fg2m": 2, "fg2a": 7, "fg3m": 1, "fg3a": 2, "ftm": 1, "fta": 2}, {"date": "2025-10-04", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2711133", "plus_minus": -11, "opponent": "BK Olomoucko", "score": "83:89", "isHome": false, "q1": 0, "q2": 6, "q3": 0, "q4": 0, "pts": 6, "reb": 2, "oreb": 1, "dreb": 1, "ast": 0, "stl": 0, "blk": 0, "tov": 0, "pf": 2, "pfd": 2, "technical": 0, "fgm": 2, "fga": 3, "fg2m": 1, "fg2a": 1, "fg3m": 1, "fg3a": 2, "ftm": 1, "fta": 4}, {"date": "2025-10-08", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2713584", "plus_minus": -7, "opponent": "BK ARMEX ENERGY Děčín", "score": "77:78", "isHome": true, "q1": 5, "q2": 0, "q3": 0, "q4": 0, "pts": 5, "reb": 0, "oreb": 0, "dreb": 0, "ast": 1, "stl": 0, "blk": 0, "tov": 1, "pf": 1, "pfd": 3, "technical": 0, "fgm": 1, "fga": 3, "fg2m": 1, "fg2a": 1, "fg3m": 0, "fg3a": 2, "ftm": 3, "fta": 5}, {"date": "2025-10-11", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2716309", "plus_minus": -5, "opponent": "BK Opava", "score": "86:101", "isHome": false, "q1": 14, "q2": 3, "q3": 4, "q4": 0, "pts": 21, "reb": 11, "oreb": 0, "dreb": 11, "ast": 2, "stl": 1, "blk": 1, "tov": 1, "pf": 4, "pfd": 6, "technical": 0, "fgm": 9, "fga": 15, "fg2m": 9, "fg2a": 13, "fg3m": 0, "fg3a": 2, "ftm": 3, "fta": 6}, {"date": "2025-10-18", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2734801", "plus_minus": -8, "opponent": "PUMPA Basket Brno", "score": "80:94", "isHome": true, "q1": 2, "q2": 0, "q3": 6, "q4": 0, "pts": 8, "reb": 4, "oreb": 2, "dreb": 2, "ast": 1, "stl": 1, "blk": 0, "tov": 3, "pf": 3, "pfd": 3, "technical": 0, "fgm": 3, "fga": 9, "fg2m": 3, "fg2a": 6, "fg3m": 0, "fg3a": 3, "ftm": 2, "fta": 4}, {"date": "2025-10-26", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2746120", "plus_minus": -16, "opponent": "SLUNETA  Ústí nad Labem", "score": "74:85", "isHome": false, "q1": 0, "q2": 7, "q3": 4, "q4": 7, "pts": 18, "reb": 9, "oreb": 3, "dreb": 6, "ast": 1, "stl": 0, "blk": 1, "tov": 3, "pf": 5, "pfd": 4, "technical": 0, "fgm": 6, "fga": 13, "fg2m": 5, "fg2a": 8, "fg3m": 1, "fg3a": 5, "ftm": 5, "fta": 5}, {"date": "2025-10-29", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2755307", "plus_minus": 18, "opponent": "BK KVIS Pardubice", "score": "100:87", "isHome": true, "q1": 11, "q2": 5, "q3": 13, "q4": 7, "pts": 36, "reb": 13, "oreb": 4, "dreb": 9, "ast": 0, "stl": 1, "blk": 1, "tov": 1, "pf": 4, "pfd": 1, "technical": 0, "fgm": 15, "fga": 19, "fg2m": 10, "fg2a": 12, "fg3m": 5, "fg3a": 7, "ftm": 1, "fta": 1}, {"date": "2025-11-01", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2757868", "plus_minus": -1, "opponent": "USK Praha", "score": "81:71", "isHome": false, "q1": 4, "q2": 5, "q3": 4, "q4": 0, "pts": 13, "reb": 11, "oreb": 4, "dreb": 7, "ast": 0, "stl": 1, "blk": 0, "tov": 2, "pf": 2, "pfd": 4, "technical": 0, "fgm": 6, "fga": 15, "fg2m": 6, "fg2a": 13, "fg3m": 0, "fg3a": 2, "ftm": 1, "fta": 3}, {"date": "2025-11-08", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2763366", "plus_minus": -4, "opponent": "BK GAPA Hradec Králové", "score": "89:93", "isHome": true, "q1": 10, "q2": 9, "q3": 2, "q4": 6, "pts": 27, "reb": 7, "oreb": 2, "dreb": 5, "ast": 1, "stl": 2, "blk": 0, "tov": 2, "pf": 5, "pfd": 3, "technical": 0, "fgm": 12, "fga": 17, "fg2m": 12, "fg2a": 13, "fg3m": 0, "fg3a": 4, "ftm": 3, "fta": 4}, {"date": "2025-11-12", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2765923", "plus_minus": 0, "opponent": "SK Slavia Praha", "score": "109:95", "isHome": true, "q1": 0, "q2": 3, "q3": 0, "q4": 5, "pts": 8, "reb": 5, "oreb": 0, "dreb": 5, "ast": 2, "stl": 1, "blk": 0, "tov": 2, "pf": 4, "pfd": 3, "technical": 0, "fgm": 3, "fga": 6, "fg2m": 3, "fg2a": 4, "fg3m": 0, "fg3a": 2, "ftm": 2, "fta": 3}, {"date": "2025-11-15", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2767343", "plus_minus": 10, "opponent": "Sršni Photomate Písek", "score": "101:105", "isHome": true, "q1": 0, "q2": 0, "q3": 0, "q4": 16, "pts": 16, "reb": 4, "oreb": 0, "dreb": 4, "ast": 2, "stl": 0, "blk": 1, "tov": 0, "pf": 5, "pfd": 4, "technical": 0, "fgm": 4, "fga": 8, "fg2m": 1, "fg2a": 4, "fg3m": 3, "fg3a": 4, "ftm": 5, "fta": 6}, {"date": "2025-11-19", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2769229", "plus_minus": -15, "opponent": "ERA Basketball Nymburk", "score": "84:112", "isHome": false, "q1": 4, "q2": 0, "q3": 6, "q4": 4, "pts": 14, "reb": 5, "oreb": 3, "dreb": 2, "ast": 2, "stl": 0, "blk": 1, "tov": 2, "pf": 3, "pfd": 0, "technical": 0, "fgm": 7, "fga": 15, "fg2m": 7, "fg2a": 12, "fg3m": 0, "fg3a": 3, "ftm": 0, "fta": 0}, {"date": "2025-11-23", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2770936", "plus_minus": 17, "opponent": "BK Olomoucko", "score": "77:68", "isHome": true, "q1": 7, "q2": 2, "q3": 6, "q4": 0, "pts": 15, "reb": 3, "oreb": 1, "dreb": 2, "ast": 0, "stl": 1, "blk": 1, "tov": 3, "pf": 3, "pfd": 2, "technical": 0, "fgm": 6, "fga": 10, "fg2m": 6, "fg2a": 6, "fg3m": 0, "fg3a": 4, "ftm": 3, "fta": 3}, {"date": "2025-12-06", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2777444", "plus_minus": -3, "opponent": "BK ARMEX ENERGY Děčín", "score": "74:86", "isHome": false, "q1": 2, "q2": 0, "q3": 5, "q4": 3, "pts": 10, "reb": 5, "oreb": 2, "dreb": 3, "ast": 0, "stl": 1, "blk": 1, "tov": 3, "pf": 4, "pfd": 3, "technical": 0, "fgm": 4, "fga": 13, "fg2m": 4, "fg2a": 10, "fg3m": 0, "fg3a": 3, "ftm": 2, "fta": 3}, {"date": "2025-12-13", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2780135", "plus_minus": 4, "opponent": "BK Opava", "score": "106:102", "isHome": true, "q1": 4, "q2": 10, "q3": 5, "q4": 3, "pts": 25, "reb": 8, "oreb": 1, "dreb": 7, "ast": 0, "stl": 1, "blk": 2, "tov": 2, "pf": 5, "pfd": 5, "technical": 0, "fgm": 7, "fga": 14, "fg2m": 3, "fg2a": 8, "fg3m": 4, "fg3a": 6, "ftm": 7, "fta": 8}, {"date": "2025-12-20", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2782891", "plus_minus": 8, "opponent": "PUMPA Basket Brno", "score": "82:84", "isHome": false, "q1": 4, "q2": 0, "q3": 2, "q4": 8, "pts": 14, "reb": 5, "oreb": 0, "dreb": 5, "ast": 0, "stl": 1, "blk": 0, "tov": 4, "pf": 5, "pfd": 4, "technical": 0, "fgm": 5, "fga": 10, "fg2m": 4, "fg2a": 5, "fg3m": 1, "fg3a": 5, "ftm": 3, "fta": 5}, {"date": "2025-12-27", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2787024", "plus_minus": 0, "opponent": "SLUNETA  Ústí nad Labem", "score": "100:97", "isHome": true, "q1": 3, "q2": 0, "q3": 0, "q4": 7, "pts": 10, "reb": 1, "oreb": 0, "dreb": 1, "ast": 2, "stl": 0, "blk": 0, "tov": 2, "pf": 0, "pfd": 3, "technical": 0, "fgm": 3, "fga": 9, "fg2m": 2, "fg2a": 6, "fg3m": 1, "fg3a": 3, "ftm": 3, "fta": 5}, {"date": "2025-12-30", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2787956", "plus_minus": -3, "opponent": "BK KVIS Pardubice", "score": "80:83", "isHome": false, "q1": 6, "q2": 5, "q3": 5, "q4": 2, "pts": 18, "reb": 7, "oreb": 2, "dreb": 5, "ast": 1, "stl": 0, "blk": 0, "tov": 2, "pf": 4, "pfd": 3, "technical": 0, "fgm": 6, "fga": 15, "fg2m": 3, "fg2a": 9, "fg3m": 3, "fg3a": 6, "ftm": 3, "fta": 4}, {"date": "2026-01-03", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2789368", "plus_minus": 12, "opponent": "USK Praha", "score": "100:88", "isHome": true, "q1": 5, "q2": 5, "q3": 0, "q4": 5, "pts": 15, "reb": 4, "oreb": 2, "dreb": 2, "ast": 0, "stl": 1, "blk": 1, "tov": 2, "pf": 0, "pfd": 2, "technical": 0, "fgm": 6, "fga": 10, "fg2m": 4, "fg2a": 8, "fg3m": 2, "fg3a": 2, "ftm": 1, "fta": 2}, {"date": "2026-01-10", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2791974", "plus_minus": -4, "opponent": "BK GAPA Hradec Králové", "score": "91:89", "isHome": false, "q1": 7, "q2": 7, "q3": 5, "q4": 7, "pts": 26, "reb": 9, "oreb": 4, "dreb": 5, "ast": 1, "stl": 1, "blk": 1, "tov": 0, "pf": 2, "pfd": 7, "technical": 0, "fgm": 11, "fga": 15, "fg2m": 10, "fg2a": 12, "fg3m": 1, "fg3a": 3, "ftm": 3, "fta": 7}, {"date": "2026-01-17", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2794571", "plus_minus": -9, "opponent": "SK Slavia Praha", "score": "77:74", "isHome": false, "q1": 3, "q2": 0, "q3": 0, "q4": 1, "pts": 4, "reb": 1, "oreb": 0, "dreb": 1, "ast": 0, "stl": 1, "blk": 0, "tov": 1, "pf": 4, "pfd": 3, "technical": 0, "fgm": 1, "fga": 5, "fg2m": 0, "fg2a": 2, "fg3m": 1, "fg3a": 3, "ftm": 1, "fta": 4}, {"date": "2026-01-25", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803558", "plus_minus": -8, "opponent": "SLUNETA  Ústí nad Labem", "score": "82:105", "isHome": false, "q1": 2, "q2": 2, "q3": 2, "q4": 0, "pts": 6, "reb": 7, "oreb": 2, "dreb": 5, "ast": 0, "stl": 0, "blk": 0, "tov": 1, "pf": 2, "pfd": 2, "technical": 0, "fgm": 3, "fga": 8, "fg2m": 3, "fg2a": 5, "fg3m": 0, "fg3a": 3, "ftm": 0, "fta": 1}, {"date": "2026-01-28", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2803559", "plus_minus": -9, "opponent": "BK ARMEX ENERGY Děčín", "score": "82:78", "isHome": true, "q1": 12, "q2": 0, "q3": 0, "q4": 7, "pts": 19, "reb": 3, "oreb": 0, "dreb": 3, "ast": 1, "stl": 3, "blk": 0, "tov": 2, "pf": 2, "pfd": 3, "technical": 0, "fgm": 8, "fga": 15, "fg2m": 6, "fg2a": 12, "fg3m": 2, "fg3a": 3, "ftm": 1, "fta": 2}, {"date": "2026-01-31", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803566", "plus_minus": -14, "opponent": "ERA Basketball Nymburk", "score": "84:113", "isHome": true, "q1": 5, "q2": 2, "q3": 3, "q4": 0, "pts": 12, "reb": 4, "oreb": 0, "dreb": 4, "ast": 1, "stl": 0, "blk": 0, "tov": 0, "pf": 2, "pfd": 3, "technical": 2, "fgm": 3, "fga": 8, "fg2m": 2, "fg2a": 4, "fg3m": 1, "fg3a": 4, "ftm": 5, "fta": 5}, {"date": "2026-02-07", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803568", "plus_minus": -14, "opponent": "Sršni Photomate Písek", "score": "71:99", "isHome": true, "q1": 8, "q2": 8, "q3": 6, "q4": 2, "pts": 24, "reb": 6, "oreb": 3, "dreb": 3, "ast": 0, "stl": 1, "blk": 0, "tov": 2, "pf": 2, "pfd": 1, "technical": 0, "fgm": 10, "fga": 15, "fg2m": 8, "fg2a": 11, "fg3m": 2, "fg3a": 4, "ftm": 2, "fta": 2}, {"date": "2026-02-14", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803571", "plus_minus": -25, "opponent": "BK KVIS Pardubice", "score": "72:109", "isHome": false, "q1": 1, "q2": 5, "q3": 2, "q4": 2, "pts": 10, "reb": 5, "oreb": 2, "dreb": 3, "ast": 1, "stl": 0, "blk": 1, "tov": 2, "pf": 1, "pfd": 1, "technical": 0, "fgm": 4, "fga": 10, "fg2m": 3, "fg2a": 7, "fg3m": 1, "fg3a": 3, "ftm": 1, "fta": 2}, {"date": "2026-02-17", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2805262", "plus_minus": -11, "opponent": "PUMPA Basket Brno", "score": "88:100", "isHome": false, "q1": 0, "q2": 1, "q3": 0, "q4": 0, "pts": 1, "reb": 3, "oreb": 0, "dreb": 3, "ast": 0, "stl": 2, "blk": 0, "tov": 2, "pf": 0, "pfd": 1, "technical": 0, "fgm": 0, "fga": 1, "fg2m": 0, "fg2a": 1, "fg3m": 0, "fg3a": 0, "ftm": 1, "fta": 2}, {"date": "2026-03-04", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2811568", "plus_minus": -17, "opponent": "BK Opava", "score": "117:121", "isHome": true, "q1": 0, "q2": 2, "q3": 4, "q4": 0, "pts": 18, "reb": 8, "oreb": 3, "dreb": 5, "ast": 1, "stl": 0, "blk": 0, "tov": 4, "pf": 5, "pfd": 4, "technical": 0, "fgm": 7, "fga": 15, "fg2m": 6, "fg2a": 10, "fg3m": 1, "fg3a": 5, "ftm": 3, "fta": 6}];
-const TEAM_RECORDS = {"BK Olomoucko": {"gp": 27, "wins": 9}, "BK GAPA Hradec Králové": {"gp": 27, "wins": 5}, "BK Opava": {"gp": 28, "wins": 14}, "BK KVIS Pardubice": {"gp": 29, "wins": 22}, "USK Praha": {"gp": 28, "wins": 9}, "BK ARMEX ENERGY Děčín": {"gp": 29, "wins": 16}, "SK Slavia Praha": {"gp": 28, "wins": 9}, "ERA Basketball Nymburk": {"gp": 27, "wins": 26}, "Sršni Photomate Písek": {"gp": 28, "wins": 15}, "NH Ostrava": {"gp": 29, "wins": 10}, "SLUNETA  Ústí nad Labem": {"gp": 28, "wins": 16}, "PUMPA Basket Brno": {"gp": 28, "wins": 17}};
+<script>const PLAYER_GAMES = [{"date": "2025-09-28", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2705709", "plus_minus": -16, "opponent": "Sršni Photomate Písek", "score": "77:84", "isHome": false, "q1": 5, "q2": 3, "q3": 0, "q4": 0, "shotStats": {"groups": {"layup": {"made": 2, "att": 4, "pts": 4}, "dunk": {"made": 0, "att": 1, "pts": 0}, "midrange": {"made": 0, "att": 2, "pts": 0}, "3pt": {"made": 1, "att": 2, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 1}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 1}, "paint": {"pts": 4, "made": 2, "att": 5}, "blocked": {"att": 1}, "blocked2": {"att": 1}, "blocked3": {"att": 0}}}, "pts": 8, "reb": 4, "oreb": 1, "dreb": 3, "ast": 1, "stl": 2, "blk": 0, "tov": 2, "pf": 3, "pfd": 4, "technical": 0, "fgm": 3, "fga": 9, "fg2m": 2, "fg2a": 7, "fg3m": 1, "fg3a": 2, "ftm": 1, "fta": 2}, {"date": "2025-10-04", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2711133", "plus_minus": -11, "opponent": "BK Olomoucko", "score": "83:89", "isHome": false, "q1": 0, "q2": 6, "q3": 0, "q4": 0, "shotStats": {"groups": {"layup": {"made": 1, "att": 1, "pts": 2}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 0, "pts": 0}, "3pt": {"made": 1, "att": 2, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 2, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 1, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 0}, "paint": {"pts": 2, "made": 1, "att": 1}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 6, "reb": 2, "oreb": 1, "dreb": 1, "ast": 0, "stl": 0, "blk": 0, "tov": 0, "pf": 2, "pfd": 2, "technical": 0, "fgm": 2, "fga": 3, "fg2m": 1, "fg2a": 1, "fg3m": 1, "fg3a": 2, "ftm": 1, "fta": 4}, {"date": "2025-10-08", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2713584", "plus_minus": -7, "opponent": "BK ARMEX ENERGY Děčín", "score": "77:78", "isHome": true, "q1": 5, "q2": 0, "q3": 0, "q4": 0, "shotStats": {"groups": {"layup": {"made": 1, "att": 1, "pts": 2}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 0, "pts": 0}, "3pt": {"made": 0, "att": 2, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 2, "fg_made": 0, "fg_att": 0}, "paint": {"pts": 2, "made": 1, "att": 1}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 5, "reb": 0, "oreb": 0, "dreb": 0, "ast": 1, "stl": 0, "blk": 0, "tov": 1, "pf": 1, "pfd": 3, "technical": 0, "fgm": 1, "fga": 3, "fg2m": 1, "fg2a": 1, "fg3m": 0, "fg3a": 2, "ftm": 3, "fta": 5}, {"date": "2025-10-11", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2716309", "plus_minus": -5, "opponent": "BK Opava", "score": "86:101", "isHome": false, "q1": 14, "q2": 3, "q3": 4, "q4": 0, "shotStats": {"groups": {"layup": {"made": 5, "att": 6, "pts": 10}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 3, "att": 6, "pts": 6}, "3pt": {"made": 0, "att": 2, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 6, "fg_made": 2, "fg_att": 2}, "secondchance": {"pts": 2, "fg_made": 1, "fg_att": 1}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 2}, "paint": {"pts": 14, "made": 7, "att": 10}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 21, "reb": 11, "oreb": 0, "dreb": 11, "ast": 2, "stl": 1, "blk": 1, "tov": 1, "pf": 4, "pfd": 6, "technical": 0, "fgm": 9, "fga": 15, "fg2m": 9, "fg2a": 13, "fg3m": 0, "fg3a": 2, "ftm": 3, "fta": 6}, {"date": "2025-10-18", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2734801", "plus_minus": -8, "opponent": "PUMPA Basket Brno", "score": "80:94", "isHome": true, "q1": 2, "q2": 0, "q3": 6, "q4": 0, "shotStats": {"groups": {"layup": {"made": 2, "att": 2, "pts": 4}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 1, "att": 4, "pts": 2}, "3pt": {"made": 0, "att": 3, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 2, "fg_made": 1, "fg_att": 1}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 2}, "paint": {"pts": 2, "made": 1, "att": 3}, "blocked": {"att": 1}, "blocked2": {"att": 1}, "blocked3": {"att": 0}}}, "pts": 8, "reb": 4, "oreb": 2, "dreb": 2, "ast": 1, "stl": 1, "blk": 0, "tov": 3, "pf": 3, "pfd": 3, "technical": 0, "fgm": 3, "fga": 9, "fg2m": 3, "fg2a": 6, "fg3m": 0, "fg3a": 3, "ftm": 2, "fta": 4}, {"date": "2025-10-26", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2746120", "plus_minus": -16, "opponent": "SLUNETA  Ústí nad Labem", "score": "74:85", "isHome": false, "q1": 0, "q2": 7, "q3": 4, "q4": 7, "shotStats": {"groups": {"layup": {"made": 3, "att": 4, "pts": 6}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 1, "att": 3, "pts": 2}, "3pt": {"made": 1, "att": 5, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 7, "fg_made": 2, "fg_att": 2}, "fromturnover": {"pts": 5, "fg_made": 1, "fg_att": 2}, "paint": {"pts": 8, "made": 4, "att": 5}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 18, "reb": 9, "oreb": 3, "dreb": 6, "ast": 1, "stl": 0, "blk": 1, "tov": 3, "pf": 5, "pfd": 4, "technical": 0, "fgm": 6, "fga": 13, "fg2m": 5, "fg2a": 8, "fg3m": 1, "fg3a": 5, "ftm": 5, "fta": 5}, {"date": "2025-10-29", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2755307", "plus_minus": 18, "opponent": "BK KVIS Pardubice", "score": "100:87", "isHome": true, "q1": 11, "q2": 5, "q3": 13, "q4": 7, "shotStats": {"groups": {"layup": {"made": 7, "att": 7, "pts": 14}, "dunk": {"made": 2, "att": 2, "pts": 4}, "midrange": {"made": 1, "att": 3, "pts": 2}, "3pt": {"made": 5, "att": 7, "pts": 15}}, "qualifiers": {"fastbreak": {"pts": 7, "fg_made": 3, "fg_att": 3}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 2}, "fromturnover": {"pts": 6, "fg_made": 2, "fg_att": 4}, "paint": {"pts": 18, "made": 9, "att": 10}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 36, "reb": 13, "oreb": 4, "dreb": 9, "ast": 0, "stl": 1, "blk": 1, "tov": 1, "pf": 4, "pfd": 1, "technical": 0, "fgm": 15, "fga": 19, "fg2m": 10, "fg2a": 12, "fg3m": 5, "fg3a": 7, "ftm": 1, "fta": 1}, {"date": "2025-11-01", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2757868", "plus_minus": -1, "opponent": "USK Praha", "score": "81:71", "isHome": false, "q1": 4, "q2": 5, "q3": 4, "q4": 0, "shotStats": {"groups": {"layup": {"made": 4, "att": 9, "pts": 8}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 2, "att": 4, "pts": 4}, "3pt": {"made": 0, "att": 2, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 1, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 6, "fg_made": 3, "fg_att": 5}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 3}, "paint": {"pts": 10, "made": 5, "att": 11}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 13, "reb": 11, "oreb": 4, "dreb": 7, "ast": 0, "stl": 1, "blk": 0, "tov": 2, "pf": 2, "pfd": 4, "technical": 0, "fgm": 6, "fga": 15, "fg2m": 6, "fg2a": 13, "fg3m": 0, "fg3a": 2, "ftm": 1, "fta": 3}, {"date": "2025-11-08", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2763366", "plus_minus": -4, "opponent": "BK GAPA Hradec Králové", "score": "89:93", "isHome": true, "q1": 10, "q2": 9, "q3": 2, "q4": 6, "shotStats": {"groups": {"layup": {"made": 8, "att": 9, "pts": 16}, "dunk": {"made": 2, "att": 2, "pts": 4}, "midrange": {"made": 2, "att": 2, "pts": 4}, "3pt": {"made": 0, "att": 4, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 7, "fg_made": 2, "fg_att": 2}, "secondchance": {"pts": 4, "fg_made": 2, "fg_att": 5}, "fromturnover": {"pts": 7, "fg_made": 3, "fg_att": 4}, "paint": {"pts": 20, "made": 10, "att": 11}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 27, "reb": 7, "oreb": 2, "dreb": 5, "ast": 1, "stl": 2, "blk": 0, "tov": 2, "pf": 5, "pfd": 3, "technical": 0, "fgm": 12, "fga": 17, "fg2m": 12, "fg2a": 13, "fg3m": 0, "fg3a": 4, "ftm": 3, "fta": 4}, {"date": "2025-11-12", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2765923", "plus_minus": 0, "opponent": "SK Slavia Praha", "score": "109:95", "isHome": true, "q1": 0, "q2": 3, "q3": 0, "q4": 5, "shotStats": {"groups": {"layup": {"made": 3, "att": 3, "pts": 6}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 1, "pts": 0}, "3pt": {"made": 0, "att": 2, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 3, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 1}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 1}, "paint": {"pts": 6, "made": 3, "att": 4}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 8, "reb": 5, "oreb": 0, "dreb": 5, "ast": 2, "stl": 1, "blk": 0, "tov": 2, "pf": 4, "pfd": 3, "technical": 0, "fgm": 3, "fga": 6, "fg2m": 3, "fg2a": 4, "fg3m": 0, "fg3a": 2, "ftm": 2, "fta": 3}, {"date": "2025-11-15", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2767343", "plus_minus": 10, "opponent": "Sršni Photomate Písek", "score": "101:105", "isHome": true, "q1": 0, "q2": 0, "q3": 0, "q4": 16, "shotStats": {"groups": {"layup": {"made": 0, "att": 0, "pts": 0}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 0, "att": 3, "pts": 0}, "3pt": {"made": 3, "att": 4, "pts": 9}}, "qualifiers": {"fastbreak": {"pts": 5, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 1}, "paint": {"pts": 2, "made": 1, "att": 3}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 16, "reb": 4, "oreb": 0, "dreb": 4, "ast": 2, "stl": 0, "blk": 1, "tov": 0, "pf": 5, "pfd": 4, "technical": 0, "fgm": 4, "fga": 8, "fg2m": 1, "fg2a": 4, "fg3m": 3, "fg3a": 4, "ftm": 5, "fta": 6}, {"date": "2025-11-19", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2769229", "plus_minus": -15, "opponent": "ERA Basketball Nymburk", "score": "84:112", "isHome": false, "q1": 4, "q2": 0, "q3": 6, "q4": 4, "shotStats": {"groups": {"layup": {"made": 6, "att": 9, "pts": 12}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 1, "att": 3, "pts": 2}, "3pt": {"made": 0, "att": 3, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 6, "fg_made": 3, "fg_att": 6}, "fromturnover": {"pts": 4, "fg_made": 2, "fg_att": 5}, "paint": {"pts": 12, "made": 6, "att": 9}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 14, "reb": 5, "oreb": 3, "dreb": 2, "ast": 2, "stl": 0, "blk": 1, "tov": 2, "pf": 3, "pfd": 0, "technical": 0, "fgm": 7, "fga": 15, "fg2m": 7, "fg2a": 12, "fg3m": 0, "fg3a": 3, "ftm": 0, "fta": 0}, {"date": "2025-11-23", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2770936", "plus_minus": 17, "opponent": "BK Olomoucko", "score": "77:68", "isHome": true, "q1": 7, "q2": 2, "q3": 6, "q4": 0, "shotStats": {"groups": {"layup": {"made": 4, "att": 4, "pts": 8}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 2, "att": 2, "pts": 4}, "3pt": {"made": 0, "att": 4, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 2, "fg_made": 1, "fg_att": 1}, "fromturnover": {"pts": 7, "fg_made": 3, "fg_att": 3}, "paint": {"pts": 10, "made": 5, "att": 5}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 15, "reb": 3, "oreb": 1, "dreb": 2, "ast": 0, "stl": 1, "blk": 1, "tov": 3, "pf": 3, "pfd": 2, "technical": 0, "fgm": 6, "fga": 10, "fg2m": 6, "fg2a": 6, "fg3m": 0, "fg3a": 4, "ftm": 3, "fta": 3}, {"date": "2025-12-06", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2777444", "plus_minus": -3, "opponent": "BK ARMEX ENERGY Děčín", "score": "74:86", "isHome": false, "q1": 2, "q2": 0, "q3": 5, "q4": 3, "shotStats": {"groups": {"layup": {"made": 3, "att": 7, "pts": 6}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 1, "att": 3, "pts": 2}, "3pt": {"made": 0, "att": 3, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 4, "fg_made": 2, "fg_att": 3}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 2}, "paint": {"pts": 8, "made": 4, "att": 9}, "blocked": {"att": 1}, "blocked2": {"att": 1}, "blocked3": {"att": 0}}}, "pts": 10, "reb": 5, "oreb": 2, "dreb": 3, "ast": 0, "stl": 1, "blk": 1, "tov": 3, "pf": 4, "pfd": 3, "technical": 0, "fgm": 4, "fga": 13, "fg2m": 4, "fg2a": 10, "fg3m": 0, "fg3a": 3, "ftm": 2, "fta": 3}, {"date": "2025-12-13", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2780135", "plus_minus": 4, "opponent": "BK Opava", "score": "106:102", "isHome": true, "q1": 4, "q2": 10, "q3": 5, "q4": 3, "shotStats": {"groups": {"layup": {"made": 1, "att": 4, "pts": 2}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 1, "att": 3, "pts": 2}, "3pt": {"made": 4, "att": 6, "pts": 12}}, "qualifiers": {"fastbreak": {"pts": 5, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 2, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 2, "fg_made": 0, "fg_att": 0}, "paint": {"pts": 4, "made": 2, "att": 5}, "blocked": {"att": 1}, "blocked2": {"att": 1}, "blocked3": {"att": 0}}}, "pts": 25, "reb": 8, "oreb": 1, "dreb": 7, "ast": 0, "stl": 1, "blk": 2, "tov": 2, "pf": 5, "pfd": 5, "technical": 0, "fgm": 7, "fga": 14, "fg2m": 3, "fg2a": 8, "fg3m": 4, "fg3a": 6, "ftm": 7, "fta": 8}, {"date": "2025-12-20", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2782891", "plus_minus": 8, "opponent": "PUMPA Basket Brno", "score": "82:84", "isHome": false, "q1": 4, "q2": 0, "q3": 2, "q4": 8, "shotStats": {"groups": {"layup": {"made": 2, "att": 3, "pts": 4}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 1, "att": 1, "pts": 2}, "3pt": {"made": 1, "att": 5, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 4, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 4, "fg_made": 1, "fg_att": 1}, "paint": {"pts": 8, "made": 4, "att": 5}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 14, "reb": 5, "oreb": 0, "dreb": 5, "ast": 0, "stl": 1, "blk": 0, "tov": 4, "pf": 5, "pfd": 4, "technical": 0, "fgm": 5, "fga": 10, "fg2m": 4, "fg2a": 5, "fg3m": 1, "fg3a": 5, "ftm": 3, "fta": 5}, {"date": "2025-12-27", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2787024", "plus_minus": 0, "opponent": "SLUNETA  Ústí nad Labem", "score": "100:97", "isHome": true, "q1": 3, "q2": 0, "q3": 0, "q4": 7, "shotStats": {"groups": {"layup": {"made": 1, "att": 2, "pts": 2}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 1, "att": 4, "pts": 2}, "3pt": {"made": 1, "att": 3, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 2, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 3}, "paint": {"pts": 2, "made": 1, "att": 3}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 10, "reb": 1, "oreb": 0, "dreb": 1, "ast": 2, "stl": 0, "blk": 0, "tov": 2, "pf": 0, "pfd": 3, "technical": 0, "fgm": 3, "fga": 9, "fg2m": 2, "fg2a": 6, "fg3m": 1, "fg3a": 3, "ftm": 3, "fta": 5}, {"date": "2025-12-30", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2787956", "plus_minus": -3, "opponent": "BK KVIS Pardubice", "score": "80:83", "isHome": false, "q1": 6, "q2": 5, "q3": 5, "q4": 2, "shotStats": {"groups": {"layup": {"made": 2, "att": 6, "pts": 4}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 1, "att": 3, "pts": 2}, "3pt": {"made": 3, "att": 6, "pts": 9}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 1}, "secondchance": {"pts": 4, "fg_made": 1, "fg_att": 3}, "fromturnover": {"pts": 3, "fg_made": 1, "fg_att": 1}, "paint": {"pts": 6, "made": 3, "att": 7}, "blocked": {"att": 1}, "blocked2": {"att": 1}, "blocked3": {"att": 0}}}, "pts": 18, "reb": 7, "oreb": 2, "dreb": 5, "ast": 1, "stl": 0, "blk": 0, "tov": 2, "pf": 4, "pfd": 3, "technical": 0, "fgm": 6, "fga": 15, "fg2m": 3, "fg2a": 9, "fg3m": 3, "fg3a": 6, "ftm": 3, "fta": 4}, {"date": "2026-01-03", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2789368", "plus_minus": 12, "opponent": "USK Praha", "score": "100:88", "isHome": true, "q1": 5, "q2": 5, "q3": 0, "q4": 5, "shotStats": {"groups": {"layup": {"made": 4, "att": 5, "pts": 8}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 3, "pts": 0}, "3pt": {"made": 2, "att": 2, "pts": 6}}, "qualifiers": {"fastbreak": {"pts": 0, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 3, "fg_made": 1, "fg_att": 2}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 1}, "paint": {"pts": 8, "made": 4, "att": 6}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 15, "reb": 4, "oreb": 2, "dreb": 2, "ast": 0, "stl": 1, "blk": 1, "tov": 2, "pf": 0, "pfd": 2, "technical": 0, "fgm": 6, "fga": 10, "fg2m": 4, "fg2a": 8, "fg3m": 2, "fg3a": 2, "ftm": 1, "fta": 2}, {"date": "2026-01-10", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2791974", "plus_minus": -4, "opponent": "BK GAPA Hradec Králové", "score": "91:89", "isHome": false, "q1": 7, "q2": 7, "q3": 5, "q4": 7, "shotStats": {"groups": {"layup": {"made": 5, "att": 5, "pts": 10}, "dunk": {"made": 2, "att": 2, "pts": 4}, "midrange": {"made": 3, "att": 5, "pts": 6}, "3pt": {"made": 1, "att": 3, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 8, "fg_made": 3, "fg_att": 3}, "secondchance": {"pts": 6, "fg_made": 2, "fg_att": 2}, "fromturnover": {"pts": 8, "fg_made": 3, "fg_att": 4}, "paint": {"pts": 18, "made": 9, "att": 10}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 26, "reb": 9, "oreb": 4, "dreb": 5, "ast": 1, "stl": 1, "blk": 1, "tov": 0, "pf": 2, "pfd": 7, "technical": 0, "fgm": 11, "fga": 15, "fg2m": 10, "fg2a": 12, "fg3m": 1, "fg3a": 3, "ftm": 3, "fta": 7}, {"date": "2026-01-17", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2794571", "plus_minus": -9, "opponent": "SK Slavia Praha", "score": "77:74", "isHome": false, "q1": 3, "q2": 0, "q3": 0, "q4": 1, "shotStats": {"groups": {"layup": {"made": 0, "att": 2, "pts": 0}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 0, "pts": 0}, "3pt": {"made": 1, "att": 3, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 1, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 0}, "paint": {"pts": 0, "made": 0, "att": 2}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 4, "reb": 1, "oreb": 0, "dreb": 1, "ast": 0, "stl": 1, "blk": 0, "tov": 1, "pf": 4, "pfd": 3, "technical": 0, "fgm": 1, "fga": 5, "fg2m": 0, "fg2a": 2, "fg3m": 1, "fg3a": 3, "ftm": 1, "fta": 4}, {"date": "2026-01-25", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803558", "plus_minus": -8, "opponent": "SLUNETA  Ústí nad Labem", "score": "82:105", "isHome": false, "q1": 2, "q2": 2, "q3": 2, "q4": 0, "shotStats": {"groups": {"layup": {"made": 3, "att": 3, "pts": 6}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 2, "pts": 0}, "3pt": {"made": 0, "att": 3, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 2, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 0}, "paint": {"pts": 6, "made": 3, "att": 3}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 6, "reb": 7, "oreb": 2, "dreb": 5, "ast": 0, "stl": 0, "blk": 0, "tov": 1, "pf": 2, "pfd": 2, "technical": 0, "fgm": 3, "fga": 8, "fg2m": 3, "fg2a": 5, "fg3m": 0, "fg3a": 3, "ftm": 0, "fta": 1}, {"date": "2026-01-28", "isDNP": false, "won": true, "team": "NH Ostrava", "game_id": "2803559", "plus_minus": -9, "opponent": "BK ARMEX ENERGY Děčín", "score": "82:78", "isHome": true, "q1": 12, "q2": 0, "q3": 0, "q4": 7, "shotStats": {"groups": {"layup": {"made": 5, "att": 7, "pts": 10}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 1, "att": 5, "pts": 2}, "3pt": {"made": 2, "att": 3, "pts": 6}}, "qualifiers": {"fastbreak": {"pts": 2, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 4, "fg_made": 2, "fg_att": 2}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 3}, "paint": {"pts": 10, "made": 5, "att": 7}, "blocked": {"att": 2}, "blocked2": {"att": 2}, "blocked3": {"att": 0}}}, "pts": 19, "reb": 3, "oreb": 0, "dreb": 3, "ast": 1, "stl": 3, "blk": 0, "tov": 2, "pf": 2, "pfd": 3, "technical": 0, "fgm": 8, "fga": 15, "fg2m": 6, "fg2a": 12, "fg3m": 2, "fg3a": 3, "ftm": 1, "fta": 2}, {"date": "2026-01-31", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803566", "plus_minus": -14, "opponent": "ERA Basketball Nymburk", "score": "84:113", "isHome": true, "q1": 5, "q2": 2, "q3": 3, "q4": 0, "shotStats": {"groups": {"layup": {"made": 2, "att": 3, "pts": 4}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 1, "pts": 0}, "3pt": {"made": 1, "att": 4, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 5, "fg_made": 2, "fg_att": 2}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 1}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 1}, "paint": {"pts": 4, "made": 2, "att": 3}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 12, "reb": 4, "oreb": 0, "dreb": 4, "ast": 1, "stl": 0, "blk": 0, "tov": 0, "pf": 2, "pfd": 3, "technical": 2, "fgm": 3, "fga": 8, "fg2m": 2, "fg2a": 4, "fg3m": 1, "fg3a": 4, "ftm": 5, "fta": 5}, {"date": "2026-02-07", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803568", "plus_minus": -14, "opponent": "Sršni Photomate Písek", "score": "71:99", "isHome": true, "q1": 8, "q2": 8, "q3": 6, "q4": 2, "shotStats": {"groups": {"layup": {"made": 4, "att": 4, "pts": 8}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 3, "att": 6, "pts": 6}, "3pt": {"made": 2, "att": 4, "pts": 6}}, "qualifiers": {"fastbreak": {"pts": 8, "fg_made": 3, "fg_att": 3}, "secondchance": {"pts": 2, "fg_made": 1, "fg_att": 2}, "fromturnover": {"pts": 2, "fg_made": 1, "fg_att": 2}, "paint": {"pts": 10, "made": 5, "att": 8}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 24, "reb": 6, "oreb": 3, "dreb": 3, "ast": 0, "stl": 1, "blk": 0, "tov": 2, "pf": 2, "pfd": 1, "technical": 0, "fgm": 10, "fga": 15, "fg2m": 8, "fg2a": 11, "fg3m": 2, "fg3a": 4, "ftm": 2, "fta": 2}, {"date": "2026-02-14", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2803571", "plus_minus": -25, "opponent": "BK KVIS Pardubice", "score": "72:109", "isHome": false, "q1": 1, "q2": 5, "q3": 2, "q4": 2, "shotStats": {"groups": {"layup": {"made": 2, "att": 4, "pts": 4}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 0, "att": 2, "pts": 0}, "3pt": {"made": 1, "att": 3, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 1, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 1}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 0}, "paint": {"pts": 6, "made": 3, "att": 5}, "blocked": {"att": 2}, "blocked2": {"att": 2}, "blocked3": {"att": 0}}}, "pts": 10, "reb": 5, "oreb": 2, "dreb": 3, "ast": 1, "stl": 0, "blk": 1, "tov": 2, "pf": 1, "pfd": 1, "technical": 0, "fgm": 4, "fga": 10, "fg2m": 3, "fg2a": 7, "fg3m": 1, "fg3a": 3, "ftm": 1, "fta": 2}, {"date": "2026-02-17", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2805262", "plus_minus": -11, "opponent": "PUMPA Basket Brno", "score": "88:100", "isHome": false, "q1": 0, "q2": 1, "q3": 0, "q4": 0, "shotStats": {"groups": {"layup": {"made": 0, "att": 1, "pts": 0}, "dunk": {"made": 0, "att": 0, "pts": 0}, "midrange": {"made": 0, "att": 0, "pts": 0}, "3pt": {"made": 0, "att": 0, "pts": 0}}, "qualifiers": {"fastbreak": {"pts": 1, "fg_made": 0, "fg_att": 0}, "secondchance": {"pts": 0, "fg_made": 0, "fg_att": 0}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 1}, "paint": {"pts": 0, "made": 0, "att": 1}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 1, "reb": 3, "oreb": 0, "dreb": 3, "ast": 0, "stl": 2, "blk": 0, "tov": 2, "pf": 0, "pfd": 1, "technical": 0, "fgm": 0, "fga": 1, "fg2m": 0, "fg2a": 1, "fg3m": 0, "fg3a": 0, "ftm": 1, "fta": 2}, {"date": "2026-03-04", "isDNP": false, "won": false, "team": "NH Ostrava", "game_id": "2811568", "plus_minus": -17, "opponent": "BK Opava", "score": "117:121", "isHome": true, "q1": 0, "q2": 2, "q3": 4, "q4": 0, "shotStats": {"groups": {"layup": {"made": 4, "att": 6, "pts": 8}, "dunk": {"made": 1, "att": 1, "pts": 2}, "midrange": {"made": 1, "att": 3, "pts": 2}, "3pt": {"made": 1, "att": 5, "pts": 3}}, "qualifiers": {"fastbreak": {"pts": 2, "fg_made": 1, "fg_att": 1}, "secondchance": {"pts": 4, "fg_made": 1, "fg_att": 1}, "fromturnover": {"pts": 0, "fg_made": 0, "fg_att": 1}, "paint": {"pts": 10, "made": 5, "att": 8}, "blocked": {"att": 0}, "blocked2": {"att": 0}, "blocked3": {"att": 0}}}, "pts": 18, "reb": 8, "oreb": 3, "dreb": 5, "ast": 1, "stl": 0, "blk": 0, "tov": 4, "pf": 5, "pfd": 4, "technical": 0, "fgm": 7, "fga": 15, "fg2m": 6, "fg2a": 10, "fg3m": 1, "fg3a": 5, "ftm": 3, "fta": 6}];
+const TEAM_RECORDS = {"BK Olomoucko": {"gp": 27, "wins": 9}, "BK GAPA Hradec Králové": {"gp": 28, "wins": 5}, "BK Opava": {"gp": 28, "wins": 14}, "BK KVIS Pardubice": {"gp": 29, "wins": 22}, "USK Praha": {"gp": 29, "wins": 10}, "BK ARMEX ENERGY Děčín": {"gp": 29, "wins": 16}, "SK Slavia Praha": {"gp": 28, "wins": 9}, "ERA Basketball Nymburk": {"gp": 27, "wins": 26}, "Sršni Photomate Písek": {"gp": 28, "wins": 15}, "NH Ostrava": {"gp": 29, "wins": 10}, "SLUNETA  Ústí nad Labem": {"gp": 28, "wins": 16}, "PUMPA Basket Brno": {"gp": 28, "wins": 17}};
 const ONOFF_DATA = [{"team": "NH Ostrava", "on_ortg": 118.6, "on_drtg": 127.1, "on_net": -8.5, "off_ortg": 115.1, "off_drtg": 121.5, "off_net": -6.4, "delta_ortg": 3.5, "delta_drtg": 5.6, "delta_net": -2.1, "on_minutes": 641, "off_minutes": 475, "has_off": true}];
 const BEST_QUINTETS = [{"players": ["D. Heinzl", "K. Cole", "L. Greer", "M. Svoboda", "M. Čank"], "minutes": 32, "raw_ortg": 134.0, "raw_drtg": 99.9, "raw_net": 34.1, "prior": -14.3, "stabilized_net": -1.1, "weight": 0.27, "confidence": "Low", "team": "NH Ostrava"}, {"players": ["E. Cato", "K. Cole", "L. Greer", "L. Palyza", "M. Svoboda"], "minutes": 10, "raw_ortg": 154.7, "raw_drtg": 86.0, "raw_net": 68.7, "prior": -13.1, "stabilized_net": -4.5, "weight": 0.11, "confidence": "Low", "team": "NH Ostrava"}, {"players": ["A. Číž", "K. Cole", "M. Snopek", "M. Čank", "S. Godwin"], "minutes": 10, "raw_ortg": 196.8, "raw_drtg": 125.9, "raw_net": 70.9, "prior": -14.7, "stabilized_net": -5.7, "weight": 0.11, "confidence": "Low", "team": "NH Ostrava"}];
 const TOP_STINTS = [{"length": 25, "start": 4, "end": 28, "game_id": "2763366", "date": "2025-11-08", "opponent": "BK GAPA Hradec Králové", "score": "89:93", "is_home": true, "num_ot": 0}, {"length": 20, "start": 20, "end": 39, "game_id": "2755307", "date": "2025-10-29", "opponent": "BK KVIS Pardubice", "score": "100:87", "is_home": true, "num_ot": 0}, {"length": 19, "start": 7, "end": 25, "game_id": "2782891", "date": "2025-12-20", "opponent": "PUMPA Basket Brno", "score": "82:84", "is_home": false, "num_ot": 0}, {"length": 16, "start": 10, "end": 25, "game_id": "2716309", "date": "2025-10-11", "opponent": "BK Opava", "score": "86:101", "is_home": false, "num_ot": 0}, {"length": 16, "start": 13, "end": 28, "game_id": "2791974", "date": "2026-01-10", "opponent": "BK GAPA Hradec Králové", "score": "91:89", "is_home": false, "num_ot": 0}, {"length": 16, "start": 10, "end": 25, "game_id": "2803568", "date": "2026-02-07", "opponent": "Sršni Photomate Písek", "score": "71:99", "is_home": true, "num_ot": 0}, {"length": 15, "start": 15, "end": 29, "game_id": "2757868", "date": "2025-11-01", "opponent": "USK Praha", "score": "81:71", "is_home": false, "num_ot": 0}, {"length": 14, "start": 4, "end": 17, "game_id": "2755307", "date": "2025-10-29", "opponent": "BK KVIS Pardubice", "score": "100:87", "is_home": true, "num_ot": 0}, {"length": 14, "start": 14, "end": 27, "game_id": "2765923", "date": "2025-11-12", "opponent": "SK Slavia Praha", "score": "109:95", "is_home": true, "num_ot": 0}, {"length": 13, "start": 12, "end": 24, "game_id": "2789368", "date": "2026-01-03", "opponent": "USK Praha", "score": "100:88", "is_home": true, "num_ot": 0}];
@@ -88,6 +118,7 @@ const PLAYER_PAIRS = {"NH Ostrava": {"as_passer": [], "as_scorer": [{"name": "Ad
             <button class="tab-btn" data-tab="dvojice">Dvojice</button>
             <button class="tab-btn" data-tab="stridani">Střídání</button>
             <button class="tab-btn" data-tab="forma">Forma</button>
+            <button class="tab-btn" data-tab="strelba">Střelecký profil</button>
             <button class="tab-btn" data-tab="nejlepsi">Nejlepší výkony</button>
         </div>
 
@@ -130,6 +161,10 @@ const PLAYER_PAIRS = {"NH Ostrava": {"as_passer": [], "as_scorer": [{"name": "Ad
 
         <div id="tab-forma" class="player-tab-panel hidden">
             <div id="chart-form-section"></div>
+        </div>
+
+        <div id="tab-strelba" class="player-tab-panel hidden">
+            <div id="psp-content"></div>
         </div>
 
         <div id="tab-nejlepsi" class="player-tab-panel hidden">
@@ -705,6 +740,7 @@ renderWinsSection();
 (function() {
     let formRendered = false;
     let bestRendered = false;
+    let strelbaRendered = false;
     function showTab(tab) {
         document.querySelectorAll('.player-tab-panel').forEach(p => p.classList.add('hidden'));
         document.querySelectorAll('#player-tab-nav .tab-btn').forEach(b => b.classList.remove('active'));
@@ -712,6 +748,7 @@ renderWinsSection();
         document.querySelector(`#player-tab-nav .tab-btn[data-tab="${tab}"]`)?.classList.add('active');
         if (tab === 'forma' && !formRendered) { formRendered = true; renderFormChart(); }
         if (tab === 'nejlepsi' && !bestRendered) { bestRendered = true; renderBestPerformances(); }
+        if (tab === 'strelba' && !strelbaRendered) { strelbaRendered = true; renderStrelbaProfil(); }
     }
     document.querySelectorAll('#player-tab-nav .tab-btn').forEach(btn =>
         btn.addEventListener('click', () => showTab(btn.dataset.tab)));
@@ -972,6 +1009,227 @@ function renderBestPerformances() {
         );
 
     container.innerHTML = html;
+    initTooltips(container);
+}
+
+// ── Střelecký profil ─────────────────────────────────────────────────────────
+function renderStrelbaProfil() {
+    const container = document.getElementById('psp-content');
+    if (!container) return;
+
+    let layupMade=0, layupAtt=0, dunkMade=0, dunkAtt=0;
+    let midrangeMade=0, midrangeAtt=0, fg3Made=0, fg3Att=0;
+    let ftm=0, fta=0, pts=0;
+    let fbPts=0, fbMade=0, fbAtt=0, scPts=0, scMade=0, scAtt=0, ftoPts=0, ftoMade=0, ftoAtt=0;
+    let paintPts=0, paintMade=0, paintAtt=0, blockedAtt=0, blocked2Att=0, blocked3Att=0;
+
+    const played = _playedGames;
+    if (!played.length) {
+        container.innerHTML = '<div style="color:#666;padding:20px">Žádná data.</div>';
+        return;
+    }
+    for (const g of played) {
+        const ss = g.shotStats;
+        if (!ss) { ftm += g.ftm||0; fta += g.fta||0; pts += g.pts||0; continue; }
+        const gr = ss.groups || {};
+        layupMade    += gr.layup?.made    || 0; layupAtt    += gr.layup?.att    || 0;
+        dunkMade     += gr.dunk?.made     || 0; dunkAtt     += gr.dunk?.att     || 0;
+        midrangeMade += gr.midrange?.made || 0; midrangeAtt += gr.midrange?.att || 0;
+        fg3Made      += gr['3pt']?.made   || 0; fg3Att      += gr['3pt']?.att   || 0;
+        const q = ss.qualifiers || {};
+        fbPts   += q.fastbreak?.pts     || 0; fbMade  += q.fastbreak?.fg_made    || 0; fbAtt   += q.fastbreak?.fg_att     || 0;
+        scPts   += q.secondchance?.pts  || 0; scMade  += q.secondchance?.fg_made || 0; scAtt   += q.secondchance?.fg_att  || 0;
+        ftoPts  += q.fromturnover?.pts  || 0; ftoMade += q.fromturnover?.fg_made || 0; ftoAtt  += q.fromturnover?.fg_att  || 0;
+        paintPts   += q.paint?.pts  || 0; paintMade += q.paint?.made || 0;
+        paintAtt   += q.paint?.att  || 0;
+        blockedAtt += q.blocked?.att || 0;
+        blocked2Att += q.blocked2?.att || 0;
+        blocked3Att += q.blocked3?.att || 0;
+        ftm += g.ftm||0; fta += g.fta||0; pts += g.pts||0;
+    }
+
+    const atRimMade = layupMade + dunkMade, atRimAtt = layupAtt + dunkAtt;
+    const total2PM  = atRimMade + midrangeMade, total2PA = atRimAtt + midrangeAtt;
+    const totalFGM  = total2PM  + fg3Made,      totalFGA = total2PA + fg3Att;
+
+    const p  = (a, b) => b ? (a / b * 100) : 0;
+    const ppa = (pts_, att) => att ? (pts_ / att) : 0;
+    const f1 = v => isNaN(v) ? '—' : v.toFixed(1);
+    const f2 = v => isNaN(v) ? '—' : v.toFixed(2);
+    const fp = v => f1(v) + '%';
+
+    const eFGPct = totalFGA ? (totalFGM + 0.5 * fg3Made) / totalFGA * 100 : 0;
+    const tsPct  = (totalFGA + 0.44 * fta) ? pts / (2 * (totalFGA + 0.44 * fta)) * 100 : 0;
+
+    function bar(pct, color) {
+        return `<div class="psp-bar-track"><div class="psp-bar-fill" style="width:${Math.min(pct,100).toFixed(1)}%;background:${color}"></div></div>`;
+    }
+
+    // Stacked distribution bar
+    const tfga = totalFGA || 1;
+    const rimW = (atRimAtt  / tfga * 100).toFixed(1);
+    const midW = (midrangeAtt / tfga * 100).toFixed(1);
+    const fg3W = (fg3Att / tfga * 100).toFixed(1);
+    const stackedBar = `
+        <div style="margin-bottom:14px">
+            <div style="font-size:0.68rem;color:#555;margin-bottom:4px">Shot distribution (${totalFGA} pokusů celkem)</div>
+            <div style="display:flex;height:16px;border-radius:4px;overflow:hidden;gap:1px">
+                <div style="width:${rimW}%;background:#4caf50;min-width:2px" title="U koše ${rimW}%"></div>
+                <div style="width:${midW}%;background:#ffa726;min-width:2px" title="Midrange ${midW}%"></div>
+                <div style="width:${fg3W}%;background:#7986cb;min-width:2px" title="3PT ${fg3W}%"></div>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:5px;font-size:0.68rem;color:#666;flex-wrap:wrap">
+                <span><span style="color:#4caf50">■</span> U koše ${rimW}%</span>
+                <span><span style="color:#ffa726">■</span> Midrange ${midW}%</span>
+                <span><span style="color:#7986cb">■</span> 3PT ${fg3W}%</span>
+            </div>
+        </div>`;
+
+    // Distribution bars: bar shows share of total FGA; right cols = made/att + FG%
+    const zoneRow = (label, labelCls, att, made, color, mTop) =>
+        `<div class="psp-bar-row"${mTop ? ` style="margin-top:${mTop}"` : ''}>` +
+        `<span class="${labelCls}">${label}</span>` +
+        bar(p(att, totalFGA), color) +
+        `<span class="psp-bar-att">${made}/${att}</span>` +
+        `<span class="psp-bar-pct">${att ? Number(p(made,att).toFixed(1))+'%' : '—'}</span>` +
+        `</div>`;
+    const distHTML = stackedBar +
+        `<div style="display:flex;justify-content:flex-end;gap:0;margin-bottom:2px;font-size:0.63rem;color:#444;padding-right:0">` +
+        `<span style="width:46px;text-align:right">pokusy</span>` +
+        `<span style="width:50px;text-align:right">FG%</span>` +
+        `</div>` +
+        zoneRow(`U koše (${atRimAtt})`,'psp-bar-label',atRimAtt,atRimMade,'#4caf50') +
+        zoneRow(`↳ Layupy (${layupAtt})`,'psp-bar-sub',layupAtt,layupMade,'#66bb6a') +
+        zoneRow(`↳ Dunky (${dunkAtt})`,'psp-bar-sub',dunkAtt,dunkMade,'#43a047') +
+        zoneRow(`Midrange (${midrangeAtt})`,'psp-bar-label',midrangeAtt,midrangeMade,'#ffa726','6px') +
+        zoneRow(`Trojky (${fg3Att})`,'psp-bar-label',fg3Att,fg3Made,'#7986cb','2px');
+
+    // Efficiency matrix with tooltips via title attribute
+    const thTip = t => `title="${t}"`;
+    const zones = [
+        { label:'U koše',    att:atRimAtt,    made:atRimMade,    pts3:0,       style:'' },
+        { label:'↳ Layupy', att:layupAtt,    made:layupMade,    pts3:0,       style:'sub' },
+        { label:'↳ Dunky',  att:dunkAtt,     made:dunkMade,     pts3:0,       style:'sub' },
+        { label:'Midrange',  att:midrangeAtt, made:midrangeMade, pts3:0,       style:'' },
+        { label:'Trojky',    att:fg3Att,      made:fg3Made,      pts3:fg3Made, style:'' },
+        { label:'Paint',     att:paintAtt,    made:paintMade,    pts3:0,       style:'' },
+    ];
+    const effRows = zones.map(z => {
+        const fgp  = p(z.made, z.att);
+        const efg  = z.att ? (z.made + 0.5 * z.pts3) / z.att * 100 : 0;
+        const ppa_ = z.att ? (z.made * (z.pts3 > 0 ? 3 : 2)) / z.att : 0;
+        return `<tr class="${z.style === 'sub' ? 'psp-eff-sub' : ''}">
+            <td>${z.label}</td><td>${z.att}</td><td>${z.made}</td>
+            <td class="psp-hi">${z.att ? fp(fgp) : '—'}</td>
+            <td class="psp-hi">${z.att ? fp(efg) : '—'}</td>
+            <td>${z.att ? f2(ppa_) : '—'}</td>
+        </tr>`;
+    }).join('');
+    const effHTML = `
+        <table class="psp-eff-table">
+            <thead><tr>
+                <th>Zóna</th>
+                <th data-tip="Pokusy ze hry (FGA)">Pokusy</th>
+                <th data-tip="Proměněné střely (FGM)">Proměn.</th>
+                <th data-tip="Field Goal % – proměněné / pokusy">FG%</th>
+                <th data-tip="Effective FG% – zohledňuje vyšší hodnotu trojek: (proměněné + 0.5 × trojky) / pokusy">eFG%</th>
+                <th data-tip="Body na pokus – průměrný počet bodů za každý střelecký pokus">Bod/pok</th>
+            </tr></thead>
+            <tbody>${effRows}</tbody>
+        </table>
+        <div style="margin-top:10px;border-top:1px solid #1e2a40;padding-top:8px">
+        <div class="psp-stat-row"><span class="psp-stat-label" data-tip="Free Throw % – proměněné trestné hody / pokusy na trestné hody">FT%</span><span class="psp-stat-value">${fp(p(ftm,fta))} (${ftm}/${fta})</span></div>
+        <div class="psp-stat-row"><span class="psp-stat-label" data-tip="Effective FG% – zohledňuje vyšší hodnotu trojek: (proměněné + 0.5 × trojky) / pokusy ze hry">eFG%</span><span class="psp-stat-value" style="color:#6a9fd8">${fp(eFGPct)}</span></div>
+        <div class="psp-stat-row"><span class="psp-stat-label" data-tip="True Shooting % – celková efektivita střelby včetně trojek a trestných hodů: body / (2 × (FGA + 0.44 × FTA))">TS%</span><span class="psp-stat-value" style="color:#6a9fd8">${fp(tsPct)}</span></div>
+        </div>`;
+
+    // Context shooting
+    // ctxRow: label | made/att (FG%) | bar (share of total FGA) | FG%
+    const ctxRow = (label, cMade, cAtt, totalFga) => {
+        const fgPct = cAtt ? p(cMade, cAtt) : 0;
+        const shareW = totalFga ? (cAtt / totalFga * 100) : 0;
+        return `<div class="psp-bar-row">` +
+            `<span style="color:#888;width:150px;flex-shrink:0;font-size:0.79rem">${label}</span>` +
+            `<span style="width:44px;text-align:right;flex-shrink:0;font-size:0.72rem;color:#555;padding-right:8px">${cAtt ? fp(shareW) : ''}</span>` +
+            `<div class="psp-bar-track" style="min-width:40px"><div class="psp-bar-fill" style="width:${shareW}%;background:#6a9fd8"></div></div>` +
+            `<span style="width:36px;text-align:right;flex-shrink:0;font-size:0.79rem;color:#ccc;padding-left:8px">${cAtt ? cMade+'/'+cAtt : '—'}</span>` +
+            `<span style="width:44px;text-align:right;flex-shrink:0;font-size:0.72rem;color:#555">${cAtt ? fp(fgPct) : ''}</span>` +
+            `</div>`;
+    };
+    const ctxHTML =
+        `<div style="display:flex;margin-bottom:3px;font-size:0.63rem;color:#444">` +
+        `<span style="width:150px;flex-shrink:0"></span>` +
+        `<span style="width:44px;text-align:right;flex-shrink:0;padding-right:8px">% pokusů</span>` +
+        `<span style="flex:1"></span>` +
+        `<span style="width:36px;text-align:right;flex-shrink:0;padding-left:8px">nastř.</span>` +
+        `<span style="width:44px;text-align:right;flex-shrink:0">FG%</span>` +
+        `</div>` +
+        ctxRow('Rychlý protiútok', fbMade, fbAtt, totalFGA) +
+        ctxRow('Druhé šance', scMade, scAtt, totalFGA) +
+        ctxRow('Ze ztrát soupeře', ftoMade, ftoAtt, totalFGA) +
+        ctxRow('Paint', paintMade, paintAtt, totalFGA) +
+        `<div style="margin-top:10px;padding-top:8px;border-top:1px solid #1e2a40">` +
+        `<div class="psp-stat-row"><span class="psp-stat-label">Blokované střely</span><span class="psp-stat-value">${blockedAtt} z ${totalFGA} (${fp(p(blockedAtt,totalFGA))})</span></div>` +
+        `<div class="psp-stat-row" style="padding-left:10px"><span class="psp-stat-label" style="font-size:0.72rem;color:#555">↳ Dvojky</span><span class="psp-stat-value" style="color:#888">${blocked2Att} z ${total2PA} (${fp(p(blocked2Att,total2PA))})</span></div>` +
+        `<div class="psp-stat-row" style="padding-left:10px"><span class="psp-stat-label" style="font-size:0.72rem;color:#555">↳ Trojky</span><span class="psp-stat-value" style="color:#888">${blocked3Att} z ${fg3Att} (${fp(p(blocked3Att,fg3Att))})</span></div>` +
+        `</div>`;
+
+    // All games table (newest first)
+    const allGames = [...played].reverse();
+    const trendRows = allGames.map(g => {
+        const ss = g.shotStats?.groups || {};
+        const lAtt = ss.layup?.att||0, dAtt = ss.dunk?.att||0;
+        const mAtt = ss.midrange?.att||0, tAtt = ss['3pt']?.att||0;
+        const lMade = ss.layup?.made||0, dMade = ss.dunk?.made||0;
+        const mMade = ss.midrange?.made||0, t3Made = ss['3pt']?.made||0;
+        const rimAtt  = lAtt+dAtt, rimMade = lMade+dMade;
+        const fgaGame = rimAtt+mAtt+tAtt;
+        const pctFmt  = (m,a) => a ? `${(m/a*100).toFixed(0)}%` : '—';
+        const dp = (g.date||'').split('-');
+        const dateStr = dp.length===3 ? `${dp[2]}.${dp[1]}.${dp[0]}` : (g.date||'');
+        const loc = g.isHome ? 'vs.' : '@';
+        const scoreStr = g.score ? ` (${g.score})` : '';
+        const gameCell = g.game_id
+            ? `<a href="../../game/${g.game_id}.html" class="game-link">${loc} ${g.opponent||''}${scoreStr}</a>`
+            : `${loc} ${g.opponent||''}${scoreStr}`;
+        return `<tr>
+            <td style="color:#555;font-size:0.72rem;white-space:nowrap">${dateStr}</td>
+            <td style="white-space:nowrap">${gameCell}</td>
+            <td>${g.pts||0}</td>
+            <td>${fgaGame||0}</td>
+            <td style="color:#4caf50">${rimAtt} (${pctFmt(rimMade,rimAtt)})</td>
+            <td style="color:#43a047">${dAtt} (${pctFmt(dMade,dAtt)})</td>
+            <td style="color:#ffa726">${mAtt} (${pctFmt(mMade,mAtt)})</td>
+            <td style="color:#7986cb">${tAtt} (${pctFmt(t3Made,tAtt)})</td>
+        </tr>`;
+    }).join('');
+    const trendHTML = `
+        <div style="overflow-x:auto">
+        <table class="psp-eff-table">
+            <thead><tr><th>Datum</th><th>Zápas</th><th>Body</th><th>FGA</th><th>U koše</th><th>Dunky</th><th>Midrange</th><th>3PT</th></tr></thead>
+            <tbody>${trendRows}</tbody>
+        </table>
+        </div>`;
+
+    container.innerHTML = `
+        <div class="psp-grid">
+            <div class="psp-section">
+                <div class="psp-title">Shot Distribution</div>
+                ${distHTML}
+            </div>
+            <div class="psp-section">
+                <div class="psp-title">Efficiency Matrix</div>
+                ${effHTML}
+            </div>
+            <div class="psp-section">
+                <div class="psp-title">Context Shooting</div>
+                ${ctxHTML}
+            </div>
+        </div>
+        <div class="psp-section psp-section-full">
+            <div class="psp-title">Všechny zápasy sezóny (${allGames.length})</div>
+            ${trendHTML}
+        </div>`;
     initTooltips(container);
 }
     </script>
