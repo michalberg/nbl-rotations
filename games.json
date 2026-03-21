@@ -1422,5 +1422,29 @@
     "team2": "BK Olomoucko",
     "score1": 87,
     "score2": 90
+  },
+  {
+    "game_id": "2818758",
+    "date": "2026-03-21",
+    "team1": "BK ARMEX ENERGY Děčín",
+    "team2": "NH Ostrava",
+    "score1": 77,
+    "score2": 81
+  },
+  {
+    "game_id": "2818760",
+    "date": "2026-03-21",
+    "team1": "PUMPA Basket Brno",
+    "team2": "BK KVIS Pardubice",
+    "score1": 68,
+    "score2": 78
+  },
+  {
+    "game_id": "2818761",
+    "date": "2026-03-21",
+    "team1": "BK GAPA Hradec Králové",
+    "team2": "SK Slavia Praha",
+    "score1": 66,
+    "score2": 74
   }
 ]
