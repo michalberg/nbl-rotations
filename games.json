@@ -1446,5 +1446,13 @@
     "team2": "SK Slavia Praha",
     "score1": 66,
     "score2": 74
+  },
+  {
+    "game_id": "2818759",
+    "date": "2026-03-21",
+    "team1": "BK Opava",
+    "team2": "Sršni Photomate Písek",
+    "score1": 70,
+    "score2": 86
   }
 ]
