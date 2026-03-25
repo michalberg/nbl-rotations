@@ -1462,5 +1462,13 @@
     "team2": "ERA Basketball Nymburk",
     "score1": 88,
     "score2": 96
+  },
+  {
+    "game_id": "2820800",
+    "date": "2026-03-25",
+    "team1": "BK Olomoucko",
+    "team2": "BK GAPA Hradec Králové",
+    "score1": 77,
+    "score2": 86
   }
 ]
