@@ -1470,5 +1470,13 @@
     "team2": "BK GAPA Hradec Králové",
     "score1": 77,
     "score2": 86
+  },
+  {
+    "game_id": "2820797",
+    "date": "2026-03-25",
+    "team1": "BK KVIS Pardubice",
+    "team2": "BK Opava",
+    "score1": 75,
+    "score2": 79
   }
 ]
