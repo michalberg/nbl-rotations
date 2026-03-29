@@ -1534,5 +1534,13 @@
     "team2": "PUMPA Basket Brno",
     "score1": 66,
     "score2": 76
+  },
+  {
+    "game_id": "2823403",
+    "date": "2026-03-29",
+    "team1": "Sršni Photomate Písek",
+    "team2": "NH Ostrava",
+    "score1": 81,
+    "score2": 104
   }
 ]
