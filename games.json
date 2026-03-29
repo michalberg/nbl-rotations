@@ -1542,5 +1542,13 @@
     "team2": "NH Ostrava",
     "score1": 81,
     "score2": 104
+  },
+  {
+    "game_id": "2823404",
+    "date": "2026-03-29",
+    "team1": "SLUNETA Ústí nad Labem",
+    "team2": "BK KVIS Pardubice",
+    "score1": 89,
+    "score2": 101
   }
 ]
