@@ -1606,5 +1606,13 @@
     "team2": "BK Opava",
     "score1": 95,
     "score2": 98
+  },
+  {
+    "game_id": "2803560",
+    "date": "2026-04-09",
+    "team1": "ERA Basketball Nymburk",
+    "team2": "SLUNETA Ústí nad Labem",
+    "score1": 94,
+    "score2": 107
   }
 ]
