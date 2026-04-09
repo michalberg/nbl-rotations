@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SK Slavia Praha 81 - 88 BK Olomoucko | NBL Rotations</title>
+    <meta name="description" content="Rotace hráčů v zápase SK Slavia Praha 81:88 BK Olomoucko (9.4.2026)">
+    <meta property="og:title" content="SK Slavia Praha 81 - 88 BK Olomoucko">
+    <meta property="og:description" content="Interaktivní vizualizace rotací hráčů v české basketbalové lize NBL">
+    <meta property="og:image" content="https://michalberg.github.io/nbl-rotations/og-image.png">
+    <meta property="og:url" content="https://michalberg.github.io/nbl-rotations/game/2828128.html">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SK Slavia Praha 81 - 88 BK Olomoucko">
+    <meta name="twitter:description" content="Interaktivní vizualizace rotací hráčů v české basketbalové lize NBL">
+    <meta name="twitter:image" content="https://michalberg.github.io/nbl-rotations/og-image.png">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<nav class="site-nav" id="site-nav">
+    <div class="site-nav-inner">
+        <a href="../index.html" class="nav-brand">NBL data</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="nav-links">
+            <a href="../index.html" class="nav-link active">Zápasy</a>
+            <a href="../player/index.html" class="nav-link">Hráči</a>
+            <a href="../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
+            <a href="../leaderboard/2025-26/players.html" class="nav-link">TOP hráči</a>
+            <a href="../stats/2025-26/teams.html" class="nav-link">Statistiky týmů</a>
+            <a href="../leaderboard/2025-26/teams.html" class="nav-link">TOP týmy</a>
+            <a href="../stats/2025-26/top_games.html" class="nav-link">TOP zápasy</a>
+            <a href="../stats/2025-26/top_performances.html" class="nav-link">TOP výkony</a>
+            <a href="../stats/2025-26/milestones.html" class="nav-link">Milníky</a>
+            <a href="../stats/2025-26/ratings.html" class="nav-link">Ratings</a>
+        </div>
+    </div>
+</nav>
+<script>
+(function() {
+    var btn = document.getElementById('nav-toggle');
+    var links = document.getElementById('nav-links');
+    if (!btn || !links) return;
+    btn.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        btn.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('site-nav').contains(e.target)) {
+            links.classList.remove('open');
+            btn.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+</script>
+    <div class="container">
+        <h1 class="game-title">
+            <span class="team-name">SK Slavia Praha</span>
+            <span class="game-score">81 : 88</span>
+            <span class="team-name">BK Olomoucko</span>
+        </h1>
+        <p class="game-date">9.4.2026</p>
+        <p class="mobile-warning">Web není z důvodu použitých technologií optimalizován pro zobrazení na mobilu</p>
+        <div id="chart-team1" class="rotation-chart" data-team="1"></div>
+        <div id="chart-team2" class="rotation-chart" data-team="2"></div>
+        <div style="display:flex;gap:24px;align-items:flex-start;margin-top:24px;flex-wrap:wrap">
+            <div style="flex:1 1 400px;min-width:0">
+                <div id="chart-scoring" class="rotation-chart"></div>
+                <div id="chart-team-stats" style="margin-top:12px"></div>
+            </div>
+            <div id="chart-boxscore" class="rotation-chart" style="flex:0 0 340px"></div>
+        </div>
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+    <script>
+        const GAME_ID = "2828128";
+    </script>
+    <script src="../js/rotations-chart.js"></script>
+</body>
+</html>
