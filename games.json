@@ -1630,5 +1630,13 @@
     "team2": "ERA Basketball Nymburk",
     "score1": 78,
     "score2": 106
+  },
+  {
+    "game_id": "2825149",
+    "date": "2026-04-11",
+    "team1": "BK ARMEX ENERGY Děčín",
+    "team2": "BK Opava",
+    "score1": 70,
+    "score2": 78
   }
 ]
