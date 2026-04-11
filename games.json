@@ -1638,5 +1638,13 @@
     "team2": "BK Opava",
     "score1": 70,
     "score2": 78
+  },
+  {
+    "game_id": "2828945",
+    "date": "2026-04-11",
+    "team1": "BK GAPA Hradec Králové",
+    "team2": "BK Olomoucko",
+    "score1": 84,
+    "score2": 86
   }
 ]
