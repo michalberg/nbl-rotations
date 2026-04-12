@@ -1654,5 +1654,13 @@
     "team2": "SK Slavia Praha",
     "score1": 76,
     "score2": 81
+  },
+  {
+    "game_id": "2825150",
+    "date": "2026-04-12",
+    "team1": "PUMPA Basket Brno",
+    "team2": "SLUNETA Ústí nad Labem",
+    "score1": 84,
+    "score2": 88
   }
 ]
