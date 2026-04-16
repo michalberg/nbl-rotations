@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>NBL Data — TV Broadcast Overlay Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @font-face { font-family: 'BarlowFallback'; src: local('Oswald'), local('Impact'), local('Arial Narrow Bold'); }
+  :root {
+    --purple-deep: #2a1a4a;
+    --purple: #3d2960;
+    --purple-light: #5a3f8a;
+    --gold: #f1c945;
+    --gold-bright: #ffd94a;
+    --orange: #e8622a;
+    --white: #ffffff;
+    --ink: #f5f2ee;
+    --muted: rgba(255,255,255,0.65);
+    --bg: #0f0a1a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 32px 20px 64px;
+  }
+  .page { max-width: 1200px; margin: 0 auto; }
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  h1 {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  h1 span { color: var(--gold); }
+  .subtitle { color: var(--muted); font-size: 13px; }
+
+  .tv-block { margin-top: 36px; }
+  .tv-block h2 {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .tv-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .tv-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* === OVERLAYS === */
+  .overlay {
+    position: absolute !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(4px);
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    z-index: 5;
+  }
+  .overlay.active { opacity: 1; transform: translateY(0); }
+
+  .panel {
+    background: linear-gradient(135deg, rgba(42,26,74,0.94) 0%, rgba(61,41,96,0.92) 100%);
+    backdrop-filter: blur(3px);
+    color: var(--white);
+    border-radius: 3px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--gold);
+  }
+  .panel-title {
+    padding: 6px 14px 5px 16px;
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(241,201,69,0.2);
+    background: rgba(0,0,0,0.2);
+  }
+
+  /* --- Hráč (NBA-style lower third) --- */
+  .ov-player {
+    left: 4%;
+    right: 4%;
+    top: 22%;
+    display: flex;
+    align-items: stretch;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+    background: transparent;
+  }
+  .ov-player::before { display: none; }
+  .ov-player .photo {
+    width: 88px;
+    background: linear-gradient(180deg, #4a3576, #2a1a4a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-family: 'Oswald', 'Arial Narrow', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+    border-right: 2px solid var(--gold);
+  }
+  .ov-player .ident {
+    flex: 0 0 38%;
+    background: linear-gradient(180deg, var(--purple) 0%, var(--purple-deep) 100%);
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 0 16px;
+    color: var(--white);
+  }
+  .ov-player .ident .nm {
+    font-family: 'Oswald', 'Arial Narrow', Impact, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .ov-player .ident .nm .first {
+    display: block;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+  }
+  .ov-player .ident .nm .last {
+    display: block;
+    font-size: 26px;
+    letter-spacing: 0.02em;
+  }
+  .ov-player .ident .jersey {
+    font-family: 'Oswald', 'Arial Narrow', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--white);
+    line-height: 1;
+  }
+  .ov-player .ident .team {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--purple-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+  .ov-player .table {
+    flex: 1;
+    background: rgba(245,242,238,0.97);
+    color: #1a1228;
+    display: flex;
+    flex-direction: column;
+  }
+  .ov-player .table .head {
+    background: var(--purple-deep);
+    color: var(--white);
+    padding: 5px 14px;
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .ov-player .table .grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr;
+    align-items: center;
+    padding: 4px 14px 6px;
+    column-gap: 10px;
+    row-gap: 0;
+  }
+  .ov-player .table .colhead {
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: #4a3576;
+    text-transform: uppercase;
+  }
+  .ov-player .table .season {
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #1a1228;
+  }
+  .ov-player .table .num {
+    font-family: 'Oswald', 'Arial Narrow', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #1a1228;
+    line-height: 1.1;
+  }
+  .ov-player .table .footer {
+    background: var(--purple-deep);
+    color: var(--white);
+    padding: 5px 14px;
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .ov-player .table .footer b { color: var(--gold); }
+
+  /* --- On/Off rotace --- */
+  .ov-onoff {
+    left: 6%; right: 6%; top: 8%;
+    display: flex;
+    border-radius: 3px;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+  }
+  .ov-onoff::before { display: none; }
+  .ov-onoff .left {
+    width: 36%;
+    min-width: 220px;
+    background: linear-gradient(180deg, #4a3576 0%, #1a1228 100%);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 0;
+    overflow: hidden;
+  }
+  .ov-onoff .left .logo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 110px;
+    color: rgba(241,201,69,0.18);
+    letter-spacing: 0.04em;
+  }
+  .ov-onoff .left .initials {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 64px;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.04em;
+    z-index: 1;
+  }
+  .ov-onoff .left .nameplate {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 80%);
+    padding: 24px 14px 10px;
+    color: var(--white);
+    font-family: 'Oswald', Impact, sans-serif;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .ov-onoff .left .nameplate .first {
+    display: block;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .ov-onoff .left .nameplate .last {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .ov-onoff .right {
+    flex: 1;
+    background: linear-gradient(180deg, #1a1228 0%, #0f0a1a 100%);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+  }
+  .ov-onoff .right .head {
+    background: var(--purple-deep);
+    padding: 6px 18px;
+    text-align: center;
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(241,201,69,0.3);
+  }
+  .ov-onoff .right .colhead {
+    display: grid;
+    grid-template-columns: 1fr 90px 90px;
+    padding: 6px 18px 4px;
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: right;
+  }
+  .ov-onoff .right .rows { flex: 1; display: flex; flex-direction: column; }
+  .ov-onoff .right .row {
+    display: grid;
+    grid-template-columns: 1fr 90px 90px;
+    align-items: center;
+    padding: 6px 18px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .ov-onoff .right .row:nth-child(odd) { background: rgba(255,255,255,0.025); }
+  .ov-onoff .right .label {
+    font-family: 'Oswald', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .ov-onoff .right .v {
+    text-align: right;
+    font-family: 'Oswald', 'Arial Narrow', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--white);
+    line-height: 1;
+  }
+  .ov-onoff .right .v.on { color: var(--gold-bright); }
+  .ov-onoff .right .v.neg { color: var(--orange); }
+
+  /* --- Team comparison --- */
+  .ov-compare { left: 10%; right: 10%; top: 22%; }
+  .ov-compare .body { padding: 8px 16px 10px; }
+  .ov-compare .row {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+  }
+  .ov-compare .metric {
+    grid-column: 2;
+    text-align: center;
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .ov-compare .bar-l, .ov-compare .bar-r {
+    height: 18px;
+    background: rgba(255,255,255,0.06);
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .ov-compare .bar-l { justify-content: flex-end; }
+  .ov-compare .bar-l .fill, .ov-compare .bar-r .fill {
+    position: absolute;
+    top: 0; bottom: 0;
+    background: var(--purple-light);
+  }
+  .ov-compare .bar-l .fill { right: 0; }
+  .ov-compare .bar-r .fill { left: 0; }
+  .ov-compare .val {
+    position: relative;
+    z-index: 2;
+    padding: 0 10px;
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--white);
+  }
+  .ov-compare .bar-l .val { text-align: right; }
+
+  /* --- Top scorers --- */
+  .ov-leaders { right: 3%; top: 10%; width: 240px; }
+  .ov-leaders ol {
+    list-style: none;
+    padding: 4px 14px 10px;
+  }
+  .ov-leaders li {
+    display: grid;
+    grid-template-columns: 16px 1fr auto;
+    align-items: center;
+    padding: 5px 0;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .ov-leaders li:last-child { border-bottom: none; }
+  .ov-leaders .rank {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 13px;
+  }
+  .ov-leaders .pname {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .ov-leaders .pname em {
+    font-style: normal;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 10px;
+    margin-left: 4px;
+    letter-spacing: 0.1em;
+  }
+  .ov-leaders .pts {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--gold-bright);
+  }
+
+  /* --- Rotation --- */
+  .ov-rotation { left: 3%; top: 10%; width: 310px; }
+  .ov-rotation .body { padding: 6px 12px 10px; }
+  .ov-rotation .lineup {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .ov-rotation .lineup li {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 20px 1fr 42px 36px;
+    gap: 8px;
+    align-items: center;
+    padding: 3px 6px;
+    border-radius: 2px;
+    background: rgba(0,0,0,0.18);
+  }
+  .ov-rotation .lineup .nr {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 700;
+    color: var(--gold-bright);
+    font-size: 12px;
+    text-align: center;
+  }
+  .ov-rotation .lineup .nm {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .ov-rotation .lineup .min,
+  .ov-rotation .lineup .plus {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
+    color: var(--muted);
+  }
+  .ov-rotation .lineup .plus { color: var(--gold); }
+  .ov-rotation .lineup .plus.neg { color: var(--orange); }
+
+  /* ===== Šiřina formáty — kompaktní, nad scorebugem ===== */
+
+  /* shared font for Šiřina panels */
+  .ov-game, .ov-season, .ov-last5, .ov-ft, .ov-shots {
+    font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  /* --- Společný header --- */
+  .sp-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px 6px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(241,201,69,0.22);
+  }
+  .sp-header .name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--white);
+    letter-spacing: 0.01em;
+  }
+  .sp-header .meta {
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+  .sp-header .spacer { flex: 1; }
+  .sp-header .label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  /* --- 1) Zápas --- */
+  .ov-game { right: 3%; bottom: 17%; width: 460px; }
+  .ov-game .body { padding: 6px 10px 8px; }
+  .ov-game .cols {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .ov-game .cols .col {
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    padding: 2px 0;
+  }
+  .ov-game .cols .col:last-child { border-right: none; }
+  .ov-game .cols .lbl {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .ov-game .cols .num {
+    font-size: 18px;
+    color: var(--white);
+    line-height: 1;
+    font-weight: 800;
+  }
+  .ov-game .cols .num.accent { color: var(--gold-bright); }
+  .ov-game .cols .col.split { border-left: 1px solid rgba(241,201,69,0.25); }
+
+  /* --- 2) Sezóna --- */
+  .ov-season { right: 3%; bottom: 17%; width: 420px; }
+  .ov-season .body { padding: 6px 10px 8px; }
+  .ov-season .cols {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .ov-season .cols .col {
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    padding: 2px 0;
+  }
+  .ov-season .cols .col:last-child { border-right: none; }
+  .ov-season .cols .lbl {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .ov-season .cols .num {
+    font-size: 18px;
+    color: var(--white);
+    line-height: 1;
+    font-weight: 800;
+  }
+  .ov-season .cols .num.accent { color: var(--gold-bright); }
+
+  /* --- 3) Last 5 --- */
+  .ov-last5 { right: 3%; bottom: 17%; width: 420px; }
+  .ov-last5 .body { padding: 6px 10px 8px; }
+  .ov-last5 .cols {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .ov-last5 .cols .col {
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    padding: 2px 0;
+  }
+  .ov-last5 .cols .col:last-child { border-right: none; }
+  .ov-last5 .cols .lbl {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .ov-last5 .cols .num {
+    font-size: 18px;
+    color: var(--white);
+    line-height: 1;
+    font-weight: 800;
+  }
+  .ov-last5 .cols .num.accent { color: var(--gold-bright); }
+  .ov-last5 .cols .col.split { border-left: 1px solid rgba(241,201,69,0.25); }
+  .ov-last5 .games {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(241,201,69,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ov-last5 .games .g {
+    display: grid;
+    grid-template-columns: 1fr 32px;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--white);
+    font-weight: 600;
+  }
+  .ov-last5 .games .g .opp {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ov-last5 .games .g .sc {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .ov-last5 .games .g .pts {
+    text-align: right;
+    font-weight: 800;
+    color: var(--gold-bright);
+    font-size: 13px;
+  }
+
+  /* --- 4) Trestné hody --- */
+  .ov-ft { right: 3%; bottom: 17%; width: 300px; }
+  .ov-ft .body { padding: 4px 0 4px; }
+  .ov-ft table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .ov-ft th, .ov-ft td {
+    padding: 4px 12px;
+    text-align: right;
+  }
+  .ov-ft th:first-child, .ov-ft td:first-child { text-align: left; }
+  .ov-ft thead th {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(241,201,69,0.22);
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .ov-ft tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .ov-ft tbody tr:last-child { border-bottom: none; }
+  .ov-ft tbody td {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .ov-ft tbody td:first-child {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .ov-ft tbody td.pct { color: var(--gold-bright); }
+
+  /* --- 5) Střelecký profil --- */
+  .ov-shots { right: 3%; bottom: 17%; width: 420px; }
+  .ov-shots .body { padding: 6px 10px 8px; }
+  .ov-shots .total {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .ov-shots .zone {
+    display: grid;
+    grid-template-columns: 70px 1fr 80px;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  .ov-shots .zone .zlbl {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .ov-shots .zone .zlbl::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--gold);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .ov-shots .zone.mid .zlbl::before { background: var(--purple-light); }
+  .ov-shots .zone.three .zlbl::before { background: var(--orange); }
+  .ov-shots .zone .bar {
+    height: 11px;
+    background: rgba(255,255,255,0.06);
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .ov-shots .zone .bar .fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: var(--gold);
+  }
+  .ov-shots .zone.mid .bar .fill { background: var(--purple-light); }
+  .ov-shots .zone.three .bar .fill { background: var(--orange); }
+  .ov-shots .zone .bar .pct {
+    position: absolute;
+    left: 6px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 9px;
+    color: var(--white);
+    font-weight: 700;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+  .ov-shots .zone .eff {
+    text-align: right;
+    font-size: 11px;
+    color: var(--white);
+    font-weight: 600;
+  }
+  .ov-shots .zone .eff em {
+    font-style: normal;
+    color: var(--gold-bright);
+    margin-left: 4px;
+    font-weight: 700;
+  }
+
+  /* --- 6) Nahrávač / top adresáti --- */
+  .ov-passer {
+    right: 3%; bottom: 17%;
+    width: 400px;
+    font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  .ov-passer .body { padding: 4px 0 4px; }
+  .ov-passer .sub {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 12px 2px;
+  }
+  .ov-passer table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .ov-passer th, .ov-passer td { padding: 3px 8px; }
+  .ov-passer th:first-child, .ov-passer td:first-child { padding-left: 12px; text-align: left; }
+  .ov-passer th:nth-child(2), .ov-passer td:nth-child(2),
+  .ov-passer th:nth-child(3), .ov-passer td:nth-child(3) { text-align: right; padding-right: 12px; }
+  .ov-passer thead th {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(241,201,69,0.22);
+    padding-top: 2px;
+    padding-bottom: 3px;
+  }
+  .ov-passer tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .ov-passer tbody tr:last-child { border-bottom: none; }
+  .ov-passer tbody td {
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 600;
+  }
+  .ov-passer tbody td .ast {
+    font-weight: 800;
+    color: var(--gold-bright);
+    margin-right: 3px;
+  }
+  .ov-passer tbody td .rate {
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 10px;
+  }
+
+  /* --- 7) Čtvrtina --- */
+  .ov-quarter {
+    right: 3%; bottom: 17%;
+    width: 420px;
+    font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  .ov-quarter .body { padding: 8px 12px 9px; }
+  .ov-quarter .title {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .ov-quarter .rec {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+    padding-bottom: 7px;
+    border-bottom: 1px solid rgba(241,201,69,0.2);
+  }
+  .ov-quarter .rec .pts {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--gold-bright);
+    line-height: 1;
+  }
+  .ov-quarter .rec .ctx {
+    font-size: 11px;
+    color: var(--white);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .ov-quarter .rec .ctx em {
+    font-style: normal;
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 500;
+    margin-top: 1px;
+  }
+  .ov-quarter .rec .ctx .q {
+    color: var(--gold);
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .ov-quarter .today {
+    padding-top: 6px;
+    font-size: 11px;
+    color: var(--white);
+    font-weight: 600;
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .ov-quarter .today em {
+    font-style: normal;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+  }
+  .ov-quarter .today b {
+    font-size: 16px;
+    color: var(--gold-bright);
+    font-weight: 800;
+  }
+
+  /* ===== TV 1 overlays — kompaktní nad scorebugem ===== */
+  .ov-tcompare, .ov-oncourt, .ov-topteam, .ov-topgame,
+  .ov-fouls, .ov-top5 {
+    font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  /* Srovnání týmů */
+  .ov-tcompare { left: 14%; right: 14%; bottom: 17%; }
+  .ov-tcompare .body { padding: 6px 12px 8px; }
+  .ov-tcompare .row {
+    display: grid;
+    grid-template-columns: 1fr 54px 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  .ov-tcompare .metric {
+    grid-column: 2;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .ov-tcompare .bar {
+    height: 15px;
+    background: rgba(255,255,255,0.06);
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .ov-tcompare .bar.l { justify-content: flex-end; }
+  .ov-tcompare .bar .fill {
+    position: absolute;
+    top: 0; bottom: 0;
+    background: var(--purple-light);
+  }
+  .ov-tcompare .bar.l .fill { right: 0; }
+  .ov-tcompare .bar.r .fill { left: 0; }
+  .ov-tcompare .val {
+    position: relative;
+    z-index: 2;
+    padding: 0 8px;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--white);
+  }
+
+  /* Na palubovce (L+R) */
+  .ov-oncourt {
+    left: 0; right: 0; top: 0; bottom: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0;
+  }
+  .ov-oncourt::before { display: none; }
+  .ov-oncourt .side {
+    position: absolute;
+    bottom: 17%;
+    width: 240px;
+    background: linear-gradient(135deg, rgba(42,26,74,0.94) 0%, rgba(61,41,96,0.92) 100%);
+    border-radius: 3px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  .ov-oncourt .side::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: var(--gold);
+  }
+  .ov-oncourt .side.left { left: 3%; }
+  .ov-oncourt .side.left::before { left: 0; }
+  .ov-oncourt .side.right { right: 3%; }
+  .ov-oncourt .side.right::before { right: 0; }
+  .ov-oncourt .lineup {
+    list-style: none;
+    padding: 4px 8px 7px;
+    margin: 0;
+  }
+  .ov-oncourt .lineup li {
+    display: grid;
+    grid-template-columns: 20px 1fr 36px 28px;
+    gap: 8px;
+    align-items: center;
+    padding: 2px 4px;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ov-oncourt .lineup li:last-child { border-bottom: none; }
+  .ov-oncourt .lineup .nr {
+    color: var(--gold-bright);
+    font-weight: 800;
+    font-size: 12px;
+    text-align: center;
+  }
+  .ov-oncourt .lineup .nm {
+    font-weight: 600;
+    color: var(--white);
+  }
+  .ov-oncourt .lineup .min {
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
+    color: var(--muted);
+  }
+  .ov-oncourt .lineup .pts {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--gold-bright);
+    text-align: right;
+  }
+
+  /* Top střelci 1 tým */
+  .ov-topteam { left: 3%; bottom: 17%; width: 280px; }
+  .ov-topteam .list {
+    list-style: none;
+    padding: 4px 12px 8px;
+    margin: 0;
+  }
+  .ov-topteam .list li {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    gap: 8px;
+    align-items: baseline;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ov-topteam .list li:last-child { border-bottom: none; }
+  .ov-topteam .list .rank { color: var(--gold); font-weight: 700; font-size: 11px; }
+  .ov-topteam .list .nm { color: var(--white); font-weight: 600; font-size: 12px; }
+  .ov-topteam .list .pts {
+    color: var(--gold-bright);
+    font-weight: 800;
+    font-size: 14px;
+  }
+
+  /* Top střelci zápas */
+  .ov-topgame { left: 14%; right: 14%; bottom: 17%; }
+  .ov-topgame table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .ov-topgame col.c-nm   { width: auto; }
+  .ov-topgame col.c-stat { width: 11%; }
+  .ov-topgame thead th {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 6px;
+    border-bottom: 1px solid rgba(241,201,69,0.22);
+    text-align: right;
+  }
+  .ov-topgame thead th.nm-h { text-align: left; padding-left: 12px; }
+  .ov-topgame thead th.team-h { text-align: center; }
+  .ov-topgame tbody td {
+    padding: 3px 6px;
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 600;
+    text-align: right;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ov-topgame tbody tr:last-child td { border-bottom: none; }
+  .ov-topgame tbody td.nm { text-align: left; padding-left: 12px; }
+  .ov-topgame tbody td.team {
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: center;
+  }
+  .ov-topgame tbody td.pts {
+    color: var(--gold-bright);
+    font-weight: 800;
+    font-size: 14px;
+    padding-right: 12px;
+  }
+  .ov-topgame tbody td.muted { color: var(--muted); font-weight: 500; font-size: 11px; }
+
+  /* Ohrožení faulem */
+  .ov-fouls { left: 14%; right: 14%; bottom: 17%; }
+  .ov-fouls .list {
+    list-style: none;
+    padding: 4px 12px 8px;
+    margin: 0;
+  }
+  .ov-fouls .list li {
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    gap: 10px;
+    align-items: baseline;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ov-fouls .list li:last-child { border-bottom: none; }
+  .ov-fouls .list .who {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .ov-fouls .list .nm { color: var(--white); font-weight: 600; font-size: 12px; }
+  .ov-fouls .list .foul {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--orange);
+  }
+  .ov-fouls .list .foul.warn { color: var(--gold-bright); }
+
+  /* TOP 5 sezóny */
+  .ov-top5 { left: 14%; right: 14%; bottom: 17%; }
+  .ov-top5 .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .ov-top5 .col { padding: 4px 12px 8px; }
+  .ov-top5 .col.right { border-left: 1px solid rgba(241,201,69,0.2); }
+  .ov-top5 .col h4 {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin: 0 0 3px;
+  }
+  .ov-top5 .col ul { list-style: none; padding: 0; margin: 0; }
+  .ov-top5 .col li {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    gap: 8px;
+    align-items: baseline;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ov-top5 .col li:last-child { border-bottom: none; }
+  .ov-top5 .col .rank { color: var(--muted); font-weight: 700; font-size: 11px; }
+  .ov-top5 .col .nm { color: var(--white); font-weight: 600; font-size: 12px; }
+  .ov-top5 .col .ppg {
+    color: var(--gold-bright);
+    font-weight: 800;
+    font-size: 13px;
+  }
+
+  /* --- Play --- */
+  .ov-play { left: 8%; right: 8%; top: 22%; }
+  .ov-play .body {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 18px;
+    padding: 10px 16px;
+  }
+  .ov-play .clock {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--gold-bright);
+    line-height: 1;
+  }
+  .ov-play .clock small {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .ov-play .play {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .ov-play .play em {
+    display: block;
+    font-style: normal;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .ov-play .run { text-align: right; }
+  .ov-play .run b {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-size: 22px;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .ov-play .run span {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* === CONTROLS === */
+  .controls {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .btn {
+    font-family: 'Oswald', 'Arial Narrow', 'Helvetica Neue Condensed', Impact, sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 9px 14px;
+    background: var(--purple);
+    color: var(--white);
+    border: 1px solid rgba(241,201,69,0.18);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .btn:hover { background: var(--purple-light); border-color: var(--gold); }
+  .btn.active {
+    background: var(--gold);
+    color: var(--purple-deep);
+    border-color: var(--gold-bright);
+  }
+  .btn.clear {
+    background: transparent;
+    border-color: rgba(255,255,255,0.15);
+    color: var(--muted);
+  }
+  .btn.clear:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>NBL DATA na TVCOM.cz - DEMO</h1>
+</header>
+
+<!-- ============ TV 1 ============ -->
+<section class="tv-block">
+  <h2>Týmy</h2>
+  <div class="tv-frame" id="tv1">
+    <img src="static/images/tv1.png" alt="TV přenos 1">
+
+    <!-- 1) Srovnání týmů -->
+    <div class="overlay ov-tcompare panel" data-tv="1" data-ov="compare">
+      <div class="sp-header">
+        <span class="name">Děčín vs Opava</span>
+        <span class="spacer"></span>
+        <span class="label">Srovnání týmů</span>
+      </div>
+      <div class="body">
+        <div class="row">
+          <div class="bar l"><div class="fill" style="width:72%"></div><span class="val">48%</span></div>
+          <div class="metric">FG%</div>
+          <div class="bar r"><div class="fill" style="width:64%"></div><span class="val">43%</span></div>
+        </div>
+        <div class="row">
+          <div class="bar l"><div class="fill" style="width:54%"></div><span class="val">9/24</span></div>
+          <div class="metric">3PT</div>
+          <div class="bar r"><div class="fill" style="width:66%"></div><span class="val">11/28</span></div>
+        </div>
+        <div class="row">
+          <div class="bar l"><div class="fill" style="width:80%"></div><span class="val">32</span></div>
+          <div class="metric">Dosk.</div>
+          <div class="bar r"><div class="fill" style="width:68%"></div><span class="val">27</span></div>
+        </div>
+        <div class="row">
+          <div class="bar l"><div class="fill" style="width:60%"></div><span class="val">14</span></div>
+          <div class="metric">Asist.</div>
+          <div class="bar r"><div class="fill" style="width:76%"></div><span class="val">18</span></div>
+        </div>
+        <div class="row">
+          <div class="bar l"><div class="fill" style="width:48%"></div><span class="val">8</span></div>
+          <div class="metric">Ztráty</div>
+          <div class="bar r"><div class="fill" style="width:72%"></div><span class="val">12</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2) Na palubovce — oba týmy (L+R simultánně) -->
+    <div class="overlay ov-oncourt" data-tv="1" data-ov="oncourt">
+      <div class="side left">
+        <div class="sp-header">
+          <span class="name">Děčín</span>
+          <span class="spacer"></span>
+          <span class="label">Na palubovce</span>
+        </div>
+        <ul class="lineup">
+          <li><span class="nr">4</span><span class="nm">Štěrba</span><span class="min">18:42</span><span class="pts">7</span></li>
+          <li><span class="nr">14</span><span class="nm">Alexander</span><span class="min">22:10</span><span class="pts">22</span></li>
+          <li><span class="nr">7</span><span class="nm">Edwards</span><span class="min">19:55</span><span class="pts">12</span></li>
+          <li><span class="nr">23</span><span class="nm">Slowiak</span><span class="min">17:04</span><span class="pts">9</span></li>
+          <li><span class="nr">33</span><span class="nm">Pomikálek</span><span class="min">14:20</span><span class="pts">5</span></li>
+        </ul>
+      </div>
+      <div class="side right">
+        <div class="sp-header">
+          <span class="name">Opava</span>
+          <span class="spacer"></span>
+          <span class="label">Na palubovce</span>
+        </div>
+        <ul class="lineup">
+          <li><span class="nr">24</span><span class="nm">Šiřina</span><span class="min">21:30</span><span class="pts">14</span></li>
+          <li><span class="nr">3</span><span class="nm">Švandrlík</span><span class="min">18:45</span><span class="pts">8</span></li>
+          <li><span class="nr">9</span><span class="nm">Brown Jr</span><span class="min">19:15</span><span class="pts">11</span></li>
+          <li><span class="nr">11</span><span class="nm">Person Jr</span><span class="min">16:20</span><span class="pts">6</span></li>
+          <li><span class="nr">21</span><span class="nm">Puršl</span><span class="min">15:00</span><span class="pts">4</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 3) Top střelci — DEC (1 tým) -->
+    <div class="overlay ov-topteam panel" data-tv="1" data-ov="topteam">
+      <div class="sp-header">
+        <span class="name">Děčín</span>
+        <span class="spacer"></span>
+        <span class="label">Top střelci · zápas</span>
+      </div>
+      <ul class="list">
+        <li><span class="rank">1.</span><span class="nm">Alexander</span><span class="pts">22</span></li>
+        <li><span class="rank">2.</span><span class="nm">Edwards</span><span class="pts">12</span></li>
+        <li><span class="rank">3.</span><span class="nm">Slowiak</span><span class="pts">9</span></li>
+        <li><span class="rank">4.</span><span class="nm">Štěrba</span><span class="pts">7</span></li>
+        <li><span class="rank">5.</span><span class="nm">Pomikálek</span><span class="pts">5</span></li>
+      </ul>
+    </div>
+
+    <!-- 4) Top střelci — zápas -->
+    <div class="overlay ov-topgame panel" data-tv="1" data-ov="topgame">
+      <div class="sp-header">
+        <span class="name">Děčín vs Opava</span>
+        <span class="spacer"></span>
+        <span class="label">Top střelci zápasu</span>
+      </div>
+      <table>
+        <colgroup>
+          <col class="c-nm">
+          <col class="c-stat">
+          <col class="c-stat">
+          <col class="c-stat">
+          <col class="c-stat">
+          <col class="c-stat">
+          <col class="c-stat">
+          <col class="c-stat">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="nm-h">Hráč</th>
+            <th class="team-h">Tým</th>
+            <th>Body</th>
+            <th>FGM/FGA</th>
+            <th>FG%</th>
+            <th>FTM/FTA</th>
+            <th>As.</th>
+            <th>Dosk.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="nm">Alexander</td><td class="team">Děčín</td><td class="pts">22</td><td class="muted">8/15</td><td class="muted">53.3%</td><td class="muted">4/4</td><td>6</td><td>4</td></tr>
+          <tr><td class="nm">Kouřil</td><td class="team">Opava</td><td class="pts">19</td><td class="muted">6/12</td><td class="muted">50.0%</td><td class="muted">5/6</td><td>3</td><td>2</td></tr>
+          <tr><td class="nm">Šiřina</td><td class="team">Opava</td><td class="pts">14</td><td class="muted">5/11</td><td class="muted">45.5%</td><td class="muted">2/3</td><td>6</td><td>5</td></tr>
+          <tr><td class="nm">Edwards</td><td class="team">Děčín</td><td class="pts">12</td><td class="muted">4/9</td><td class="muted">44.4%</td><td class="muted">2/2</td><td>2</td><td>7</td></tr>
+          <tr><td class="nm">Brown Jr</td><td class="team">Opava</td><td class="pts">11</td><td class="muted">4/8</td><td class="muted">50.0%</td><td class="muted">1/2</td><td>4</td><td>6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 5) Ohrožení faulem -->
+    <div class="overlay ov-fouls panel" data-tv="1" data-ov="fouls">
+      <div class="sp-header">
+        <span class="name">Ohrožení faulem</span>
+        <span class="spacer"></span>
+        <span class="label">3+ OCH</span>
+      </div>
+      <ul class="list">
+        <li><span class="who">Děčín · #23</span><span class="nm">Slowiak</span><span class="foul">4 OCH</span></li>
+        <li><span class="who">Opava · #11</span><span class="nm">Person Jr</span><span class="foul warn">3 OCH</span></li>
+        <li><span class="who">Děčín · #7</span><span class="nm">Edwards</span><span class="foul warn">3 OCH</span></li>
+      </ul>
+    </div>
+
+    <!-- 6) TOP 5 sezóny -->
+    <div class="overlay ov-top5 panel" data-tv="1" data-ov="top5">
+      <div class="sp-header">
+        <span class="name">Nejlepší střelci sezóny</span>
+        <span class="meta">PPG</span>
+        <span class="spacer"></span>
+        <span class="label">TOP 5 · DEC vs OPA</span>
+      </div>
+      <div class="split">
+        <div class="col left">
+          <h4>Děčín</h4>
+          <ul>
+            <li><span class="rank">1.</span><span class="nm">Alexander</span><span class="ppg">16.4</span></li>
+            <li><span class="rank">2.</span><span class="nm">Edwards</span><span class="ppg">13.2</span></li>
+            <li><span class="rank">3.</span><span class="nm">Slowiak</span><span class="ppg">10.8</span></li>
+            <li><span class="rank">4.</span><span class="nm">Štěrba</span><span class="ppg">9.1</span></li>
+            <li><span class="rank">5.</span><span class="nm">Pomikálek</span><span class="ppg">7.6</span></li>
+          </ul>
+        </div>
+        <div class="col right">
+          <h4>Opava</h4>
+          <ul>
+            <li><span class="rank">1.</span><span class="nm">Šiřina</span><span class="ppg">28.4</span></li>
+            <li><span class="rank">2.</span><span class="nm">Kouřil</span><span class="ppg">14.8</span></li>
+            <li><span class="rank">3.</span><span class="nm">Švandrlík</span><span class="ppg">14.6</span></li>
+            <li><span class="rank">4.</span><span class="nm">Brown Jr</span><span class="ppg">12.7</span></li>
+            <li><span class="rank">5.</span><span class="nm">Puršl</span><span class="ppg">8.9</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="controls" data-tv-controls="1">
+    <button class="btn" data-target="compare">Srovnání týmů</button>
+    <button class="btn" data-target="oncourt">Na palubovce</button>
+    <button class="btn" data-target="topteam">Top střelci DEC</button>
+    <button class="btn" data-target="topgame">Top střelci zápas</button>
+    <button class="btn" data-target="fouls">Ohrožení faulem</button>
+    <button class="btn" data-target="top5">TOP 5 sezóny</button>
+    <button class="btn clear" data-target="clear">Skrýt</button>
+  </div>
+</section>
+
+<!-- ============ TV 2 — Šiřina formáty ============ -->
+<section class="tv-block">
+  <h2>Hráč</h2>
+  <div class="tv-frame" id="tv2">
+    <img src="static/images/tv2.png" alt="TV přenos 2">
+
+    <!-- 1) Zápas -->
+    <div class="overlay ov-game panel" data-tv="2" data-ov="game">
+      <div class="sp-header">
+        <span class="name">Jakub Šiřina</span>
+        <span class="meta">#24 · OPA</span>
+        <span class="spacer"></span>
+        <span class="label">Zápas</span>
+      </div>
+      <div class="body">
+        <div class="cols">
+          <div class="col"><div class="lbl">PTS</div><div class="num accent">24</div></div>
+          <div class="col"><div class="lbl">REB</div><div class="num accent">8</div></div>
+          <div class="col"><div class="lbl">AST</div><div class="num accent">6</div></div>
+          <div class="col split"><div class="lbl">FG</div><div class="num">9-16</div></div>
+          <div class="col"><div class="lbl">3PT</div><div class="num">2-5</div></div>
+          <div class="col"><div class="lbl">FT</div><div class="num">4-5</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2) Sezóna -->
+    <div class="overlay ov-season panel" data-tv="2" data-ov="season">
+      <div class="sp-header">
+        <span class="name">Jakub Šiřina</span>
+        <span class="meta">#24 · OPA</span>
+        <span class="spacer"></span>
+        <span class="label">Sezóna 2025-26</span>
+      </div>
+      <div class="body">
+        <div class="cols">
+          <div class="col"><div class="lbl">PPG</div><div class="num accent">28.4</div></div>
+          <div class="col"><div class="lbl">RPG</div><div class="num">7.1</div></div>
+          <div class="col"><div class="lbl">APG</div><div class="num">5.3</div></div>
+          <div class="col"><div class="lbl">FG%</div><div class="num">51.2</div></div>
+          <div class="col"><div class="lbl">3P%</div><div class="num">38.7</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3) Posledních 5 -->
+    <div class="overlay ov-last5 panel" data-tv="2" data-ov="last5">
+      <div class="sp-header">
+        <span class="name">Jakub Šiřina</span>
+        <span class="meta">#24 · OPA</span>
+        <span class="spacer"></span>
+        <span class="label">Posledních 5 zápasů</span>
+      </div>
+      <div class="body">
+        <div class="cols">
+          <div class="col"><div class="lbl">AVG PTS</div><div class="num accent">17.6</div></div>
+          <div class="col"><div class="lbl">AVG REB</div><div class="num accent">9.0</div></div>
+          <div class="col"><div class="lbl">AVG AST</div><div class="num accent">6.8</div></div>
+          <div class="col split"><div class="lbl">FG%</div><div class="num">57.3</div></div>
+          <div class="col"><div class="lbl">3PT%</div><div class="num">44.1</div></div>
+        </div>
+        <div class="games">
+          <div class="g"><span class="opp">vs. Sršni Photomate Písek <span class="sc">(86:70)</span></span><span class="pts">15</span></div>
+          <div class="g"><span class="opp">@ PUMPA Basket Brno <span class="sc">(65:102)</span></span><span class="pts">13</span></div>
+          <div class="g"><span class="opp">vs. ERA Basketball Nymburk <span class="sc">(105:89)</span></span><span class="pts">17</span></div>
+          <div class="g"><span class="opp">@ ERA Basketball Nymburk <span class="sc">(78:96)</span></span><span class="pts">10</span></div>
+          <div class="g"><span class="opp">@ NH Ostrava <span class="sc">(121:117)</span></span><span class="pts">33</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4) Trestné hody -->
+    <div class="overlay ov-ft panel" data-tv="2" data-ov="ft">
+      <div class="sp-header">
+        <span class="name">Jakub Šiřina</span>
+        <span class="meta">#24 · OPA</span>
+        <span class="spacer"></span>
+        <span class="label">Trestné hody</span>
+      </div>
+      <div class="body">
+        <table>
+          <thead>
+            <tr><th></th><th>FGM-FGA</th><th>FG%</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Dnes</td><td>9/16</td><td class="pct">56.3%</td></tr>
+            <tr><td>Sezóna</td><td>19/48</td><td class="pct">76.3%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5) Střelecký profil -->
+    <div class="overlay ov-shots panel" data-tv="2" data-ov="shots">
+      <div class="sp-header">
+        <span class="name">Jakub Šiřina</span>
+        <span class="meta">#24 · OPA</span>
+        <span class="spacer"></span>
+        <span class="label">Střelecký profil</span>
+      </div>
+      <div class="body">
+        <div class="total">264 pokusů celkem</div>
+        <div class="zone rim">
+          <div class="zlbl">U koše</div>
+          <div class="bar"><div class="fill" style="width:21.2%"></div><span class="pct">21.2%</span></div>
+          <div class="eff">34/56 <em>60.7%</em></div>
+        </div>
+        <div class="zone mid">
+          <div class="zlbl">Midrange</div>
+          <div class="bar"><div class="fill" style="width:4.2%"></div><span class="pct">4.2%</span></div>
+          <div class="eff">7/11 <em>63.6%</em></div>
+        </div>
+        <div class="zone three">
+          <div class="zlbl">3PT</div>
+          <div class="bar"><div class="fill" style="width:74.6%"></div><span class="pct">74.6%</span></div>
+          <div class="eff">64/197 <em>32.5%</em></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6) Nahrávač -->
+    <div class="overlay ov-passer panel" data-tv="2" data-ov="passer">
+      <div class="sp-header">
+        <span class="name">Jakub Šiřina</span>
+        <span class="meta">#24 · OPA</span>
+        <span class="spacer"></span>
+        <span class="label">Nahrávač</span>
+      </div>
+      <div class="body">
+        <table>
+          <thead>
+            <tr><th class="sub">Top adresáti</th><th>AST</th><th>Body</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Jan Švandrlík</td><td><span class="ast">25</span></td><td>72</td></tr>
+            <tr><td>Clevon Brown Jr</td><td><span class="ast">21</span></td><td>48</td></tr>
+            <tr><td>W. Lavon Person Jr</td><td><span class="ast">19</span></td><td>50</td></tr>
+            <tr><td>Šimon Puršl</td><td><span class="ast">14</span></td><td>28</td></tr>
+            <tr><td>Marek Vyroubal</td><td><span class="ast">11</span></td><td>30</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7) Čtvrtina -->
+    <div class="overlay ov-quarter panel" data-tv="2" data-ov="quarter">
+      <div class="sp-header">
+        <span class="name">Jakub Šiřina</span>
+        <span class="meta">#24 · OPA</span>
+        <span class="spacer"></span>
+        <span class="label">Čtvrtina</span>
+      </div>
+      <div class="body">
+        <div class="title">Nejvíce bodů ve 4. čtvrtině</div>
+        <div class="rec">
+          <div class="pts">15</div>
+          <div class="ctx">
+            <span class="q">4. čtvrtina</span>@ SLUNETA Ústí n. L. 95:99
+            <em>21. 12. 2025</em>
+          </div>
+        </div>
+        <div class="today"><em>Dnes</em><b>12</b>bodů</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="controls" data-tv-controls="2">
+    <button class="btn" data-target="game">Zápas</button>
+    <button class="btn" data-target="season">Sezóna</button>
+    <button class="btn" data-target="last5">Posl. 5</button>
+    <button class="btn" data-target="ft">Trestné hody</button>
+    <button class="btn" data-target="shots">Střelba</button>
+    <button class="btn" data-target="passer">Nahrávač</button>
+    <button class="btn" data-target="quarter">Čtvrtina</button>
+    <button class="btn clear" data-target="clear">Skrýt</button>
+  </div>
+</section>
+
+<footer>Demo vizualizace statistik v TV přenosu</footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('[data-tv-controls]').forEach(panel => {
+    const tvId = panel.dataset.tvControls;
+    const tvFrame = document.getElementById('tv' + tvId);
+    panel.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        tvFrame.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
+        panel.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        if (target === 'clear') return;
+        const ov = tvFrame.querySelector('.overlay[data-ov="' + target + '"]');
+        if (ov) ov.classList.add('active');
+        btn.classList.add('active');
+      });
+    });
+  });
+</script>
+</body>
+</html>
