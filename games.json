@@ -1686,5 +1686,13 @@
     "team2": "ERA Basketball Nymburk",
     "score1": 79,
     "score2": 106
+  },
+  {
+    "game_id": "2828944",
+    "date": "2026-04-18",
+    "team1": "BK KVIS Pardubice",
+    "team2": "Sršni Photomate Písek",
+    "score1": 95,
+    "score2": 100
   }
 ]
