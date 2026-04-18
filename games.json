@@ -1662,5 +1662,29 @@
     "team2": "SLUNETA Ústí nad Labem",
     "score1": 84,
     "score2": 88
+  },
+  {
+    "game_id": "2828941",
+    "date": "2026-04-18",
+    "team1": "BK ARMEX ENERGY Děčín",
+    "team2": "SLUNETA Ústí nad Labem",
+    "score1": 80,
+    "score2": 85
+  },
+  {
+    "game_id": "2828942",
+    "date": "2026-04-18",
+    "team1": "BK Opava",
+    "team2": "NH Ostrava",
+    "score1": 68,
+    "score2": 100
+  },
+  {
+    "game_id": "2828943",
+    "date": "2026-04-18",
+    "team1": "PUMPA Basket Brno",
+    "team2": "ERA Basketball Nymburk",
+    "score1": 79,
+    "score2": 106
   }
 ]
