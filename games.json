@@ -1702,5 +1702,13 @@
     "team2": "USK Praha",
     "score1": 65,
     "score2": 78
+  },
+  {
+    "game_id": "2839654",
+    "date": "2026-04-22",
+    "team1": "NH Ostrava",
+    "team2": "BK Olomoucko",
+    "score1": 77,
+    "score2": 81
   }
 ]
