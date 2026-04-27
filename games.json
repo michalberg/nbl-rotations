@@ -1726,5 +1726,13 @@
     "team2": "NH Ostrava",
     "score1": 71,
     "score2": 102
+  },
+  {
+    "game_id": "2842864",
+    "date": "2026-04-27",
+    "team1": "SKB FASTAV Zlín",
+    "team2": "BK GAPA Hradec Králové",
+    "score1": 56,
+    "score2": 81
   }
 ]
