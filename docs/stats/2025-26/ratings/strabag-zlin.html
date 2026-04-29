@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRABAG Zlín – Ratings sestav 2025-26 | NBL data</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <style>
+        .team-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .team-rtg-summary {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+        }
+        .rtg-stat { text-align: center; }
+        .rtg-stat .label { font-size: 0.72rem; color: #666; text-transform: uppercase; letter-spacing: 0.4px; }
+        .rtg-stat .value { font-size: 1.5rem; font-weight: bold; color: #fff; }
+        .rtg-stat .value.positive { color: #4caf50; }
+        .rtg-stat .value.negative { color: #ef5350; }
+
+        .combo-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+        .combo-tab {
+            background: #16213e;
+            border: 1px solid #333;
+            color: #888;
+            border-radius: 4px;
+            padding: 4px 14px;
+            cursor: pointer;
+            font-size: 0.82rem;
+        }
+        .combo-tab.active { background: #1e3a6e; color: #fff; border-color: #4a8fd4; }
+
+        .combo-panel { display: none; }
+        .combo-panel.active { display: block; }
+
+        .combo-table {
+            border-collapse: collapse;
+            width: auto;
+            font-size: 0.86rem;
+        }
+        .combo-table thead th {
+            background: #16213e;
+            color: #888;
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.70rem;
+            letter-spacing: 0.4px;
+            padding: 7px 12px;
+            text-align: right;
+            border-bottom: 1px solid #333;
+            white-space: nowrap;
+        }
+        .combo-table thead th:nth-child(2) { text-align: left; }
+        .combo-table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        .combo-table thead th.sortable:hover { color: #ccc; }
+        .combo-table thead th.sort-asc::after  { content: ' ↑'; color: #4a8fd4; }
+        .combo-table thead th.sort-desc::after { content: ' ↓'; color: #4a8fd4; }
+        .combo-table tbody tr { border-bottom: 1px solid #1e1e1e; transition: background 0.1s; }
+        .combo-table tbody tr:hover { background: #16213e; }
+        .combo-table tbody td { padding: 8px 12px; text-align: right; color: #ccc; }
+        .combo-table tbody td:first-child { color: #555; font-size: 0.78rem; }
+        .combo-table tbody td:nth-child(2) { text-align: left; color: #e0e0e0; }
+
+        .positive { color: #4caf50; font-weight: bold; }
+        .negative { color: #ef5350; font-weight: bold; }
+        .min-note { font-size: 0.78rem; color: #555; margin: 6px 0 12px; }
+
+        .raw-net { font-size: 0.78rem; color: #555; margin-left: 4px; }
+
+        .conf-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .conf-Low      { background: #2a2a2a; color: #666; }
+        .conf-Medium   { background: #3a3000; color: #f0c040; }
+        .conf-High     { background: #0d2a4a; color: #4a8fd4; }
+        .conf-Very-High { background: #0d2a1a; color: #4caf50; }
+
+        .explain-box {
+            margin-top: 40px;
+            border-top: 1px solid #222;
+            padding-top: 24px;
+            color: #666;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            max-width: 720px;
+        }
+        .explain-box h3 {
+            color: #999;
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin: 0 0 10px;
+        }
+        .explain-box h4 {
+            color: #777;
+            font-size: 0.82rem;
+            margin: 16px 0 4px;
+            font-weight: bold;
+        }
+        .explain-box .formula {
+            font-family: monospace;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #bbb;
+            margin: 6px 0;
+            font-size: 0.82rem;
+        }
+        .explain-box ul { margin: 4px 0 0 18px; padding: 0; }
+        .explain-box li { margin-bottom: 3px; }
+        .conf-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .conf-legend span { font-size: 0.72rem; }
+    </style>
+</head>
+<body>
+<nav class="site-nav" id="site-nav">
+    <div class="site-nav-inner">
+        <a href="../../../index.html" class="nav-brand">NBL data</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="nav-links">
+            <a href="../../../index.html" class="nav-link">Zápasy</a>
+            <a href="../../../player/index.html" class="nav-link">Hráči</a>
+            <a href="../../../stats/2025-26/players.html" class="nav-link">Statistiky hráčů</a>
+            <a href="../../../leaderboard/2025-26/players.html" class="nav-link">TOP hráči</a>
+            <a href="../../../stats/2025-26/teams.html" class="nav-link">Statistiky týmů</a>
+            <a href="../../../leaderboard/2025-26/teams.html" class="nav-link">TOP týmy</a>
+            <a href="../../../stats/2025-26/top_games.html" class="nav-link">TOP zápasy</a>
+            <a href="../../../stats/2025-26/top_performances.html" class="nav-link">TOP výkony</a>
+            <a href="../../../stats/2025-26/milestones.html" class="nav-link">Milníky</a>
+            <a href="../../../stats/2025-26/ratings.html" class="nav-link active">Ratings</a>
+        </div>
+    </div>
+</nav>
+<script>
+(function() {
+    var btn = document.getElementById('nav-toggle');
+    var links = document.getElementById('nav-links');
+    if (!btn || !links) return;
+    btn.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        btn.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('site-nav').contains(e.target)) {
+            links.classList.remove('open');
+            btn.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+</script>
+<div class="container">
+    <p style="margin-bottom:4px">
+        <a href="../ratings.html" style="color:#666;font-size:0.85rem;text-decoration:none">&larr; Všechny týmy</a>
+    </p>
+    <div class="team-header">
+        <h1>STRABAG Zlín</h1>
+        <span style="color:#666;font-size:0.88rem">2025-26</span>
+    </div>
+
+    <div class="team-rtg-summary">
+        <div class="rtg-stat">
+            <div class="label">ORTG</div>
+            <div class="value">90.1</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">DRTG</div>
+            <div class="value">150.9</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Net RTG</div>
+            <div class="value negative">
+                -60.8
+            </div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Zápasy</div>
+            <div class="value" style="font-size:1.1rem;color:#ccc">1</div>
+        </div>
+        <div class="rtg-stat">
+            <div class="label">Minut</div>
+            <div class="value" style="font-size:1.1rem;color:#ccc">40</div>
+        </div>
+    </div>
+
+    <div class="combo-tabs">
+        
+        <button class="combo-tab active" data-size="players">Hráči</button>
+        
+        
+        <button class="combo-tab" data-size="2">
+            Duo
+        </button>
+        
+        <button class="combo-tab" data-size="3">
+            Trio
+        </button>
+        
+        <button class="combo-tab" data-size="4">
+            Čtveřice
+        </button>
+        
+        <button class="combo-tab" data-size="5">
+            Pětka
+        </button>
+        
+    </div>
+
+    <!-- ── Player On/Off panel ───────────────────────────────────────── -->
+    
+    <div class="combo-panel active" data-size="players">
+        <div id="onoff-filters" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+            <button class="combo-tab active" data-min-pct="0">Všichni</button>
+            <button class="combo-tab" data-min-pct="10">≥ 10 % minut</button>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="combo-table" id="onoff-table" style="width:auto">
+            <thead>
+                <tr>
+                    <th style="text-align:left">Hráč</th>
+                    <th data-tip="Minuty s hráčem na hřišti">ON min</th>
+                    <th data-tip="Offensive Rating s hráčem na hřišti">ORTG</th>
+                    <th data-tip="Defensive Rating s hráčem na hřišti">DRTG</th>
+                    <th data-tip="Net Rating s hráčem na hřišti">Net</th>
+                    <th data-tip="Minuty bez hráče">OFF min</th>
+                    <th data-tip="Offensive Rating bez hráče">ORTG</th>
+                    <th data-tip="Defensive Rating bez hráče">DRTG</th>
+                    <th data-tip="Net Rating bez hráče">Net</th>
+                    <th data-tip="Rozdíl Net Ratingu – jak tým hraje lépe/hůře s hráčem na hřišti">Δ Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-on-pct="82"
+                    data-on-net="-40.2"
+                    data-off-net="-114.8"
+                    data-delta-net="74.6"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-jakub-krakovic.html" style="color:#4a8fd4;text-decoration:none">J. Krakovič</a>
+                        
+                    </td>
+                    <td>33</td>
+                    <td>92.6</td>
+                    <td>132.8</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>7</td>
+                    <td>61.5</td>
+                    <td>176.3</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="85"
+                    data-on-net="-42.1"
+                    data-off-net="-100.3"
+                    data-delta-net="58.2"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-jonas-musil.html" style="color:#4a8fd4;text-decoration:none">J. Musil</a>
+                        
+                    </td>
+                    <td>34</td>
+                    <td>94.4</td>
+                    <td>136.5</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>6</td>
+                    <td>50.0</td>
+                    <td>150.3</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="70"
+                    data-on-net="-36.5"
+                    data-off-net="-87.7"
+                    data-delta-net="51.2"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-michal-jedovnicky.html" style="color:#4a8fd4;text-decoration:none">M. Jedovnický</a>
+                        
+                    </td>
+                    <td>28</td>
+                    <td>88.6</td>
+                    <td>125.1</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>12</td>
+                    <td>82.3</td>
+                    <td>170.0</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="60"
+                    data-on-net="-43.2"
+                    data-off-net="-66.0"
+                    data-delta-net="22.8"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-filip-smid.html" style="color:#4a8fd4;text-decoration:none">F. Šmíd</a>
+                        
+                    </td>
+                    <td>24</td>
+                    <td>96.7</td>
+                    <td>139.9</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>16</td>
+                    <td>69.7</td>
+                    <td>135.7</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="75"
+                    data-on-net="-46.9"
+                    data-off-net="-60.7"
+                    data-delta-net="13.8"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-david-jakel.html" style="color:#4a8fd4;text-decoration:none">D. Jakel</a>
+                        
+                    </td>
+                    <td>30</td>
+                    <td>98.8</td>
+                    <td>145.7</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>10</td>
+                    <td>57.9</td>
+                    <td>118.6</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="32"
+                    data-on-net="-58.1"
+                    data-off-net="-48.1"
+                    data-delta-net="-10.0"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-stepan-klanica.html" style="color:#4a8fd4;text-decoration:none">Š. Klanica</a>
+                        
+                    </td>
+                    <td>13</td>
+                    <td>68.2</td>
+                    <td>126.3</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>27</td>
+                    <td>97.0</td>
+                    <td>145.1</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="28"
+                    data-on-net="-64.5"
+                    data-off-net="-45.0"
+                    data-delta-net="-19.5"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-lukas-hauf.html" style="color:#4a8fd4;text-decoration:none">L. Hauf</a>
+                        
+                    </td>
+                    <td>11</td>
+                    <td>64.2</td>
+                    <td>128.7</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>29</td>
+                    <td>96.9</td>
+                    <td>141.9</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="50"
+                    data-on-net="-92.9"
+                    data-off-net="-17.3"
+                    data-delta-net="-75.6"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-marian-hrabovsky.html" style="color:#4a8fd4;text-decoration:none">M. Hrabovský</a>
+                        
+                    </td>
+                    <td>20</td>
+                    <td>61.8</td>
+                    <td>154.7</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>20</td>
+                    <td>107.7</td>
+                    <td>125.0</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+                <tr data-on-pct="18"
+                    data-on-net="-132.7"
+                    data-off-net="-38.9"
+                    data-delta-net="-93.8"
+                    data-has-off="true">
+                    <td style="text-align:left">
+                        
+                        <a href="../../../player/2025-26/strabag-zlin-rostislav-derda.html" style="color:#4a8fd4;text-decoration:none">R. Děrda</a>
+                        
+                    </td>
+                    <td>7</td>
+                    <td>75.4</td>
+                    <td>208.1</td>
+                    <td class="net-cell on-net"></td>
+                    
+                    <td>33</td>
+                    <td>89.2</td>
+                    <td>128.1</td>
+                    <td class="net-cell off-net"></td>
+                    <td class="net-cell delta-net"></td>
+                    
+                </tr>
+                
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+
+    
+    <div class="combo-panel" data-size="2">
+        <p class="min-note">Minimum minut: 20</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="92.9"
+                    data-raw_drtg="113.3"
+                    data-raw_net="-20.4"
+                    data-stabilized_net="-33.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Krakovič, M. Jedovnický</td>
+                    <td>22</td>
+                    <td>92.9</td>
+                    <td>113.3</td>
+                    <td>
+                        -33.8
+                    </td>
+                    <td>
+                        -20.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="23"
+                    data-raw_ortg="95.5"
+                    data-raw_drtg="118.6"
+                    data-raw_net="-23.1"
+                    data-stabilized_net="-35.0"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Musil, M. Jedovnický</td>
+                    <td>23</td>
+                    <td>95.5</td>
+                    <td>118.6</td>
+                    <td>
+                        -35.0
+                    </td>
+                    <td>
+                        -23.1
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="108.1"
+                    data-raw_drtg="129.8"
+                    data-raw_net="-21.7"
+                    data-stabilized_net="-36.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, M. Jedovnický</td>
+                    <td>21</td>
+                    <td>108.1</td>
+                    <td>129.8</td>
+                    <td>
+                        -36.8
+                    </td>
+                    <td>
+                        -21.7
+                    </td>
+                </tr>
+                
+                <tr data-minutes="33"
+                    data-raw_ortg="92.6"
+                    data-raw_drtg="132.8"
+                    data-raw_net="-40.2"
+                    data-stabilized_net="-40.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Krakovič, J. Musil</td>
+                    <td>33</td>
+                    <td>92.6</td>
+                    <td>132.8</td>
+                    <td>
+                        -40.1
+                    </td>
+                    <td>
+                        -40.2
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="106.1"
+                    data-raw_drtg="147.4"
+                    data-raw_net="-41.3"
+                    data-stabilized_net="-42.2"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, J. Krakovič</td>
+                    <td>24</td>
+                    <td>106.1</td>
+                    <td>147.4</td>
+                    <td>
+                        -42.2
+                    </td>
+                    <td>
+                        -41.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="21"
+                    data-raw_ortg="106.7"
+                    data-raw_drtg="144.6"
+                    data-raw_net="-37.9"
+                    data-stabilized_net="-42.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, F. Šmíd</td>
+                    <td>21</td>
+                    <td>106.7</td>
+                    <td>144.6</td>
+                    <td>
+                        -42.8
+                    </td>
+                    <td>
+                        -37.9
+                    </td>
+                </tr>
+                
+                <tr data-minutes="25"
+                    data-raw_ortg="108.4"
+                    data-raw_drtg="152.8"
+                    data-raw_net="-44.4"
+                    data-stabilized_net="-43.6"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, J. Musil</td>
+                    <td>25</td>
+                    <td>108.4</td>
+                    <td>152.8</td>
+                    <td>
+                        -43.6
+                    </td>
+                    <td>
+                        -44.4
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="3">
+        <p class="min-note">Minimum minut: 15</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="22"
+                    data-raw_ortg="92.9"
+                    data-raw_drtg="113.3"
+                    data-raw_net="-20.4"
+                    data-stabilized_net="-34.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>J. Krakovič, J. Musil, M. Jedovnický</td>
+                    <td>22</td>
+                    <td>92.9</td>
+                    <td>113.3</td>
+                    <td>
+                        -34.8
+                    </td>
+                    <td>
+                        -20.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="114.4"
+                    data-raw_drtg="125.4"
+                    data-raw_net="-11.0"
+                    data-stabilized_net="-35.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, J. Krakovič, M. Jedovnický</td>
+                    <td>16</td>
+                    <td>114.4</td>
+                    <td>125.4</td>
+                    <td>
+                        -35.5
+                    </td>
+                    <td>
+                        -11.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="17"
+                    data-raw_ortg="117.5"
+                    data-raw_drtg="133.0"
+                    data-raw_net="-15.5"
+                    data-stabilized_net="-36.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, J. Musil, M. Jedovnický</td>
+                    <td>17</td>
+                    <td>117.5</td>
+                    <td>133.0</td>
+                    <td>
+                        -36.5
+                    </td>
+                    <td>
+                        -15.5
+                    </td>
+                </tr>
+                
+                <tr data-minutes="19"
+                    data-raw_ortg="107.0"
+                    data-raw_drtg="147.3"
+                    data-raw_net="-40.3"
+                    data-stabilized_net="-40.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>F. Šmíd, J. Krakovič, J. Musil</td>
+                    <td>19</td>
+                    <td>107.0</td>
+                    <td>147.3</td>
+                    <td>
+                        -40.7
+                    </td>
+                    <td>
+                        -40.3
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="123.6"
+                    data-raw_drtg="155.6"
+                    data-raw_net="-32.0"
+                    data-stabilized_net="-40.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, F. Šmíd, J. Krakovič</td>
+                    <td>16</td>
+                    <td>123.6</td>
+                    <td>155.6</td>
+                    <td>
+                        -40.8
+                    </td>
+                    <td>
+                        -32.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="123.6"
+                    data-raw_drtg="155.6"
+                    data-raw_net="-32.0"
+                    data-stabilized_net="-41.3"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, F. Šmíd, J. Musil</td>
+                    <td>16</td>
+                    <td>123.6</td>
+                    <td>155.6</td>
+                    <td>
+                        -41.3
+                    </td>
+                    <td>
+                        -32.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="24"
+                    data-raw_ortg="106.1"
+                    data-raw_drtg="147.4"
+                    data-raw_net="-41.3"
+                    data-stabilized_net="-41.8"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, J. Krakovič, J. Musil</td>
+                    <td>24</td>
+                    <td>106.1</td>
+                    <td>147.4</td>
+                    <td>
+                        -41.8
+                    </td>
+                    <td>
+                        -41.3
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="4">
+        <p class="min-note">Minimum minut: 12</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="114.4"
+                    data-raw_drtg="125.4"
+                    data-raw_net="-11.0"
+                    data-stabilized_net="-35.7"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, J. Krakovič, J. Musil, M. Jedovnický</td>
+                    <td>16</td>
+                    <td>114.4</td>
+                    <td>125.4</td>
+                    <td>
+                        -35.7
+                    </td>
+                    <td>
+                        -11.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="108.0"
+                    data-raw_drtg="120.4"
+                    data-raw_net="-12.4"
+                    data-stabilized_net="-36.1"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>F. Šmíd, J. Krakovič, J. Musil, M. Jedovnický</td>
+                    <td>12</td>
+                    <td>108.0</td>
+                    <td>120.4</td>
+                    <td>
+                        -36.1
+                    </td>
+                    <td>
+                        -12.4
+                    </td>
+                </tr>
+                
+                <tr data-minutes="16"
+                    data-raw_ortg="123.6"
+                    data-raw_drtg="155.6"
+                    data-raw_net="-32.0"
+                    data-stabilized_net="-40.4"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, F. Šmíd, J. Krakovič, J. Musil</td>
+                    <td>16</td>
+                    <td>123.6</td>
+                    <td>155.6</td>
+                    <td>
+                        -40.4
+                    </td>
+                    <td>
+                        -32.0
+                    </td>
+                </tr>
+                
+                <tr data-minutes="12"
+                    data-raw_ortg="65.2"
+                    data-raw_drtg="152.4"
+                    data-raw_net="-87.2"
+                    data-stabilized_net="-58.5"
+                    data-confidence="Low">
+                    <td></td>
+                    <td>D. Jakel, J. Krakovič, J. Musil, M. Hrabovský</td>
+                    <td>12</td>
+                    <td>65.2</td>
+                    <td>152.4</td>
+                    <td>
+                        -58.5
+                    </td>
+                    <td>
+                        -87.2
+                    </td>
+                </tr>
+                
+                
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="combo-panel" data-size="5">
+        <p class="min-note">Minimum minut: 10</p>
+        <table class="combo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hráči</th>
+                    <th class="sortable" data-key="minutes">Min</th>
+                    <th class="sortable" data-key="raw_ortg">ORTG</th>
+                    <th class="sortable" data-key="raw_drtg">DRTG</th>
+                    <th class="sortable sort-desc" data-key="stabilized_net" data-tip="Stabilizovaný Net Rating – surový Net Rating přiblížený k prioru; u málo odehraných sestav dominuje prior">Stab. Net</th>
+                    <th class="sortable" data-key="raw_net" data-tip="Surový Net Rating – ORTG minus DRTG bez jakékoli stabilizace">Raw Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr><td colspan="7" style="color:#555;padding:12px">Žádná data</td></tr>
+                
+            </tbody>
+        </table>
+    </div>
+    
+
+    <!-- ── Explanation (visible only on lineup tabs) ───────────────── -->
+    <div id="explain-box-wrap" style="display:none">
+    <div class="explain-box">
+        <h3>Co je Stabilizovaný Net Rating?</h3>
+        <p>
+            Surové statistiky lineupů jsou notoricky nespolehlivé – sestava s Net Ratingem +25 za 30 minut
+            mohla mít prostě štěstí. Stabilizovaný Net Rating kombinuje surová data s <em>priorem</em>
+            (postaveným na síle týmu a individuálním dopadu hráčů), aby poskytl spolehlivější odhad.
+            Čím více minut sestava odehraje dohromady, tím více věříme surovým číslům.
+        </p>
+
+        <h4>Vzorec</h4>
+        <div class="formula">Stab. Net = w × Surový Net + (1 − w) × Prior</div>
+        <div class="formula">váha w = minuty / (minuty + 85)</div>
+        <p style="margin-top:6px">
+            Při 85 minutách věříme surovým datům a prioru stejně (50/50).
+            Hodnota 85 je kalibrována pro délku NBL sezóny (NBA používá 300).
+        </p>
+
+        <h4>Prior</h4>
+        <p>„Očekávaný" rating sestavy před pozorováním dat, sestavený z:</p>
+        <ul>
+            <li>Celkového Net Ratingu týmu</li>
+            <li>On/Off Net Ratingu každého hráče v sestavě relativně k týmovému průměru</li>
+        </ul>
+        <p style="margin-top:6px">
+            Pokud pro některého hráče nejsou k dispozici on/off data (málo minut),
+            je použit pouze týmový Net Rating.
+        </p>
+
+        <h4>Proč stabilizovat?</h4>
+        <p>
+            Lineupová data mají extrémní rozptyl. Net Rating +30 za 20 minut je téměř jistě
+            štěstí, ne dovednost. Stabilizace přitahuje odlehlé hodnoty k realistickým
+            očekáváním a zároveň odměňuje skutečně silné výkony podložené dostatkem minut.
+        </p>
+
+        <h4>Úrovně spolehlivosti (Confidence)</h4>
+        <div class="conf-legend">
+            <span class="conf-badge conf-Low">Low</span> váha &lt; 35 % – dominuje prior
+            &ensp;
+            <span class="conf-badge conf-Medium">Medium</span> 35–55 %
+            &ensp;
+            <span class="conf-badge conf-High">High</span> 55–70 %
+            &ensp;
+            <span class="conf-badge conf-Very-High">Very High</span> &gt; 70 % – dominují data
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+// ── Header tooltips ───────────────────────────────────────────────────────────
+const thTipEl = document.createElement('div');
+thTipEl.style.cssText = 'position:fixed;pointer-events:none;background:#0f0f23;color:#ccc;border:1px solid #444;border-radius:4px;padding:5px 10px;font-size:0.75rem;white-space:normal;max-width:280px;line-height:1.4;z-index:500;display:none';
+document.body.appendChild(thTipEl);
+document.querySelectorAll('thead th[data-tip]').forEach(th => {
+    th.style.cursor = 'help';
+    th.addEventListener('mouseenter', () => {
+        thTipEl.textContent = th.dataset.tip;
+        thTipEl.style.display = 'block';
+        const r = th.getBoundingClientRect();
+        const tw = thTipEl.offsetWidth;
+        let left = r.left + r.width / 2 - tw / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+        thTipEl.style.left = left + 'px';
+        thTipEl.style.top  = (r.bottom + 4) + 'px';
+    });
+    th.addEventListener('mouseleave', () => { thTipEl.style.display = 'none'; });
+});
+
+// ── Tab switching (lineup size tabs) ─────────────────────────────────────────
+const explainWrap = document.getElementById('explain-box-wrap');
+document.querySelectorAll('.combo-tab[data-size]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const size = btn.dataset.size;
+        document.querySelectorAll('.combo-tab[data-size]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.combo-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelector(`.combo-panel[data-size="${size}"]`).classList.add('active');
+        if (explainWrap) explainWrap.style.display = size === 'players' ? 'none' : '';
+    });
+});
+
+// ── On/Off table: filter + cell coloring ──────────────────────────────────────
+(function () {
+    const table = document.getElementById('onoff-table');
+    if (!table) return;
+
+    function colorNet(cell, val) {
+        if (isNaN(val)) { cell.textContent = '–'; return; }
+        const sign = val > 0 ? '+' : '';
+        cell.textContent = sign + val.toFixed(1);
+        cell.style.color      = val > 0 ? '#4caf50' : val < 0 ? '#ef5350' : '#ccc';
+        cell.style.fontWeight = val !== 0 ? 'bold' : '';
+    }
+
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        colorNet(tr.querySelector('.on-net'),    parseFloat(tr.dataset.onNet));
+        if (tr.dataset.hasOff === 'true') {
+            colorNet(tr.querySelector('.off-net'),   parseFloat(tr.dataset.offNet));
+            colorNet(tr.querySelector('.delta-net'), parseFloat(tr.dataset.deltaNet));
+        }
+    });
+
+    document.querySelectorAll('#onoff-filters .combo-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const minPct = parseInt(btn.dataset.minPct) || 0;
+            document.querySelectorAll('#onoff-filters .combo-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const pct = parseInt(tr.dataset.onPct) || 0;
+                tr.style.display = pct >= minPct ? '' : 'none';
+            });
+        });
+    });
+})();
+
+// ── Sortable tables ───────────────────────────────────────────────────────────
+const CONF_CLASS = {
+    'Low': 'conf-Low', 'Medium': 'conf-Medium',
+    'High': 'conf-High', 'Very High': 'conf-Very-High',
+};
+
+function applyRowDecorations(tbody) {
+    tbody.querySelectorAll('tr').forEach((tr, i) => {
+        tr.cells[0].textContent = i + 1;
+
+        const stabNet  = parseFloat(tr.dataset.stabilized_net);
+        const rawNet   = parseFloat(tr.dataset.raw_net);
+        const stabCell = tr.cells[5];
+        const rawCell  = tr.cells[6];
+
+        // Stab. Net cell: colored value + confidence badge
+        const stabSign = stabNet > 0 ? '+' : '';
+        stabCell.innerHTML =
+            `<span style="color:${stabNet > 0 ? '#4caf50' : stabNet < 0 ? '#ef5350' : ''};font-weight:bold">${stabSign}${stabNet.toFixed(1)}</span>` +
+            `<span class="conf-badge ${CONF_CLASS[tr.dataset.confidence] || ''}" style="margin-left:6px">${tr.dataset.confidence}</span>`;
+
+        // Raw Net cell: colored value
+        const rawSign = rawNet > 0 ? '+' : '';
+        rawCell.style.color      = rawNet > 0 ? '#4caf50' : rawNet < 0 ? '#ef5350' : '';
+        rawCell.style.fontWeight = rawNet !== 0 ? 'bold' : '';
+        rawCell.textContent      = rawSign + rawNet.toFixed(1);
+    });
+}
+
+document.querySelectorAll('.combo-table:not(#onoff-table)').forEach(table => {
+    const tbody = table.querySelector('tbody');
+
+    applyRowDecorations(tbody);
+
+    let sortKey = 'stabilized_net';
+    let sortDir = 'desc';
+
+    table.querySelectorAll('thead th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const key = th.dataset.key;
+            if (sortKey === key) {
+                sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+            } else {
+                sortKey = key;
+                sortDir = key === 'raw_drtg' ? 'asc' : 'desc';
+            }
+
+            table.querySelectorAll('thead th.sortable').forEach(h =>
+                h.classList.remove('sort-asc', 'sort-desc'));
+            th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+
+            const rows = [...tbody.querySelectorAll('tr[data-minutes]')];
+            rows.sort((a, b) => {
+                const va = parseFloat(a.dataset[sortKey]) || 0;
+                const vb = parseFloat(b.dataset[sortKey]) || 0;
+                return sortDir === 'asc' ? va - vb : vb - va;
+            });
+            rows.forEach(r => tbody.appendChild(r));
+
+            applyRowDecorations(tbody);
+        });
+    });
+});
+</script>
+</body>
+</html>
