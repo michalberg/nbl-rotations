@@ -1806,5 +1806,13 @@
     "team2": "PUMPA Basket Brno",
     "score1": 66,
     "score2": 82
+  },
+  {
+    "game_id": "2842776",
+    "date": "2026-05-01",
+    "team1": "BK KVIS Pardubice",
+    "team2": "Sršni Photomate Písek",
+    "score1": 74,
+    "score2": 78
   }
 ]
