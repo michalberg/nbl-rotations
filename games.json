@@ -1822,5 +1822,13 @@
     "team2": "PUMPA Basket Brno",
     "score1": 75,
     "score2": 84
+  },
+  {
+    "game_id": "2840893",
+    "date": "2026-05-02",
+    "team1": "BK Opava",
+    "team2": "SLUNETA Ústí nad Labem",
+    "score1": 69,
+    "score2": 85
   }
 ]
