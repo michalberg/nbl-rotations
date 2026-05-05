@@ -1862,5 +1862,13 @@
     "team2": "ERA Basketball Nymburk",
     "score1": 70,
     "score2": 116
+  },
+  {
+    "game_id": "2840895",
+    "date": "2026-05-05",
+    "team1": "PUMPA Basket Brno",
+    "team2": "BK ARMEX ENERGY Děčín",
+    "score1": 65,
+    "score2": 75
   }
 ]
