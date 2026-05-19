@@ -1942,5 +1942,13 @@
     "team2": "PUMPA Basket Brno",
     "score1": 89,
     "score2": 92
+  },
+  {
+    "game_id": "2848304",
+    "date": "2026-05-19",
+    "team1": "BK Opava",
+    "team2": "ERA Basketball Nymburk",
+    "score1": 67,
+    "score2": 95
   }
 ]
