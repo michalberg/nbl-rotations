@@ -1982,5 +1982,13 @@
     "team2": "PUMPA Basket Brno",
     "score1": 75,
     "score2": 90
+  },
+  {
+    "game_id": "2848311",
+    "date": "2026-05-27",
+    "team1": "PUMPA Basket Brno",
+    "team2": "BK KVIS Pardubice",
+    "score1": 87,
+    "score2": 98
   }
 ]
