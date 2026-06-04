@@ -1998,5 +1998,29 @@
     "team2": "BK Opava",
     "score1": 97,
     "score2": 99
+  },
+  {
+    "game_id": "2852865",
+    "date": "2026-06-02",
+    "team1": "ERA Basketball Nymburk",
+    "team2": "BK KVIS Pardubice",
+    "score1": 73,
+    "score2": 81
+  },
+  {
+    "game_id": "2852866",
+    "date": "2026-06-03",
+    "team1": "ERA Basketball Nymburk",
+    "team2": "BK KVIS Pardubice",
+    "score1": 74,
+    "score2": 80
+  },
+  {
+    "game_id": "2852863",
+    "date": "2026-06-04",
+    "team1": "BK Opava",
+    "team2": "PUMPA Basket Brno",
+    "score1": 65,
+    "score2": 96
   }
 ]
