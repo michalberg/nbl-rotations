@@ -2022,5 +2022,21 @@
     "team2": "PUMPA Basket Brno",
     "score1": 65,
     "score2": 96
+  },
+  {
+    "game_id": "2855214",
+    "date": "2026-06-06",
+    "team1": "PUMPA Basket Brno",
+    "team2": "BK Opava",
+    "score1": 101,
+    "score2": 102
+  },
+  {
+    "game_id": "2852867",
+    "date": "2026-06-07",
+    "team1": "BK KVIS Pardubice",
+    "team2": "ERA Basketball Nymburk",
+    "score1": 78,
+    "score2": 79
   }
 ]
