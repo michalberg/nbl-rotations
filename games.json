@@ -2046,5 +2046,13 @@
     "team2": "ERA Basketball Nymburk",
     "score1": 100,
     "score2": 101
+  },
+  {
+    "game_id": "2852869",
+    "date": "2026-06-11",
+    "team1": "ERA Basketball Nymburk",
+    "team2": "BK KVIS Pardubice",
+    "score1": 71,
+    "score2": 92
   }
 ]
